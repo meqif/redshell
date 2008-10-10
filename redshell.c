@@ -64,7 +64,7 @@ int external_exec(char **myArgv)
     int pid_counter;
 
     while (*(myArgv+counter) != NULL) {
-        if (!strcmp(*(myArgv+counter), "&")) {
+        if (!strncmp(*(myArgv+counter), "&", 1)) {
             bg = 1;
             *(myArgv+counter) = NULL;
             break;
@@ -143,21 +143,21 @@ int interpret_line(char **myArgv)
     if (*myArgv == NULL)
         return -1;
 
-    else if ( strcmp(*myArgv, "exit") == 0 ) {
+    else if ( strncmp(*myArgv, "exit", 4) == 0 ) {
         printf("Bye!\n");
         exit(0);
     }
 
-    else if ( strcmp(*myArgv, "eco") == 0 )
+    else if ( strncmp(*myArgv, "eco", 3) == 0 )
         eco(myArgv);
 
-    else if ( strcmp(*myArgv, "pwd") == 0 )
+    else if ( strncmp(*myArgv, "pwd", 3) == 0 )
         pwd();
 
-    else if ( strcmp(*myArgv, "cd") == 0 )
+    else if ( strncmp(*myArgv, "cd", 2) == 0 )
         cd(*(++myArgv));
 
-    else if ( strcmp(*myArgv, "listar") == 0 )
+    else if ( strncmp(*myArgv, "listar", 6) == 0 )
         listar(*(++myArgv));
 
     else
