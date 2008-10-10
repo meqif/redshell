@@ -1,9 +1,4 @@
 """
-Set version.
-"""
-#version = "0.1"
-
-"""
 Set up options.
 """
 opts = Options()
@@ -19,7 +14,6 @@ Set up environment.
 env = Environment(options = opts)
 Help(opts.GenerateHelpText(env))
 env['CFLAGS'] = Split('-Os -Wall -g')
-#env.Append(CFLAGS = ['-DVERSION=\\"%s\\"' % version])
 
 """
 Set up install path.
@@ -31,13 +25,12 @@ man_dir = env['mandir'].replace('PREFIX', prefix)
 """
 Compile the program.
 """
-ticktock = env.Program('redshell', ['redshell.c', 'builtins.c'])
+redshell = env.Program('redshell', ['redshell.c', 'builtins.c'])
 
 """
 Install the program.
 """
-env.Install(bin_dir, ticktock)
-env.Install(man_dir + "/man1", "ticktock.1")
+env.Install(bin_dir, redshell)
 
 env.Alias('install', prefix)
 
