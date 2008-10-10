@@ -32,6 +32,7 @@ char *getgroupname(gid_t gid)
     return groupname;
 }
 
+/* Print file properties */
 void print_file_info(char *name, char *path, struct stat s)
 {
     lstat(path, &s);
@@ -53,6 +54,7 @@ int string_cmp(const void *a, const void *b)
     return strcmp(*ia, *ib);
 }
 
+/* List directory contents and/or file properties */
 int listar(char *path)
 {
     /*
@@ -64,6 +66,7 @@ int listar(char *path)
     DIR *dir = NULL;
     char buffer[BUF_SIZE];
 
+    /* Assume current working directory as path if none given */
     if (path == NULL)
         path = getcwd(buffer, BUF_SIZE);
 

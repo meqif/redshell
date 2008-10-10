@@ -27,7 +27,9 @@
 #define RED      "\033[1;31m"
 #define CLEAR    "\033[0m"
 
+/* Array of background processes' pids */
 pid_t *pids;
+/* Foreground process' pid */
 pid_t fg_pid = 0;
 
 /* Executed at exit */
@@ -80,7 +82,7 @@ int external_exec(char **myArgv)
             else
                 perror("");
         }
-        exit(status);
+        exit(status); /* If the execvp failed for some reason, exit here */
     }
 
     if (bg) {
