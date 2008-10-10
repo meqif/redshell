@@ -5,13 +5,6 @@
  * I'm the unexplainable memory corruption that won't let you sleep at night.
  */
 
-/*
- * TODO:
- *  - History
- *  - Redirection and pipes
- *  - Tab completion
- */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
