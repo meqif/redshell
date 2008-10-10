@@ -45,11 +45,18 @@ void print_file_info(char *name, char *path, struct stat s)
             name, size, type, perm, owner, group, inode );
 }
 
+/* String comparison for quicksort */
+int string_cmp(const void *a, const void *b)
+{
+    const char **ia = (const char **)a;
+    const char **ib = (const char **)b;
+    return strcmp(*ia, *ib);
+}
+
 int listar(char *path)
 {
     /*
      * TODO:
-     * - Ordenar lexicograficamente o resultado
      * - Converter '~' para getenv("HOME")
      */
     struct dirent *d;
@@ -63,17 +70,27 @@ int listar(char *path)
     dir = opendir(path);
 
     if (dir != NULL) {
-        /* No order here */
+        char *list[BUF_SIZE];
+        int i = 0, j;
         while ( (d = readdir(dir)) ) {
-            if (d->d_ino != 0) {
-                char *name = d->d_name;
-                char buf[BUF_SIZE];
-                if (strncmp(name, ".", 1) != 0) { /* Don't list hidden files nor special dirs */
-                    sprintf(buf, "%s/%s", path, name);
-                    print_file_info(name, buf, s);
-                }
-            }
+            if (d->d_ino != 0)
+                list[i++] = strdup(d->d_name);
         }
+        list[i] = NULL;
+
+        /* Sort entries */
+        qsort(list, i, sizeof(char *), string_cmp);
+
+        for (j = 0; j < i; j++) {
+            char buf[BUF_SIZE];
+            char *name = list[j];
+            if (strncmp(name, ".", 1) != 0) { /* Don't list hidden files nor special dirs */
+                sprintf(buf, "%s/%s", path, name);
+                print_file_info(name, buf, s);
+            }
+            free(list[j]);
+        }
+
         closedir(dir);
     }
     else if (errno == ENOTDIR) {               /* Then it's probably a file */
