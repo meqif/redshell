@@ -113,11 +113,14 @@ int print_prompt()
     return 0;
 }
 
-/* Split the user input into tokens */
-int read_line(char *line, char **myArgv)
+/* Read and split the user input into tokens */
+int read_line(char *buffer, char **myArgv)
 {
+    /* Read the user input to a buffer */
+    fgets(buffer, BUF_SIZE, stdin);
+
     char *result = NULL;
-    result = strtok(line, DELIMITERS);
+    result = strtok(buffer, DELIMITERS);
 
     while (result != NULL) {
         *(myArgv++) = result;
@@ -200,8 +203,7 @@ int main()
     while ( 1 ) {
         evil_dead();                    /* Deal with possible zombies */
         print_prompt();                 /* Print the prompt */
-        fgets(line, BUF_SIZE, stdin);   /* Read the user input to a buffer (line) */
-        read_line(line, myArgv);        /* Split that input into delicious tokens */
+        read_line(line, myArgv);        /* Read the user input and split it into delicious tokens */
         interpret_line(myArgv);         /* Interpret the tokens and make three wishes come true */
     }
 
