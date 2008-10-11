@@ -58,6 +58,7 @@ int external_exec(char **myArgv)
     int counter = 0;
     int pid_counter;
 
+    /* Check if we got an ampersand -- background process */
     while (*(myArgv+counter) != NULL) {
         if (strncmp(*(myArgv+counter), "&", 1) == 0) {
             bg = 1;
@@ -174,6 +175,8 @@ void evil_dead() {
                 printf("[%d]  %d done\n", i+1, pids[i]);
                 pids[i] = 0;
             }
+            else if (state == -1)
+                perror("");
         }
     }
 }
