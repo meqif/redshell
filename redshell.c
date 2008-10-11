@@ -59,7 +59,7 @@ int external_exec(char **myArgv)
     int pid_counter;
 
     while (*(myArgv+counter) != NULL) {
-        if (!strncmp(*(myArgv+counter), "&", 1)) {
+        if (strncmp(*(myArgv+counter), "&", 1) == 0) {
             bg = 1;
             *(myArgv+counter) = NULL;
             break;
@@ -176,7 +176,7 @@ void evil_dead() {
 }
 
 /* Pass SIGINTs to the foreground process */
-void handle_sigint(int sig)
+void handle_sigint()
 {
     if (fg_pid != 0) kill(fg_pid, SIGINT);
     printf("\n");
