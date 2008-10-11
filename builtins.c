@@ -88,7 +88,7 @@ int listar(char *path)
             char buf[BUF_SIZE];
             char *name = list[j];
             if (strncmp(name, ".", 1) != 0) { /* Don't list hidden files nor special dirs */
-                sprintf(buf, "%s/%s", path, name);
+                snprintf(buf, BUF_SIZE, "%s/%s", path, name);
                 print_file_info(name, buf, s);
             }
             free(list[j]);
