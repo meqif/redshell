@@ -36,13 +36,13 @@ char *getgroupname(gid_t gid)
 void print_file_info(char *name, char *path, struct stat s)
 {
     lstat(path, &s);
-    int size = s.st_size;
+    unsigned long size = s.st_size; /* Using long for supporting files >=4GiB */
     int inode = s.st_ino;
     int perm = s.st_mode & PERM_MASK;
     char type = S_ISREG(s.st_mode) ? 'F' : (S_ISDIR(s.st_mode) ? 'D' : 'U');
     char *owner = getusername(s.st_uid);
     char *group = getgroupname(s.st_gid);
-    printf("%-30s %9d bytes [%c %03o] [%s:%s] - %9d\n",
+    printf("%-30s %9lu bytes [%c %03o] [%s:%s] - %9d\n",
             name, size, type, perm, owner, group, inode );
 }
 
