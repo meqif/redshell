@@ -120,18 +120,7 @@ int read_line(char *buffer, char **myArgv)
     /* Read the user input to a buffer */
     fgets(buffer, BUF_SIZE, stdin);
 
-    char *result = NULL;
-    result = strtok(buffer, DELIMITERS);
-
-    while (result != NULL) {
-        *(myArgv++) = result;
-        result = strtok(NULL, DELIMITERS);
-    }
-
-    /* End of array */
-    *myArgv = NULL;
-
-    free(result);
+    tokenize(myArgv,buffer, DELIMITERS);
 
     return 0;
 }

@@ -32,6 +32,20 @@ char *getgroupname(gid_t gid)
     return groupname;
 }
 
+/* Split a string into tokens */
+void tokenize(char **dst, char *buffer, const char *delimiters)
+{
+    char *result = strtok(buffer, delimiters);
+
+    while (result != NULL) {
+        *(dst++) = result;
+        result = strtok(NULL, delimiters);
+    }
+    *dst = NULL; /* NULL terminate the array */
+
+    free(result);
+}
+
 /* Print file properties */
 void print_file_info(char *name, char *path, struct stat s)
 {
