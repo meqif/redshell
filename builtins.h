@@ -1,3 +1,6 @@
+#ifndef BUILTINS_H
+#define BUILTINS_H
+
 /* Auxiliary functions */
 char *getusername(uid_t uid);
 char *getgroupname(gid_t gid);
@@ -9,3 +12,5 @@ int listar(char *path);
 int eco(char **myArgv);
 int pwd();
 int cd(char *path);
+
+#endif /* BUILTINS_H */
