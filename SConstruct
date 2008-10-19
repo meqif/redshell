@@ -25,7 +25,7 @@ man_dir = env['mandir'].replace('PREFIX', prefix)
 """
 Compile the program.
 """
-redshell = env.Program('redshell', ['redshell.c', 'builtins.c'])
+redshell = env.Program('redshell', ['redshell.c', 'builtins.c', 'redir.c'])
 
 """
 Install the program.
