@@ -28,20 +28,7 @@ int strstrcnt(char *str, char ch)
     return counter;
 }
 
-/* Spawns a process with specific stdout and stdin */
-void spawn_child(char **command, int pipe_in, int pipe_out, int pipe[2])
-{
-    dup2(pipe_in, 0);
-    dup2(pipe_out, 1);
-
-    close(pipe[0]); pipe[0] = -1;
-    close(pipe[1]); pipe[1] = -1;
-
-    execvp(command[0], command);
-    perror(command[0]);
-    exit(EXIT_FAILURE);
-}
-
+/* Closes all pipes */
 void closepipes(int *pipes, int count)
 {
     int i;
@@ -49,6 +36,7 @@ void closepipes(int *pipes, int count)
         close(pipes[i]);
 }
 
+/* Executes several external commands, with pipelines */
 int join(char **argv, int count)
 {
     int i,status;
@@ -58,17 +46,6 @@ int join(char **argv, int count)
 
     for (i = 0; i < count; i++)
         tokenize(myArgv[i], argv[i], DELIMITERS);
-
-    i--;
-    int counter = 0;
-    while (*(myArgv[i]+counter) != NULL) {
-        if (strncmp(*(myArgv[i]+counter), "&", 1) == 0) {
-            bg = 1;
-            *(myArgv[i]+counter) = NULL;
-            break;
-        }
-        counter++;
-    }
 
     int total = count;
     int tot_pipes = 2*(total-1); // Total pipe ends
@@ -99,6 +76,9 @@ int join(char **argv, int count)
             }
             closepipes(pipes, tot_pipes);
             execvp(*myArgv[i], myArgv[i]);
+            /* If child reaches this, the exec failed */
+            perror(*myArgv[i]);
+            exit(EXIT_FAILURE);
         }
     }
 
