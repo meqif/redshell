@@ -17,7 +17,7 @@ void fatal(char *msg) {
 }
 
 /* Counts the ocurrences of a given char in a given string */
-int strstrcnt(char *str, const char ch)
+int strstrcnt(char *str, char ch)
 {
     int counter = 0;
     while (*str != '\0') {
@@ -49,13 +49,26 @@ void closepipes(int *pipes, int count)
         close(pipes[i]);
 }
 
-int join_beta(char **argv, int count)
+int join(char **argv, int count)
 {
     int i,status;
     char *myArgv[count][100];
 
+    int bg = 0;
+
     for (i = 0; i < count; i++)
         tokenize(myArgv[i], argv[i], DELIMITERS);
+
+    i--;
+    int counter = 0;
+    while (*(myArgv[i]+counter) != NULL) {
+        if (strncmp(*(myArgv[i]+counter), "&", 1) == 0) {
+            bg = 1;
+            *(myArgv[i]+counter) = NULL;
+            break;
+        }
+        counter++;
+    }
 
     int total = count;
     int tot_pipes = 2*(total-1); // Total pipe ends
@@ -92,41 +105,11 @@ int join_beta(char **argv, int count)
     // only the parent gets here and waits for children to finish
     closepipes(pipes, tot_pipes);
 
-    for (i = 0; i < total; i++)
-        wait(&status);
+    if (!bg)
+        for (i = 0; i < total; i++)
+            wait(&status);
 
     return 0;
 }
-
-int run_command(int n_pipes, char buffer[])
-{
-    int p = n_pipes+1;
-    char *commands[p];
-
-    /* Split pipe commands */
-    tokenize(commands, buffer, "|\n");
-
-    /* A partir daqui é que é preciso abrir tantos pipes quanto necessário */
-    join_beta(commands, p);
-    return 0;
-}
-
-//int main()
-//{
-//    char buffer[1000];
-//    int n_pipes;
-//
-//    while (1) {
-//        printf("> ");
-//        fgets(buffer, 1000, stdin);
-//
-//        if (strncmp(buffer, "exit", 4) == 0) return 0;
-//
-//        n_pipes = strstrcnt(buffer, '|');
-//        run_command(n_pipes, buffer);
-//    }
-//
-//    return 0;
-//}
 
 // vim: et ts=4 sw=4 sts=4

@@ -17,6 +17,7 @@
 #include <signal.h>
 
 #include "builtins.h"
+#include "redir.h"
 
 #define DELIMITERS " \t\n"
 #define BUF_SIZE 1000
@@ -101,6 +102,23 @@ int external_exec(char **myArgv)
     return 0;
 }
 
+int run_command(char *buffer)
+{
+    int p = strstrcnt(buffer, '|')+1;
+    char *commands[p];
+
+    if (p > 1) {
+        tokenize(commands, buffer, "|\n");
+        join(commands, p);
+    }
+    else {
+        tokenize(commands, buffer, DELIMITERS);
+        external_exec(commands);
+    }
+
+    return 0;
+}
+
 /* Print the shell prompt */
 int print_prompt()
 {
@@ -113,24 +131,19 @@ int print_prompt()
     return 0;
 }
 
-/* Read and split the user input into tokens */
-int read_line(char *buffer, char **myArgv)
-{
-    /* Read the user input to a buffer */
-    fgets(buffer, BUF_SIZE, stdin);
-
-    tokenize(myArgv,buffer, DELIMITERS);
-
-    return 0;
-}
-
 /* Interpret command array */
-int interpret_line(char **myArgv)
+int interpret_line(char *buffer, char **myArgv)
 {
-    if (*myArgv == NULL)
+    char *bufcopy = strdup(buffer);
+    tokenize(myArgv, bufcopy, DELIMITERS);
+
+    if (*myArgv == NULL) {
+        free(bufcopy);
         return -1;
+    }
 
     else if ( strncmp(*myArgv, "exit", 4) == 0 ) {
+        free(bufcopy);
         printf("Bye!\n");
         exit(0);
     }
@@ -148,8 +161,9 @@ int interpret_line(char **myArgv)
         listar(*(++myArgv));
 
     else
-        external_exec(myArgv);
+        run_command(buffer);
 
+    free(bufcopy);
     return 0;
 }
 
@@ -194,8 +208,8 @@ int main()
     while ( 1 ) {
         evil_dead();                    /* Deal with possible zombies */
         print_prompt();                 /* Print the prompt */
-        read_line(line, myArgv);        /* Read the user input and split it into delicious tokens */
-        interpret_line(myArgv);         /* Interpret the tokens and make three wishes come true */
+        fgets(line, BUF_SIZE, stdin);   /* Read the user input to a buffer */
+        interpret_line(line, myArgv);   /* Interpret the command and make three wishes come true */
     }
 
     return 0;
