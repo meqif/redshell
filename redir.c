@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <string.h>
+#include <errno.h>
 
 #include "builtins.h"
 #include "helper.h"
@@ -59,10 +60,14 @@ int join(char **argv, int n_commands)
                 }
             }
             closepipes(pipes, tot_pipes);
-            execvp(*myArgv[i], myArgv[i]);
-            /* If child reaches this, the exec failed */
-            perror(*myArgv[i]);
-            exit(EXIT_FAILURE);
+            int status = execvp(*myArgv[i], myArgv[i]);
+            if (status == -1) {
+                if (errno == ENOENT)
+                    fprintf(stderr, "%s: command not found\n", *myArgv[i]);
+                else
+                    perror("");
+            }
+            exit(status);
         }
     }
 
