@@ -11,8 +11,6 @@
 
 #include "helper.h"
 
-#include "helper.h"
-
 #define PERM_MASK 07777
 #define BUF_SIZE 1000
 
