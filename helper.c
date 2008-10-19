@@ -55,4 +55,12 @@ void tokenize(char **dst, char *buffer, const char *delimiters)
     free(result);
 }
 
+/* Removes (NULLs) the last element of an array of pointers */
+void remove_last(char *arr[])
+{
+    int i = 0;
+    while(arr[i] != NULL) i++;
+    arr[--i] = NULL;
+}
+
 // vim: et ts=4 sw=4 sts=4

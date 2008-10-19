@@ -53,21 +53,9 @@ int add_pid(pid_t new_pid)
 }
 
 /* Execute an external command */
-int external_exec(char **myArgv)
+int external_exec(char **myArgv, int bg)
 {
-    int bg = 0;
-    int counter = 0;
     int pid_counter;
-
-    /* Check if we got an ampersand -- background process */
-    while (*(myArgv+counter) != NULL) {
-        if (strncmp(*(myArgv+counter), "&", 1) == 0) {
-            bg = 1;
-            *(myArgv+counter) = NULL;
-            break;
-        }
-        counter++;
-    }
 
     pid_t pid = fork();
 
@@ -103,18 +91,19 @@ int external_exec(char **myArgv)
     return 0;
 }
 
-int run_command(char *buffer)
+int run_command(char *buffer, int bg)
 {
     int n_commands = strstrcnt(buffer, '|')+1;
     char *commands[n_commands];
 
-    if (n_commands > 1) {
+    if (bg == 0) {
         tokenize(commands, buffer, "|\n");
         join(commands, n_commands);
     }
     else {
         tokenize(commands, buffer, DELIMITERS);
-        external_exec(commands);
+        remove_last(commands); /* Remove ampersand */
+        external_exec(commands, bg);
     }
 
     return 0;
@@ -135,8 +124,12 @@ int print_prompt()
 /* Interpret command array */
 int interpret_line(char *buffer, char **myArgv)
 {
+    int bg = 0;
     char *bufcopy = strdup(buffer);
     tokenize(myArgv, bufcopy, DELIMITERS);
+
+    /* Should this job run in background? */
+    if (strstrcnt(buffer, '&') == 1) bg = 1;
 
     if (*myArgv == NULL) {
         free(bufcopy);
@@ -162,7 +155,7 @@ int interpret_line(char *buffer, char **myArgv)
         listar(*(++myArgv));
 
     else
-        run_command(buffer);
+        run_command(buffer, bg);
 
     free(bufcopy);
     return 0;
