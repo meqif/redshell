@@ -12,7 +12,6 @@
 #include <pwd.h>
 #include <grp.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/wait.h>
 #include <errno.h>
 #include <signal.h>
