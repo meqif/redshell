@@ -7,26 +7,11 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <string.h>
+
 #include "builtins.h"
+#include "helper.h"
 
 #define DELIMITERS " \t\n"
-
-void fatal(char *msg) {
-    fprintf(stderr, "%s\n", msg);
-    exit(EXIT_FAILURE);
-}
-
-/* Counts the ocurrences of a given char in a given string */
-int strstrcnt(char *str, char ch)
-{
-    int counter = 0;
-    while (*str != '\0') {
-        if (*str == ch)
-            counter++;
-        str++;
-    }
-    return counter;
-}
 
 /* Closes all pipes */
 void closepipes(int *pipes, int count)

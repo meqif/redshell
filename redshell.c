@@ -18,6 +18,7 @@
 
 #include "builtins.h"
 #include "redir.h"
+#include "helper.h"
 
 #define DELIMITERS " \t\n"
 #define BUF_SIZE 1000

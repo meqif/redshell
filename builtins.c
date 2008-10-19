@@ -5,46 +5,15 @@
 #include <unistd.h>
 #include <string.h>
 #include <dirent.h>
-#include <pwd.h>
-#include <grp.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <errno.h>
 #include <signal.h>
 
+#include "helper.h"
+
 #define PERM_MASK 07777
 #define BUF_SIZE 1000
-
-/* Convert uid to username */
-char *getusername(uid_t uid)
-{
-    struct passwd *user = getpwuid(uid);
-    char *username = user->pw_name;
-    return username;
-}
-
-/* Convert gid to group name */
-char *getgroupname(gid_t gid)
-{
-    struct group *grp = getgrgid(gid);
-    char *groupname = grp->gr_name;
-    return groupname;
-}
-
-/* Split a string into tokens */
-void tokenize(char **dst, char *buffer, const char *delimiters)
-{
-    char *result = strtok(buffer, delimiters);
-
-    while (result != NULL) {
-        *(dst++) = result;
-        result = strtok(NULL, delimiters);
-    }
-    *dst = NULL; /* NULL terminate the array */
-
-    free(result);
-}
 
 /* Print file properties */
 void print_file_info(char *name, char *path, struct stat s)
