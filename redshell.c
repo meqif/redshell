@@ -9,8 +9,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#include <pwd.h>
-#include <grp.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <errno.h>
