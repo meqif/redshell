@@ -1,4 +1,6 @@
 TODO:
  * History
- * Redirection and pipes
+ * Redirection
  * Tab completion
+ * Add more error checking
+ * Handle launching external commands in only one function
