@@ -105,12 +105,12 @@ int external_exec(char **myArgv)
 
 int run_command(char *buffer)
 {
-    int p = strstrcnt(buffer, '|')+1;
-    char *commands[p];
+    int n_commands = strstrcnt(buffer, '|')+1;
+    char *commands[n_commands];
 
-    if (p > 1) {
+    if (n_commands > 1) {
         tokenize(commands, buffer, "|\n");
-        join(commands, p);
+        join(commands, n_commands);
     }
     else {
         tokenize(commands, buffer, DELIMITERS);

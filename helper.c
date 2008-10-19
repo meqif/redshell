@@ -7,6 +7,7 @@
 #include <grp.h>
 #include <string.h>
 
+/* Prints an error message and exits */
 void fatal(char *msg) {
     fprintf(stderr, "%s\n", msg);
     exit(EXIT_FAILURE);
