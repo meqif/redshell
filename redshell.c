@@ -94,13 +94,13 @@ int run_command(char *buffer, int bg)
     int n_commands = strstrcnt(buffer, '|')+1;
     char *commands[n_commands];
 
-    if (bg == 0) {
+    if (n_commands > 1) {
         tokenize(commands, buffer, "|\n");
         join(commands, n_commands, bg);
     }
     else {
         tokenize(commands, buffer, DELIMITERS);
-        remove_last(commands); /* Remove ampersand */
+        if (bg) remove_last(commands); /* Remove ampersand */
         external_exec(commands, bg);
     }
 
