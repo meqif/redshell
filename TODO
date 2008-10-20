@@ -4,3 +4,8 @@ TODO:
  * Tab completion
  * Add more error checking
  * Handle launching external commands in only one function
+
+XXX:
+ * Sanitize user input
+ * Fix waiting for child processes (when running a background process and a
+   foreground process, killing the background one gets the prompt back)
