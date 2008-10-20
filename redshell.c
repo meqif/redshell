@@ -96,7 +96,7 @@ int run_command(char *buffer, int bg)
 
     if (bg == 0) {
         tokenize(commands, buffer, "|\n");
-        join(commands, n_commands);
+        join(commands, n_commands, bg);
     }
     else {
         tokenize(commands, buffer, DELIMITERS);

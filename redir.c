@@ -23,7 +23,7 @@ void closepipes(int *pipes, int count)
 }
 
 /* Executes several external commands, with pipelines */
-int join(char **argv, int n_commands)
+int join(char **argv, int n_commands, int bg)
 {
     int i,status;
     int tot_pipes = 2*(n_commands-1); // Total pipe ends
