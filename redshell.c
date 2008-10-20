@@ -79,7 +79,7 @@ int external_exec(char **myArgv, int bg)
     }
     else {
         fg_pid = pid;
-        wait(NULL);
+        waitpid(pid, NULL, 0);
     }
 
     /* Since either the execution of the external command ended or it was
@@ -169,8 +169,12 @@ void evil_dead() {
                 printf("[%d]  %d done\n", i+1, pids[i]);
                 pids[i] = 0;
             }
-            else if (state == -1)
-                perror("");
+            else if (state == -1) {
+                if (errno == ECHILD) /* Someone else killed the child */
+                    pids[i] = 0;
+                else
+                    perror("");
+            }
         }
     }
 }
