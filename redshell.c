@@ -91,6 +91,7 @@ int external_exec(char **myArgv, int bg)
 
 int run_command(char *buffer, int bg)
 {
+    /* Number of commands = number of pipes + 1 */
     int n_commands = strstrcnt(buffer, '|')+1;
     char *commands[n_commands];
 
@@ -100,7 +101,6 @@ int run_command(char *buffer, int bg)
     }
     else {
         tokenize(commands, buffer, DELIMITERS);
-        if (bg) remove_last(commands); /* Remove ampersand */
         external_exec(commands, bg);
     }
 
@@ -123,11 +123,16 @@ int print_prompt()
 int interpret_line(char *buffer, char **myArgv)
 {
     int bg = 0;
-    char *bufcopy = strdup(buffer);
-    tokenize(myArgv, bufcopy, DELIMITERS);
+    char *aux;
 
     /* Should this job run in background? */
-    if (strstrcnt(buffer, '&') == 1) bg = 1;
+    if ((aux = strstr(buffer, "&")) != NULL) {
+        bg = 1;
+        *aux = '\0';
+    }
+
+    char *bufcopy = strdup(buffer);
+    tokenize(myArgv, bufcopy, DELIMITERS);
 
     if (*myArgv == NULL) {
         free(bufcopy);
