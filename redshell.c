@@ -161,10 +161,12 @@ int interpret_line(char *buffer, char **myArgv)
         struct cmd_struct *p = commands+i;
         if (strcmp(p->cmd, cmd))
             continue;
+        free(bufcopy);
         (p->fn)(myArgv);
         return 0;
     }
 
+    free(bufcopy);
     /* Not a builtin command, spawning new process */
     run_command(buffer, bg);
 
