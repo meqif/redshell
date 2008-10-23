@@ -37,7 +37,7 @@ int string_cmp(const void *a, const void *b)
 }
 
 /* List directory contents and/or file properties */
-int listar(char **argv)
+int cmd_listar(char **argv)
 {
     /*
      * TODO:
@@ -93,7 +93,7 @@ int listar(char **argv)
 }
 
 /* Display a line of text */
-int eco(char **myArgv)
+int cmd_eco(char **myArgv)
 {
     while ( *myArgv != NULL )
         printf("%s\n", *(myArgv++));
@@ -101,7 +101,7 @@ int eco(char **myArgv)
 }
 
 /* Display the current directory */
-int pwd(char **argv)
+int cmd_pwd(char **argv)
 {
     char buffer[BUF_SIZE];
     char *dir = getcwd(buffer, BUF_SIZE);
@@ -112,7 +112,7 @@ int pwd(char **argv)
 }
 
 /* Change directory */
-int cd(char **argv)
+int cmd_cd(char **argv)
 {
     const char *path = *argv;
     int status;
@@ -128,7 +128,7 @@ int cd(char **argv)
     return 0;
 }
 
-void cmd_exit(char **argv)
+int cmd_exit(char **argv)
 {
     printf("Bye!\n");
     exit(EXIT_SUCCESS);

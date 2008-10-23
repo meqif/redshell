@@ -128,11 +128,11 @@ struct cmd_struct {
 int interpret_line(char *buffer, char **myArgv)
 {
     static struct cmd_struct commands[] = {
-        { "eco",    eco      },
-        { "exit",   cmd_exit },
-        { "pwd",    pwd      },
-        { "cd",     cd       },
-        { "listar", listar   },
+        { "cd",     cmd_cd     },
+        { "eco",    cmd_eco    },
+        { "exit",   cmd_exit   },
+        { "listar", cmd_listar },
+        { "pwd",    cmd_pwd    },
     };
 
     char *aux;
