@@ -7,5 +7,4 @@ TODO:
 
 XXX:
  * Sanitize user input
- * Fix waiting for child processes (when running a background process and a
-   foreground process, killing the background one gets the prompt back)
+ * Spaces in paths
