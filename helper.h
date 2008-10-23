@@ -3,6 +3,8 @@
 #ifndef HELPER_H
 #define HELPER_H
 
+#define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
+
 void fatal(char *msg);
 int strstrcnt(char *str, char ch);
 char *getusername(uid_t uid);

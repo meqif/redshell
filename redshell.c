@@ -119,11 +119,24 @@ int print_prompt()
     return 0;
 }
 
+struct cmd_struct {
+	const char *cmd;
+	int (*fn)(char **);
+};
+
 /* Interpret command array */
 int interpret_line(char *buffer, char **myArgv)
 {
-    int bg = 0;
+    static struct cmd_struct commands[] = {
+        { "eco",    eco      },
+        { "exit",   cmd_exit },
+        { "pwd",    pwd      },
+        { "cd",     cd       },
+        { "listar", listar   },
+    };
+
     char *aux;
+    int bg = 0;
 
     /* Should this job run in background? */
     if ((aux = strstr(buffer, "&")) != NULL) {
@@ -131,36 +144,30 @@ int interpret_line(char *buffer, char **myArgv)
         *aux = '\0';
     }
 
+    /* TODO: Handle redirections */
+    /* tokenize? */
+
     char *bufcopy = strdup(buffer);
     tokenize(myArgv, bufcopy, DELIMITERS);
 
-    if (*myArgv == NULL) {
-        free(bufcopy);
-        return -1;
+    const char *cmd = *myArgv;
+    myArgv++;
+
+    /* Do nothing if we get a blank line */
+    if (cmd == NULL) return -1;
+
+    int i;
+    for (i = 0; i < ARRAY_SIZE(commands); i++) {
+        struct cmd_struct *p = commands+i;
+        if (strcmp(p->cmd, cmd))
+            continue;
+        (p->fn)(myArgv);
+        return 0;
     }
 
-    else if ( strncmp(*myArgv, "exit", 4) == 0 ) {
-        free(bufcopy);
-        printf("Bye!\n");
-        exit(0);
-    }
+    /* Not a builtin command, spawning new process */
+    run_command(buffer, bg);
 
-    else if ( strncmp(*myArgv, "eco", 3) == 0 )
-        eco(myArgv);
-
-    else if ( strncmp(*myArgv, "pwd", 3) == 0 )
-        pwd();
-
-    else if ( strncmp(*myArgv, "cd", 2) == 0 )
-        cd(*(++myArgv));
-
-    else if ( strncmp(*myArgv, "listar", 6) == 0 )
-        listar(*(++myArgv));
-
-    else
-        run_command(buffer, bg);
-
-    free(bufcopy);
     return 0;
 }
 

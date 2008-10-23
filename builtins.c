@@ -37,7 +37,7 @@ int string_cmp(const void *a, const void *b)
 }
 
 /* List directory contents and/or file properties */
-int listar(char *path)
+int listar(char **argv)
 {
     /*
      * TODO:
@@ -47,6 +47,7 @@ int listar(char *path)
     struct stat s;
     DIR *dir = NULL;
     char buffer[BUF_SIZE];
+    char *path = *argv;
 
     /* Assume current working directory as path if none given */
     if (path == NULL)
@@ -94,14 +95,13 @@ int listar(char *path)
 /* Display a line of text */
 int eco(char **myArgv)
 {
-    myArgv++;   /* Ignore the command name */
     while ( *myArgv != NULL )
         printf("%s\n", *(myArgv++));
     return 0;
 }
 
 /* Display the current directory */
-int pwd()
+int pwd(char **argv)
 {
     char buffer[BUF_SIZE];
     char *dir = getcwd(buffer, BUF_SIZE);
@@ -112,8 +112,9 @@ int pwd()
 }
 
 /* Change directory */
-int cd(char *path)
+int cd(char **argv)
 {
+    const char *path = *argv;
     int status;
 
     if (path == NULL)
@@ -125,6 +126,12 @@ int cd(char *path)
         perror(path);
 
     return 0;
+}
+
+void cmd_exit(char **argv)
+{
+    printf("Bye!\n");
+    exit(EXIT_SUCCESS);
 }
 
 // vim: et ts=4 sw=4 sts=4
