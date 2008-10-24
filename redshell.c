@@ -37,50 +37,6 @@ void cleanup()
     free(pids);
 }
 
-/* Add pid to the first empty index in pids array */
-int add_pid(pid_t new_pid)
-{
-    int i;
-    for (i = 0; i < HIST_SIZE; i++) {
-        if (pids[i] == 0) {
-            pids[i] = new_pid;
-            return i;
-        }
-    }
-    return -1;
-}
-
-/* Execute an external command */
-int external_exec(char **myArgv, int bg)
-{
-    int pid_counter;
-
-    pid_t pid = fork();
-
-    if (pid < 0 ) {
-        perror("fork failed");
-        return -1;
-    }
-
-    if (pid == 0) /* Child process */
-        hellspawn(myArgv);
-
-    if (bg) {
-        pid_counter = add_pid(pid);
-        printf("[%d] %d\n", pid_counter+1, pid);
-    }
-    else {
-        fg_pid = pid;
-        waitpid(pid, NULL, 0);
-    }
-
-    /* Since either the execution of the external command ended or it was
-     * on the background, we have nothing running on the foreground. */
-    fg_pid = 0;
-
-    return 0;
-}
-
 int run_command(char *buffer, int bg)
 {
     /* Number of commands = number of pipes + 1 */
