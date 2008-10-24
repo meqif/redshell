@@ -15,12 +15,9 @@
 #include <signal.h>
 
 #include "builtins.h"
-#include "redir.h"
+#include "common.h"
 #include "helper.h"
-
-#define DELIMITERS " \t\n"
-#define BUF_SIZE 1000
-#define HIST_SIZE 100
+#include "redir.h"
 
 /* Shell colours */
 #define RED      "\033[1;31m"

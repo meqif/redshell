@@ -10,26 +10,10 @@
 #include <errno.h>
 
 #include "builtins.h"
+#include "common.h"
 #include "helper.h"
 
-#define DELIMITERS " \t\n"
-#define HIST_SIZE 100
-
 extern pid_t fg_pid;
-extern pid_t *pids;
-
-/* Add pid to the first empty index in pids array */
-int add_pid(pid_t new_pid)
-{
-    int i;
-    for (i = 0; i < HIST_SIZE; i++) {
-        if (pids[i] == 0) {
-            pids[i] = new_pid;
-            return i;
-        }
-    }
-    return -1;
-}
 
 void hellspawn(char **cmd)
 {

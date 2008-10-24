@@ -9,10 +9,8 @@
 #include <sys/wait.h>
 #include <errno.h>
 
+#include "common.h"
 #include "helper.h"
-
-#define PERM_MASK 07777
-#define BUF_SIZE 1000
 
 /* Print file properties */
 static void print_file_info(char *name, char *path, struct stat s)

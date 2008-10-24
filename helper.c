@@ -7,6 +7,10 @@
 #include <grp.h>
 #include <string.h>
 
+#include "common.h"
+
+extern pid_t *pids;
+
 /* Prints an error message and exits */
 void fatal(char *msg) {
     fprintf(stderr, "%s\n", msg);
@@ -61,6 +65,19 @@ void remove_last(char *arr[])
     int i = 0;
     while(arr[i] != NULL) i++;
     arr[--i] = NULL;
+}
+
+/* Add pid to the first empty index in pids array */
+int add_pid(pid_t new_pid)
+{
+    int i;
+    for (i = 0; i < HIST_SIZE; i++) {
+        if (pids[i] == 0) {
+            pids[i] = new_pid;
+            return i;
+        }
+    }
+    return -1;
 }
 
 // vim: et ts=4 sw=4 sts=4
