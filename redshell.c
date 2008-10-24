@@ -69,8 +69,10 @@ int interpret_line(char *buffer, char **myArgv)
     /* Does the user want to exit? */
     if (strcmp(cmd, "exit") == 0) cmd_exit(myArgv);
 
+    else if (strcmp(cmd, "cd") == 0) cmd_cd(myArgv);
+
     /* Okay, the user really wants to execute something */
-    run_command(buffer, bg);
+    else run_command(buffer, bg);
 
     return 0;
 }
