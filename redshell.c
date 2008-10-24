@@ -62,16 +62,8 @@ int external_exec(char **myArgv, int bg)
         return -1;
     }
 
-    if (pid == 0) { /* Child process */
-        int status = execvp(*myArgv, myArgv);
-        if (status == -1) {
-            if (errno == ENOENT)
-                fprintf(stderr, "%s: command not found\n", *myArgv);
-            else
-                perror("");
-        }
-        exit(status); /* If the execvp failed for some reason, exit here */
-    }
+    if (pid == 0) /* Child process */
+        hellspawn(myArgv);
 
     if (bg) {
         pid_counter = add_pid(pid);
@@ -144,16 +136,10 @@ int interpret_line(char *buffer, char **myArgv)
     /* Do nothing if we get a blank line */
     if (cmd == NULL) return -1;
 
-    int i;
-    for (i = 0; i < ARRAY_SIZE(commands); i++) {
-        const struct cmd_struct *p = commands+i;
-        if (strcmp(p->cmd, cmd))
-            continue;
-        (p->fn)(myArgv);
-        return 0;
-    }
+    /* Does the user want to exit? */
+    if (strcmp(cmd, "exit") == 0) cmd_exit(myArgv);
 
-    /* Not a builtin command, spawning new process */
+    /* Okay, the user really wants to execute something */
     run_command(buffer, bg);
 
     return 0;

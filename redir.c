@@ -14,6 +14,30 @@
 
 #define DELIMITERS " \t\n"
 
+void hellspawn(char **cmd)
+{
+    /* First, check if it is a builtin command */
+    int i;
+    for (i = 0; i < ARRAY_SIZE(commands); i++) {
+        const struct cmd_struct *p = commands+i;
+        if (strcmp(p->cmd, *cmd))
+            continue;
+        cmd++; /* Bypass command name */
+        (p->fn)(cmd);
+        exit(EXIT_SUCCESS);
+    }
+
+    /* If not, try to execute as an external command */
+    int status = execvp(*cmd, cmd);
+    if (status == -1) {
+        if (errno == ENOENT)
+            fprintf(stderr, "%s: command not found\n", *cmd);
+        else
+            perror("");
+    }
+    exit(status); /* If the execvp failed for some reason, exit here */
+}
+
 /* Closes all pipes */
 void closepipes(int *pipes, int count)
 {
@@ -60,14 +84,7 @@ int join(char **argv, int n_commands, int bg)
                 }
             }
             closepipes(pipes, tot_pipes);
-            int status = execvp(*myArgv[i], myArgv[i]);
-            if (status == -1) {
-                if (errno == ENOENT)
-                    fprintf(stderr, "%s: command not found\n", *myArgv[i]);
-                else
-                    perror("");
-            }
-            exit(status);
+            hellspawn(myArgv[i]);
         }
     }
 
