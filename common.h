@@ -8,4 +8,9 @@
 #define HIST_SIZE 100
 #define PERM_MASK 07777
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
 #endif /* COMMON_H */

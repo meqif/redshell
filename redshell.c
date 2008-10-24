@@ -5,10 +5,6 @@
  * I'm the unexplainable memory corruption that won't let you sleep at night.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <errno.h>
