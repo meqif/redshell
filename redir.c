@@ -129,4 +129,22 @@ int join(char **argv, int n_commands, int bg)
     return 0;
 }
 
+int run_command(char *buffer, int bg)
+{
+    /* Number of commands = number of pipes + 1 */
+    int n_commands = strstrcnt(buffer, '|')+1;
+    char *commands[n_commands];
+
+    if (n_commands > 1) {
+        tokenize(commands, buffer, "|\n");
+        join(commands, n_commands, bg);
+    }
+    else {
+        tokenize(commands, buffer, DELIMITERS);
+        external_exec(commands, bg);
+    }
+
+    return 0;
+}
+
 // vim: et ts=4 sw=4 sts=4

@@ -34,24 +34,6 @@ void cleanup()
     free(pids);
 }
 
-int run_command(char *buffer, int bg)
-{
-    /* Number of commands = number of pipes + 1 */
-    int n_commands = strstrcnt(buffer, '|')+1;
-    char *commands[n_commands];
-
-    if (n_commands > 1) {
-        tokenize(commands, buffer, "|\n");
-        join(commands, n_commands, bg);
-    }
-    else {
-        tokenize(commands, buffer, DELIMITERS);
-        external_exec(commands, bg);
-    }
-
-    return 0;
-}
-
 /* Print the shell prompt */
 int print_prompt()
 {
