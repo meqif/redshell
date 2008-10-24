@@ -119,23 +119,9 @@ int print_prompt()
     return 0;
 }
 
-struct cmd_struct {
-	const char *cmd;
-	int (*fn)(char **);
-};
-
 /* Interpret command array */
 int interpret_line(char *buffer, char **myArgv)
 {
-    /* Inspired by git source code */
-    static struct cmd_struct commands[] = {
-        { "cd",     cmd_cd     },
-        { "eco",    cmd_eco    },
-        { "exit",   cmd_exit   },
-        { "listar", cmd_listar },
-        { "pwd",    cmd_pwd    },
-    };
-
     char *aux;
     int bg = 0;
 
@@ -160,7 +146,7 @@ int interpret_line(char *buffer, char **myArgv)
 
     int i;
     for (i = 0; i < ARRAY_SIZE(commands); i++) {
-        struct cmd_struct *p = commands+i;
+        const struct cmd_struct *p = commands+i;
         if (strcmp(p->cmd, cmd))
             continue;
         (p->fn)(myArgv);
