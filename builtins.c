@@ -15,7 +15,7 @@
 #define BUF_SIZE 1000
 
 /* Print file properties */
-void print_file_info(char *name, char *path, struct stat s)
+static void print_file_info(char *name, char *path, struct stat s)
 {
     lstat(path, &s);
     unsigned long size = s.st_size; /* Using long for supporting files >=4GiB */

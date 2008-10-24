@@ -6,7 +6,6 @@
 #define BUILTINS_H
 
 /* Builtin commands */
-void print_file_info(char *name, char *path, struct stat s);
 int cmd_cd(char **argv);
 int cmd_eco(char **myArgv);
 int cmd_exit(char **argv);
