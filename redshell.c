@@ -127,6 +127,7 @@ struct cmd_struct {
 /* Interpret command array */
 int interpret_line(char *buffer, char **myArgv)
 {
+    /* Inspired by git source code */
     static struct cmd_struct commands[] = {
         { "cd",     cmd_cd     },
         { "eco",    cmd_eco    },
@@ -147,7 +148,8 @@ int interpret_line(char *buffer, char **myArgv)
     /* TODO: Handle redirections */
     /* tokenize? */
 
-    char *bufcopy = strdup(buffer);
+    char bufcopy[strlen(buffer)+1];
+    strcpy(bufcopy, buffer);
     tokenize(myArgv, bufcopy, DELIMITERS);
 
     const char *cmd = *myArgv;
@@ -161,12 +163,10 @@ int interpret_line(char *buffer, char **myArgv)
         struct cmd_struct *p = commands+i;
         if (strcmp(p->cmd, cmd))
             continue;
-        free(bufcopy);
         (p->fn)(myArgv);
         return 0;
     }
 
-    free(bufcopy);
     /* Not a builtin command, spawning new process */
     run_command(buffer, bg);
 
