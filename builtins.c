@@ -23,7 +23,7 @@ static void print_file_info(char *name, char *path, struct stat s)
 }
 
 /* String comparison for quicksort */
-int string_cmp(const void *a, const void *b)
+static int string_cmp(const void *a, const void *b)
 {
     const char **ia = (const char **)a;
     const char **ib = (const char **)b;
@@ -95,10 +95,10 @@ int cmd_listar(char **argv)
 }
 
 /* Display a line of text */
-int cmd_eco(char **myArgv)
+int cmd_eco(char **argv)
 {
-    while ( *myArgv != NULL )
-        printf("%s\n", *(myArgv++));
+    while ( *argv != NULL )
+        printf("%s\n", *(argv++));
     return 0;
 }
 
@@ -130,6 +130,7 @@ int cmd_cd(char **argv)
     return 0;
 }
 
+/* Exit shell */
 int cmd_exit(char **argv)
 {
     printf("Bye!\n");

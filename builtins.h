@@ -6,11 +6,11 @@
 #define BUILTINS_H
 
 /* Builtin commands */
-int cmd_cd(char **argv);
-int cmd_eco(char **myArgv);
-int cmd_exit(char **argv);
-int cmd_listar(char **path);
-int cmd_pwd(char **argv);
+int cmd_cd     (char **argv);
+int cmd_eco    (char **argv);
+int cmd_exit   (char **argv);
+int cmd_listar (char **argv);
+int cmd_pwd    (char **argv);
 
 /* command structure */
 struct cmd_struct {
@@ -18,7 +18,6 @@ struct cmd_struct {
 	int (*fn)(char **);
 };
 
-/* Inspired by git source code */
 static const struct cmd_struct commands[] = {
     { "cd",     cmd_cd     },
     { "eco",    cmd_eco    },
