@@ -69,7 +69,7 @@ int interpret_line(char *buffer, char **myArgv)
     /* Do nothing if we get a blank line */
     if (cmd == NULL) return -1;
 
-    run_command(buffer, bg);
+    external_exec(myArgv, bg);
 
     return 0;
 }
