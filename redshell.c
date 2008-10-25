@@ -12,7 +12,7 @@
 
 #include "common.h"
 #include "helper.h"
-#include "redir.h"
+#include "jobs.h"
 
 /* Shell colours */
 #define RED      "\033[1;31m"
