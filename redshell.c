@@ -18,6 +18,7 @@
 #include "helper.h"
 #include "jobs.h"
 
+#define MAX_ARGS 100        /* Assuming max 100 program name + args */
 /* Shell colours */
 #define RED      "\033[1;31m"
 #define CLEAR    "\033[0m"
@@ -57,12 +58,12 @@ int interpret_line(char *buffer, char **myArgv)
         *aux = '\0';
     }
 
-    /* TODO: Handle redirections */
-    /* tokenize? */
-
+    /* Split user input into tokens */
     char bufcopy[strlen(buffer)+1];
     strcpy(bufcopy, buffer);
     tokenize(myArgv, bufcopy, DELIMITERS);
+
+    /* Get command name */
     const char *cmd = *myArgv;
 
     /* Do nothing if we get a blank line */
@@ -80,7 +81,7 @@ void evil_dead() {
         if (pids[i] != 0) {
             state = waitpid(pids[i], NULL, WNOHANG);
             if (state > 0) {
-                printf("[%d]  %d done\n", i+1, pids[i]);
+                printf("[%d] %d done\n", i+1, pids[i]);
                 pids[i] = 0;
             }
             else if (state == -1) {
@@ -102,7 +103,7 @@ void handle_sigint()
 
 int main()
 {
-    char *myArgv[100];                 /* Assumed max 100 program name + args */
+    char *myArgv[MAX_ARGS];
     char line[BUF_SIZE];               /* Buffer for user input */
 
     pids = calloc(HIST_SIZE, sizeof(pid_t));
