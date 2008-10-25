@@ -14,7 +14,6 @@
 #include <errno.h>
 #include <signal.h>
 
-#include "builtins.h"
 #include "common.h"
 #include "helper.h"
 #include "redir.h"
