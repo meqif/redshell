@@ -50,8 +50,16 @@ int cmd_listar(char **argv)
     dir = opendir(path);
 
     if (dir != NULL) {
-        char *list[BUF_SIZE];
-        int i = 0, j;
+        int i = 0, j, dir_size = 0;
+
+        /* Count used inodes, so we can create an array of the correct size */
+        while ( (d = readdir(dir)) )
+            if (d->d_ino != 0) dir_size++;
+
+        closedir(dir);
+        dir = opendir(path);
+
+        char *list[dir_size];
         while ( (d = readdir(dir)) ) {
             if (d->d_ino != 0)
                 list[i++] = strdup(d->d_name);
