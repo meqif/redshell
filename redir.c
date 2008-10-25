@@ -11,19 +11,25 @@
 
 extern pid_t fg_pid;
 
-/* Exec wrapper that performs some error handling */
-void hellspawn(char **cmd)
+/* Run given builtin command, if possible */
+int builtin_exec(char **cmd)
 {
-    /* First, check if it is a builtin command */
     int i;
     for (i = 0; i < ARRAY_SIZE(commands); i++) {
         const struct cmd_struct *p = commands+i;
         if (strcmp(p->cmd, *cmd))
             continue;
-        cmd++; /* Bypass command name */
-        (p->fn)(cmd);
-        exit(EXIT_SUCCESS);
+        (p->fn)(cmd+1);
+        return 0;
     }
+    return -1;
+}
+
+/* Exec wrapper that performs some error handling */
+void hellspawn(char **cmd)
+{
+    /* First, check if it is a builtin command */
+    if (builtin_exec(cmd) == 0) exit(EXIT_SUCCESS);
 
     /* If not, try to execute as an external command */
     int status = execvp(*cmd, cmd);
@@ -41,16 +47,9 @@ int external_exec(char **myArgv, int bg)
 {
     int pid_counter;
 
-    if (!bg) {
-        int i;
-        for (i = 0; i < ARRAY_SIZE(commands); i++) {
-            const struct cmd_struct *p = commands+i;
-            if (strcmp(p->cmd, *myArgv))
-                continue;
-            (p->fn)(myArgv+1);
-            return 0;
-        }
-    }
+    /* Try to execute builtin command, if it exists */
+    if (!bg && builtin_exec(myArgv) == 0)
+        return 0;
 
     pid_t pid = fork();
 
