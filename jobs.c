@@ -26,7 +26,7 @@ int builtin_exec(char **cmd)
 }
 
 /* Exec wrapper that performs some error handling */
-void hellspawn(char **cmd)
+void executioner(char **cmd)
 {
     /* First, check if it is a builtin command */
     if (builtin_exec(cmd) == 0) exit(EXIT_SUCCESS);
@@ -59,7 +59,7 @@ int external_exec(char **myArgv, int bg)
     }
 
     if (pid == 0) /* Child process */
-        hellspawn(myArgv);
+        executioner(myArgv);
 
     if (bg) {
         pid_counter = add_pid(pid);
@@ -123,7 +123,7 @@ int join(char **argv, int n_commands, int bg)
                 }
             }
             closepipes(pipes, tot_pipes);
-            hellspawn(myArgv[i]);
+            executioner(myArgv[i]);
         }
     }
 
