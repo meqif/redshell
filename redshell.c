@@ -59,20 +59,12 @@ int interpret_line(char *buffer, char **myArgv)
     char bufcopy[strlen(buffer)+1];
     strcpy(bufcopy, buffer);
     tokenize(myArgv, bufcopy, DELIMITERS);
-
     const char *cmd = *myArgv;
-    myArgv++;
 
     /* Do nothing if we get a blank line */
     if (cmd == NULL) return -1;
 
-    /* Does the user want to exit? */
-    if (strcmp(cmd, "exit") == 0) cmd_exit(myArgv);
-
-    else if (strcmp(cmd, "cd") == 0) cmd_cd(myArgv);
-
-    /* Okay, the user really wants to execute something */
-    else run_command(buffer, bg);
+    run_command(buffer, bg);
 
     return 0;
 }

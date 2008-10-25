@@ -11,6 +11,7 @@
 
 extern pid_t fg_pid;
 
+/* Exec wrapper that performs some error handling */
 void hellspawn(char **cmd)
 {
     /* First, check if it is a builtin command */
@@ -30,7 +31,7 @@ void hellspawn(char **cmd)
         if (errno == ENOENT)
             fprintf(stderr, "%s: command not found\n", *cmd);
         else
-            perror("");
+            perror(*cmd);
     }
     exit(status); /* If the execvp failed for some reason, exit here */
 }
@@ -39,6 +40,17 @@ void hellspawn(char **cmd)
 int external_exec(char **myArgv, int bg)
 {
     int pid_counter;
+
+    if (!bg) {
+        int i;
+        for (i = 0; i < ARRAY_SIZE(commands); i++) {
+            const struct cmd_struct *p = commands+i;
+            if (strcmp(p->cmd, *myArgv))
+                continue;
+            (p->fn)(myArgv+1);
+            return 0;
+        }
+    }
 
     pid_t pid = fork();
 
