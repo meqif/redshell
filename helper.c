@@ -15,12 +15,6 @@
 
 extern pid_t *pids;
 
-/* Prints an error message and exits */
-void fatal(char *msg) {
-    fprintf(stderr, "%s\n", msg);
-    exit(EXIT_FAILURE);
-}
-
 /* Counts the ocurrences of a given char in a given string */
 int strstrcnt(char *str, char ch)
 {
@@ -61,14 +55,6 @@ void tokenize(char **dst, char *buffer, const char *delimiters)
     *dst = NULL; /* NULL terminate the array */
 
     free(result);
-}
-
-/* Removes (NULLs) the last element of an array of pointers */
-void remove_last(char *arr[])
-{
-    int i = 0;
-    while(arr[i] != NULL) i++;
-    arr[--i] = NULL;
 }
 
 /* Add pid to the first empty index in pids array */
