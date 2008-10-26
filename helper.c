@@ -15,18 +15,6 @@
 
 extern pid_t *pids;
 
-/* Counts the ocurrences of a given char in a given string */
-int strstrcnt(char *str, char ch)
-{
-    int counter = 0;
-    while (*str != '\0') {
-        if (*str == ch)
-            counter++;
-        str++;
-    }
-    return counter;
-}
-
 /* Convert uid to username */
 char *getusername(uid_t uid)
 {
