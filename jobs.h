@@ -1,4 +1,4 @@
-/* See LICENSE file for copyright and license details. */
+/* Job control */
 
 #ifndef JOBS_H
 #define JOBS_H

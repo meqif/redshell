@@ -1,4 +1,11 @@
-/* See LICENSE file for copyright and license details. */
+/*
+ * redshell - simple and light UNIX shell
+ * jobs.c: job control
+ *
+ * Copyright (C) 2008 Ricardo Martins <ricardo@scarybox.net>
+ * See LICENSE or http://www.opensource.org/licenses/mit-license.php
+ * for copyright and license details.
+ */
 
 #include <sys/types.h>
 #include <sys/wait.h>

@@ -1,4 +1,11 @@
-/* Builtin commands */
+/*
+ * redshell - simple and light UNIX shell
+ * builtins.c: builtin commands
+ *
+ * Copyright (C) 2008 Ricardo Martins <ricardo@scarybox.net>
+ * See LICENSE or http://www.opensource.org/licenses/mit-license.php
+ * for copyright and license details.
+ */
 
 #include <dirent.h>
 #include <sys/stat.h>

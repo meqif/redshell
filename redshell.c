@@ -1,8 +1,12 @@
-/* See LICENSE file for copyright and license details. */
-
 /*
+ * redshell - simple and light UNIX shell
+ *
  * I'm the ghost in your shell, I'm the -9 in your kill,
  * I'm the unexplainable memory corruption that won't let you sleep at night.
+ *
+ * Copyright (C) 2008 Ricardo Martins <ricardo@scarybox.net>
+ * See LICENSE or http://www.opensource.org/licenses/mit-license.php
+ * for copyright and license details.
  */
 
 #include <sys/types.h>
