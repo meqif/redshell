@@ -126,6 +126,7 @@ int cmd_cd(char **argv)
     const char *path = *argv;
     int status;
 
+    /* Assume the user's home directory as path if none given */
     if (path == NULL)
         path = getenv("HOME");
 
