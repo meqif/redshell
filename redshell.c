@@ -49,15 +49,6 @@ int print_prompt()
 /* Interpret command array */
 int interpret_line(char *buffer, char **myArgv)
 {
-    char *aux;
-    int bg = 0;
-
-    /* Should this job run in background? */
-    if ((aux = strstr(buffer, "&")) != NULL) {
-        bg = 1;
-        *aux = '\0';
-    }
-
     /* Split user input into tokens */
     char bufcopy[strlen(buffer)+1];
     strcpy(bufcopy, buffer);
@@ -69,7 +60,7 @@ int interpret_line(char *buffer, char **myArgv)
     /* Do nothing if we get a blank line */
     if (cmd == NULL) return -1;
 
-    run_command(buffer, bg);
+    run_command(buffer);
 
     return 0;
 }

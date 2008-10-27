@@ -50,7 +50,7 @@ void executioner(char **cmd)
 }
 
 /* Execute an external command */
-int external_exec(char **myArgv, int bg)
+int external_exec(char **myArgv, int bg, char *infile, char *outfile)
 {
     int pid_counter;
 
@@ -65,8 +65,17 @@ int external_exec(char **myArgv, int bg)
         return -1;
     }
 
-    if (pid == 0) /* Child process */
+    if (pid == 0) { /* Child process */
+        if (infile != NULL) {
+            int fd_in = open(infile, O_RDONLY);
+            dup2(fd_in, 0);
+        }
+        if (outfile != NULL) {
+            int fd_out = open(outfile, O_WRONLY|O_CREAT|O_TRUNC, 0644);
+            dup2(fd_out, 1);
+        }
         executioner(myArgv);
+    }
 
     if (bg) {
         pid_counter = add_pid(pid);
@@ -93,32 +102,56 @@ void closepipes(int *pipes, int count)
 }
 
 /* Executes several external commands, with pipelines */
-int join(char **argv, int n_commands, int bg)
+int join(char **argv, int n_commands, int bg, char *infile, char *outfile)
 {
-    int i,status;
+    int i;
+    int fd_in = -1, fd_out = -1;
     int tot_pipes = 2*(n_commands-1); // Total pipe ends
     int pipes[tot_pipes];
     char *myArgv[n_commands][100];
+    char *aux;
+    pid_t launched[n_commands];
+
+    if (infile != NULL) {
+        fd_in = open(infile, O_RDONLY);
+        dup2(fd_in, 0);
+    }
+    if (outfile != NULL) {
+        fd_out = open(outfile, O_WRONLY|O_CREAT|O_TRUNC, 0644);
+        dup2(fd_out, 1);
+    }
 
     /* Tokenize given commands */
-    for (i = 0; i < n_commands; i++)
+    for (i = 0; i < n_commands; i++) {
+        if ((aux = strstr(argv[i], "<")) != NULL) *aux = '\0';
+        if ((aux = strstr(argv[i], ">")) != NULL) *aux = '\0';
         tokenize(myArgv[i], argv[i], DELIMITERS);
+    }
+
+    /* Try to execute builtin command, if it exists */
+    if (!bg && n_commands == 1 && builtin_exec(myArgv[0]) == 0)
+        return 0;
 
     /* Initialize pipes */
     for (i = 0; i < tot_pipes; i += 2)
         pipe(pipes+i);
 
     for (i = 0; i < n_commands; i++) {
-        if (fork() == 0) {
-            if (i == 0)                 /* First command */
+        pid_t p = fork();
+        if (p == 0) {
+            if (i == 0) {               /* First command */
                 dup2(pipes[1], 1);
-            else if (i == n_commands-1) /* Last comand */
+                if (fd_in != -1) dup2(fd_in, 0);
+            }
+            else if (i == n_commands-1) { /* Last comand */
                 if (i == 1)
                     dup2(pipes[0], 0);
                 else if (i%2 == 0)
                     dup2(pipes[i], 0);
                 else
                     dup2(pipes[i+1], 0);
+                if (fd_out != -1) dup2(fd_out, 1);
+            }
             else {                      /* Everything in between */
                 if (i%2 == 1) {
                     dup2(pipes[i-1], 0);
@@ -132,31 +165,93 @@ int join(char **argv, int n_commands, int bg)
             closepipes(pipes, tot_pipes);
             executioner(myArgv[i]);
         }
+        else
+            launched[i] = p;
     }
 
     /* Only the parent gets here and waits for children to finish */
     closepipes(pipes, tot_pipes);
 
-    for (i = 0; i < n_commands; i++)
-        wait(&status);
+    if (!bg)
+        for (i = 0; i < n_commands; i++) {
+            waitpid(launched[i], NULL, 0);
+            fg_pid = launched[i];
+        }
+    else
+        for (i = 0; i < n_commands; i++) {
+            int pid_counter = add_pid(launched[i]);
+            printf("[%d] %d\n", pid_counter+1, launched[i]);
+        }
+
+    /* Since either the execution of the external command ended or it was
+     * on the background, we have nothing running on the foreground. */
+    fg_pid = 0;
 
     return 0;
 }
 
-int run_command(char *buffer, int bg)
+int run_command(char *buffer)
 {
+    int bg = 0;
+    char *aux;
+
+    /* Should this job run in background? */
+    if ((aux = strstr(buffer, "&")) != NULL) {
+        bg = 1;
+        *aux = '\0';
+    }
+
     /* Number of commands = number of pipes + 1 */
     int n_commands = strstrcnt(buffer, '|')+1;
     char *commands[n_commands];
 
+    /* Split user input into tokens */
+    char *myArgv[100];
+    char bufcopy[strlen(buffer)+1];
+    strcpy(bufcopy, buffer);
+    tokenize(myArgv, bufcopy, DELIMITERS);
+
+    int counter = 0;
+    char *infile = NULL;
+    char *outfile = NULL;
+    while(*(myArgv+counter) != NULL) {
+        char **aux = myArgv+counter;
+        if ((strcmp(*aux, ">") == 0) && *(aux+1) != NULL) {
+            *aux = NULL;
+            outfile = strdup(*(++aux));
+            *aux = NULL;
+            counter++;
+        }
+        else if ((strcmp(*aux, "<") == 0) && *(aux+1) != NULL) {
+            *aux = NULL;
+            infile = strdup(*(++aux));
+            *aux = NULL;
+            counter++;
+        }
+        counter++;
+    }
+
+
+    /* Save original stdin and stdout */
+    int cp_in  = -1;
+    int cp_out = -1;
+    cp_in  = dup(0);
+    cp_out = dup(1);
+
     if (n_commands > 1) {
         tokenize(commands, buffer, "|\n");
-        join(commands, n_commands, bg);
+        join(commands, n_commands, bg, infile, outfile);
     }
     else {
+        if ((aux = strstr(buffer, "<")) != NULL) *aux = '\0';
+        if ((aux = strstr(buffer, ">")) != NULL) *aux = '\0';
         tokenize(commands, buffer, DELIMITERS);
-        external_exec(commands, bg);
+        external_exec(commands, bg, infile, outfile);
     }
+
+    /* Restore stdin and stdout */
+    dup2(cp_in,  0);
+    dup2(cp_out, 1);
 
     return 0;
 }
