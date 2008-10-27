@@ -238,16 +238,8 @@ int run_command(char *buffer)
     cp_in  = dup(0);
     cp_out = dup(1);
 
-    if (n_commands > 1) {
-        tokenize(commands, buffer, "|\n");
-        join(commands, n_commands, bg, infile, outfile);
-    }
-    else {
-        if ((aux = strstr(buffer, "<")) != NULL) *aux = '\0';
-        if ((aux = strstr(buffer, ">")) != NULL) *aux = '\0';
-        tokenize(commands, buffer, DELIMITERS);
-        external_exec(commands, bg, infile, outfile);
-    }
+    tokenize(commands, buffer, "|\n");
+    join(commands, n_commands, bg, infile, outfile);
 
     /* Restore stdin and stdout */
     dup2(cp_in,  0);
