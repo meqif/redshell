@@ -116,6 +116,7 @@ int main()
     sigaction(SIGINT, &act, NULL);
 
     while ( 1 ) {
+        line[0] = '\0';                 /* Clear the user input buffer */
         evil_dead();                    /* Deal with possible zombies */
         print_prompt();                 /* Print the prompt */
         fgets(line, BUF_SIZE, stdin);   /* Read the user input to a buffer */
