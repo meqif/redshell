@@ -58,7 +58,7 @@ void closepipes(int *pipes, int count)
 }
 
 /* Executes several external commands, with pipelines */
-int join(char **argv, int n_commands, int bg, char *infile, char *outfile)
+int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
 {
     int i;
     int fd_in = -1, fd_out = -1;
@@ -197,7 +197,7 @@ int run_command(char *buffer)
     cp_out = dup(1);
 
     tokenize(commands, buffer, "|\n");
-    join(commands, n_commands, bg, infile, outfile);
+    pipe_exec(commands, n_commands, bg, infile, outfile);
 
     /* Restore stdin and stdout */
     dup2(cp_in,  0);
