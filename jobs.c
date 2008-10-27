@@ -49,50 +49,6 @@ void executioner(char **cmd)
     exit(status); /* If the execvp failed for some reason, exit here */
 }
 
-/* Execute an external command */
-int external_exec(char **myArgv, int bg, char *infile, char *outfile)
-{
-    int pid_counter;
-
-    /* Try to execute builtin command, if it exists */
-    if (!bg && builtin_exec(myArgv) == 0)
-        return 0;
-
-    pid_t pid = fork();
-
-    if (pid < 0 ) {
-        perror("fork failed");
-        return -1;
-    }
-
-    if (pid == 0) { /* Child process */
-        if (infile != NULL) {
-            int fd_in = open(infile, O_RDONLY);
-            dup2(fd_in, 0);
-        }
-        if (outfile != NULL) {
-            int fd_out = open(outfile, O_WRONLY|O_CREAT|O_TRUNC, 0644);
-            dup2(fd_out, 1);
-        }
-        executioner(myArgv);
-    }
-
-    if (bg) {
-        pid_counter = add_pid(pid);
-        printf("[%d] %d\n", pid_counter+1, pid);
-    }
-    else {
-        fg_pid = pid;
-        waitpid(pid, NULL, 0);
-    }
-
-    /* Since either the execution of the external command ended or it was
-     * on the background, we have nothing running on the foreground. */
-    fg_pid = 0;
-
-    return 0;
-}
-
 /* Closes all pipes */
 void closepipes(int *pipes, int count)
 {
