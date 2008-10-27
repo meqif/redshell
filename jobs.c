@@ -95,7 +95,11 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     for (i = 0; i < n_commands; i++) {
         pid_t p = fork();
         if (p == 0) {
-            if (i == 0) {               /* First command */
+            if (n_commands == 1) {
+                if (fd_in != -1) dup2(fd_in, 0);
+                if (fd_out != -1) dup2(fd_out, 1);
+            }
+            else if (i == 0) {               /* First command */
                 dup2(pipes[1], 1);
                 if (fd_in != -1) dup2(fd_in, 0);
             }
