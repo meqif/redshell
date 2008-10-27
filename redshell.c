@@ -60,7 +60,56 @@ int interpret_line(char *buffer, char **myArgv)
     /* Do nothing if we get a blank line */
     if (cmd == NULL) return -1;
 
-    run_command(buffer);
+    /* Number of commands = number of pipes + 1 */
+    int n_commands = strstrcnt(buffer, '|')+1;
+    char *commands[n_commands];
+
+    int bg = 0;
+    char *aux;
+
+    /* Should this job run in background? */
+    if ((aux = strstr(buffer, "&")) != NULL) {
+        bg = 1;
+        *aux = '\0';
+    }
+
+    /* Split user input into tokens */
+    strcpy(bufcopy, buffer);
+    tokenize(myArgv, bufcopy, DELIMITERS);
+
+    /* Check if the user wants to redirect the input or output */
+    int counter = 0;
+    char *infile = NULL;
+    char *outfile = NULL;
+    while(*(myArgv+counter) != NULL) {
+        char **aux = myArgv+counter;
+        if ((strcmp(*aux, ">") == 0) && *(aux+1) != NULL) {
+            *aux = NULL;
+            outfile = strdup(*(++aux));
+            *aux = NULL;
+            counter++;
+        }
+        else if ((strcmp(*aux, "<") == 0) && *(aux+1) != NULL) {
+            *aux = NULL;
+            infile = strdup(*(++aux));
+            *aux = NULL;
+            counter++;
+        }
+        counter++;
+    }
+
+    /* Save original stdin and stdout */
+    int cp_in  = -1;
+    int cp_out = -1;
+    cp_in  = dup(0);
+    cp_out = dup(1);
+
+    tokenize(commands, buffer, "|\n");
+    pipe_exec(commands, n_commands, bg, infile, outfile);
+
+    /* Restore stdin and stdout */
+    dup2(cp_in,  0);
+    dup2(cp_out, 1);
 
     return 0;
 }
