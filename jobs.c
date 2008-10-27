@@ -99,9 +99,7 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
                 dup2(pipes[1], 1);
                 if (fd_in != -1) dup2(fd_in, 0);
             }
-            /* The absence of the else clause allows this to run even if
-             * there's only one command */
-            if (i == n_commands-1) {    /* Last comand */
+            else if (i == n_commands-1) { /* Last comand */
                 if (i == 1)
                     dup2(pipes[0], 0);
                 else if (i%2 == 0)
