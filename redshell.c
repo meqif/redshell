@@ -73,10 +73,6 @@ int interpret_line(char *buffer, char **myArgv)
         *aux = '\0';
     }
 
-    /* Split user input into tokens */
-    strcpy(bufcopy, buffer);
-    tokenize(myArgv, bufcopy, DELIMITERS);
-
     /* Check if the user wants to redirect the input or output */
     int counter = 0;
     char *infile = NULL;
