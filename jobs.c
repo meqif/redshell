@@ -153,8 +153,8 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
 
     if (!bg)
         for (i = 0; i < n_commands; i++) {
-            waitpid(launched[i], NULL, 0);
             fg_pid = launched[i];
+            waitpid(launched[i], NULL, 0);
         }
     else
         for (i = 0; i < n_commands; i++) {
