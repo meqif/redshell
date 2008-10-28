@@ -74,38 +74,38 @@ int interpret_line(char *buffer, char **myArgv)
     }
 
     /* Check if the user wants to redirect the input or output */
-    int counter = 0;
     char *infile = NULL;
     char *outfile = NULL;
-    while(*(myArgv+counter) != NULL) {
-        char **aux = myArgv+counter;
-        if ((strcmp(*aux, ">") == 0) && *(aux+1) != NULL) {
-            *aux = NULL;
-            outfile = strdup(*(++aux));
-            *aux = NULL;
-            counter++;
+    char **tmp = myArgv;
+    while(*tmp != NULL) {
+        if ((strcmp(*tmp, ">") == 0) && *(tmp+1) != NULL) {
+            *tmp = NULL;
+            outfile = strdup(*(++tmp));
+            *tmp = NULL;
         }
-        else if ((strcmp(*aux, "<") == 0) && *(aux+1) != NULL) {
-            *aux = NULL;
-            infile = strdup(*(++aux));
-            *aux = NULL;
-            counter++;
+        else if ((strcmp(*tmp, "<") == 0) && *(tmp+1) != NULL) {
+            *tmp = NULL;
+            infile = strdup(*(++tmp));
+            *tmp = NULL;
         }
-        counter++;
+        tmp++;
     }
 
     /* Save original stdin and stdout */
-    int cp_in  = -1;
-    int cp_out = -1;
-    cp_in  = dup(0);
-    cp_out = dup(1);
+    int stdin_copy  = -1;
+    int stdout_copy = -1;
+    stdin_copy  = dup(0);
+    stdout_copy = dup(1);
 
+    /* Split user input by pipe */
     tokenize(commands, buffer, "|\n");
+
+    /* Execute the user command(s) */
     pipe_exec(commands, n_commands, bg, infile, outfile);
 
     /* Restore stdin and stdout */
-    dup2(cp_in,  0);
-    dup2(cp_out, 1);
+    dup2(stdin_copy,  0);
+    dup2(stdout_copy, 1);
 
     return 0;
 }
