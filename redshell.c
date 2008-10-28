@@ -78,16 +78,10 @@ int interpret_line(char *buffer, char **myArgv)
     char *outfile = NULL;
     char **tmp = myArgv;
     while(*tmp != NULL) {
-        if ((strcmp(*tmp, ">") == 0) && *(tmp+1) != NULL) {
-            *tmp = NULL;
-            outfile = strdup(*(++tmp));
-            *tmp = NULL;
-        }
-        else if ((strcmp(*tmp, "<") == 0) && *(tmp+1) != NULL) {
-            *tmp = NULL;
-            infile = strdup(*(++tmp));
-            *tmp = NULL;
-        }
+        if ((strcmp(*tmp, ">") == 0) && *(tmp+1) != NULL)
+            outfile = *(++tmp);
+        else if ((strcmp(*tmp, "<") == 0) && *(tmp+1) != NULL)
+            infile = *(++tmp);
         tmp++;
     }
 
