@@ -91,8 +91,12 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     }
 
     /* Try to execute builtin command, if it exists */
-    if (!bg && n_commands == 1 && builtin_exec(myArgv[0]) == 0)
+    if (!bg && n_commands == 1 && builtin_exec(myArgv[0]) == 0) {
+        /* Restore stdin and stdout */
+        dup2(stdin_copy,  0);
+        dup2(stdout_copy, 1);
         return 0;
+    }
 
     /* Initialize pipes */
     for (i = 0; i < tot_pipes; i += 2)
