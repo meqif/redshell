@@ -68,7 +68,7 @@ int cmd_listar(char **argv)
 
         char *list[dir_size];
         while ( (d = readdir(dir)) ) {
-            if (d->d_ino != 0)
+            if (d->d_ino != 0) /* XXX: I can't for the life of me remember why this is here */
                 list[i++] = strdup(d->d_name);
         }
         list[i] = NULL;

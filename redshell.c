@@ -64,10 +64,9 @@ int interpret_line(char *buffer, char **myArgv)
     int n_commands = strstrcnt(buffer, '|')+1;
     char *commands[n_commands];
 
+    /* Should this job run in background? */
     int bg = 0;
     char *aux;
-
-    /* Should this job run in background? */
     if ((aux = strstr(buffer, "&")) != NULL) {
         bg = 1;
         *aux = '\0';

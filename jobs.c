@@ -16,6 +16,8 @@
 #include "common.h"
 #include "helper.h"
 
+#define PERMS 0644
+
 extern pid_t fg_pid;
 
 /* Run given builtin command, if possible */
@@ -74,12 +76,15 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     stdin_copy  = dup(0);
     stdout_copy = dup(1);
 
+    /* Redirect input */
     if (infile != NULL) {
         fd_in = open(infile, O_RDONLY);
         dup2(fd_in, 0);
     }
+
+    /* Redirect output */
     if (outfile != NULL) {
-        fd_out = open(outfile, O_WRONLY|O_CREAT|O_TRUNC, 0644);
+        fd_out = open(outfile, O_WRONLY|O_CREAT|O_TRUNC, PERMS);
         dup2(fd_out, 1);
     }
 
@@ -106,14 +111,14 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
         pid_t p = fork();
         if (p == 0) {
             if (n_commands == 1) {
-                if (fd_in != -1) dup2(fd_in, 0);
+                if (fd_in != -1)  dup2(fd_in, 0);
                 if (fd_out != -1) dup2(fd_out, 1);
             }
             else if (i == 0) {               /* First command */
                 dup2(pipes[1], 1);
                 if (fd_in != -1) dup2(fd_in, 0);
             }
-            else if (i == n_commands-1) { /* Last comand */
+            else if (i == n_commands-1) {    /* Last comand */
                 if (i == 1)
                     dup2(pipes[0], 0);
                 else if (i%2 == 0)
@@ -122,7 +127,7 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
                     dup2(pipes[i+1], 0);
                 if (fd_out != -1) dup2(fd_out, 1);
             }
-            else {                      /* Everything in between */
+            else {                           /* Everything in between */
                 if (i%2 == 1) {
                     dup2(pipes[i-1], 0);
                     dup2(pipes[i+2], 1);
