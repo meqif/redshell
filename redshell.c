@@ -85,21 +85,11 @@ int interpret_line(char *buffer, char **myArgv)
         tmp++;
     }
 
-    /* Save original stdin and stdout */
-    int stdin_copy  = -1;
-    int stdout_copy = -1;
-    stdin_copy  = dup(0);
-    stdout_copy = dup(1);
-
     /* Split user input by pipe */
     tokenize(commands, buffer, "|\n");
 
     /* Execute the user command(s) */
     pipe_exec(commands, n_commands, bg, infile, outfile);
-
-    /* Restore stdin and stdout */
-    dup2(stdin_copy,  0);
-    dup2(stdout_copy, 1);
 
     return 0;
 }

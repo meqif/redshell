@@ -68,6 +68,12 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     char *aux;
     pid_t launched[n_commands];
 
+    /* Save original stdin and stdout */
+    int stdin_copy  = -1;
+    int stdout_copy = -1;
+    stdin_copy  = dup(0);
+    stdout_copy = dup(1);
+
     if (infile != NULL) {
         fd_in = open(infile, O_RDONLY);
         dup2(fd_in, 0);
@@ -131,6 +137,10 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
 
     /* Only the parent gets here and waits for children to finish */
     closepipes(pipes, tot_pipes);
+
+    /* Restore stdin and stdout */
+    dup2(stdin_copy,  0);
+    dup2(stdout_copy, 1);
 
     if (!bg)
         for (i = 0; i < n_commands; i++) {
