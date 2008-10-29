@@ -21,7 +21,7 @@
 extern pid_t fg_pid;
 
 /* Run given builtin command, if possible */
-int builtin_exec(char **cmd)
+static int builtin_exec(char **cmd)
 {
     int i;
     for (i = 0; i < ARRAY_SIZE(commands); i++) {
@@ -35,7 +35,7 @@ int builtin_exec(char **cmd)
 }
 
 /* Exec wrapper that performs some error handling */
-void executioner(char **cmd)
+static void executioner(char **cmd)
 {
     /* First, check if it is a builtin command */
     if (builtin_exec(cmd) == 0) exit(EXIT_SUCCESS);
@@ -52,7 +52,7 @@ void executioner(char **cmd)
 }
 
 /* Closes all pipes */
-void closepipes(int *pipes, int count)
+static void closepipes(int *pipes, int count)
 {
     int i;
     for (i = 0; i < count; i++)
