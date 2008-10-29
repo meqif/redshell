@@ -1,9 +1,7 @@
 TODO:
  * History
- * Redirection
  * Tab completion
  * Add more error checking
- * Handle launching external commands in only one function
 
 XXX:
  * Sanitize user input
