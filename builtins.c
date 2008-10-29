@@ -112,6 +112,7 @@ int cmd_eco(char **argv)
 /* Display the current directory */
 int cmd_pwd(char **argv)
 {
+    (void) argv; /* avoid warning about unused parameter */
     char buffer[BUF_SIZE];
     char *dir = getcwd(buffer, BUF_SIZE);
 
@@ -141,6 +142,7 @@ int cmd_cd(char **argv)
 /* Exit shell */
 int cmd_exit(char **argv)
 {
+    (void) argv; /* avoid warning about unused parameter */
     printf("Bye!\n");
     exit(EXIT_SUCCESS);
 }

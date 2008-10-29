@@ -23,7 +23,7 @@ extern pid_t fg_pid;
 /* Run given builtin command, if possible */
 static int builtin_exec(char **cmd)
 {
-    int i;
+    unsigned int i;
     for (i = 0; i < ARRAY_SIZE(commands); i++) {
         const struct cmd_struct *p = commands+i;
         if (strcmp(p->cmd, *cmd))

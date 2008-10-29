@@ -28,6 +28,15 @@ pid_t *pids;
 /* Foreground process' pid */
 pid_t fg_pid = 0;
 
+
+/* Prototypes */
+static void cleanup(void);
+static int print_prompt(void);
+static int interpret_line(char *buffer, char **myArgv);
+static void evil_dead(void);
+static void handle_sigint(int sig);
+int main(void);
+
 /* Executed at exit */
 void cleanup()
 {
@@ -114,8 +123,9 @@ void evil_dead() {
 }
 
 /* Pass SIGINTs to the foreground process */
-void handle_sigint()
+void handle_sigint(int sig)
 {
+    (void) sig; /* avoid warning about unused parameter */
     if (fg_pid != 0) kill(fg_pid, SIGINT);
     printf("\n");
 }
