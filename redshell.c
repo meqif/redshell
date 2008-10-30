@@ -125,8 +125,10 @@ void evil_dead() {
 /* Pass SIGINTs to the foreground process */
 void handle_sigint(int sig)
 {
-    (void) sig; /* avoid warning about unused parameter */
-    if (fg_pid != 0) kill(fg_pid, SIGINT);
+    if (fg_pid != 0) {
+        kill(fg_pid, sig);
+        waitpid(fg_pid, NULL, 0);
+    }
     printf("\n");
 }
 
