@@ -88,13 +88,30 @@ char *expand_tilde(char *dest, char *src)
     return dest;
 }
 
+/* Expand environment variables */
 int expand_env(char **argv)
 {
     char **tmp = argv;
-    char *aux;
     while(*tmp != NULL) {
-        if (**tmp == '$' && (aux = getenv(*tmp+1)) != NULL)
-            *tmp = aux;
+        if (**tmp == '$') {
+            char expanded[strlen(*tmp)+100];
+            char var[50];
+            int i = 0;
+            (*tmp)++;
+            while (**tmp != '\0' && **tmp != '/') {
+                var[i++] = **tmp;
+                (*tmp)++;
+            }
+            var[i] = '\0';
+            expanded[0] = '\0';
+            if (getenv(var) != NULL)
+                strcat(expanded, getenv(var));
+            else
+                strcat(expanded, "$");
+            if (*tmp != NULL)
+                strcat(expanded, *tmp);
+            *tmp = expanded;
+        }
         tmp++;
     }
     return 0;
