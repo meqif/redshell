@@ -1,6 +1,8 @@
 redshell
 ========
 
+[![Shell: Original (1 of 3) (c) 2007 cobalt123, some rights reserved"](http://farm2.static.flickr.com/1046/1156232979_4e4d7c01c7_m_d.jpg)](http://flickr.com/photos/cobalt/1156232979/ "Shell: Original (1 of 3) (c) 2007 cobalt123, some rights reserved")
+
 redshell is a simple and light UNIX shell.
 
 Suggestions and patches are very welcome.
