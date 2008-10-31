@@ -1,6 +1,0 @@
-redshell is a simple and light UNIX shell.
-
-To build it, you need SCons and Python installed. Just run "scons" and you're
-done! There are no other dependencies.
-
-Suggestions and patches are very welcome.
