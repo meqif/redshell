@@ -105,6 +105,15 @@ int cmd_eco(char **argv)
     return 0;
 }
 
+/* Export/set environment variables */
+int cmd_export(char **argv)
+{
+    char *exp[2];
+    tokenize(exp, *argv, "=");
+
+    return setenv(exp[0], exp[1], 1);
+}
+
 /* Display the current directory */
 int cmd_pwd(char **argv)
 {

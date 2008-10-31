@@ -8,6 +8,7 @@
 int cmd_cd     (char **argv);
 int cmd_eco    (char **argv);
 int cmd_exit   (char **argv);
+int cmd_export (char **argv);
 int cmd_listar (char **argv);
 int cmd_pwd    (char **argv);
 
@@ -21,6 +22,7 @@ static const struct cmd_struct commands[] = {
     { "cd",     cmd_cd     },
     { "eco",    cmd_eco    },
     { "exit",   cmd_exit   },
+    { "export", cmd_export },
     { "listar", cmd_listar },
     { "pwd",    cmd_pwd    },
 };
