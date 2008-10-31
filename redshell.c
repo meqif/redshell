@@ -127,6 +127,11 @@ void evil_dead() {
     }
 }
 
+void shotgun(int sig)
+{
+    evil_dead();
+}
+
 /* Pass SIGINTs to the foreground process */
 void handle_sigint(int sig)
 {
@@ -152,9 +157,13 @@ int main()
     sigfillset(&(act.sa_mask));
     sigaction(SIGINT, &act, NULL);
 
+    static struct sigaction act2;
+    act2.sa_handler = shotgun;
+    sigfillset(&(act2.sa_mask));
+    sigaction(SIGCHLD, &act2, NULL);
+
     while ( 1 ) {
         line[0] = '\0';                 /* Clear the user input buffer */
-        evil_dead();                    /* Deal with possible zombies */
         print_prompt();                 /* Print the prompt */
         fgets(line, BUF_SIZE, stdin);   /* Read the user input to a buffer */
         interpret_line(line, myArgv);   /* Interpret the command and make three wishes come true */
