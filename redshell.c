@@ -114,7 +114,7 @@ void evil_dead() {
         if (pids[i] != 0) {
             state = waitpid(pids[i], NULL, WNOHANG);
             if (state > 0) {
-                printf("[%d] %d done\n", i+1, pids[i]);
+                printf("\n[%d] %d done\n", i+1, pids[i]);
                 pids[i] = 0;
             }
             else if (state == -1) {
