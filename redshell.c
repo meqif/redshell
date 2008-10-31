@@ -34,7 +34,7 @@ static void cleanup(void);
 static int print_prompt(void);
 static int interpret_line(char *buffer, char **myArgv);
 static void evil_dead(void);
-static void handle_sigint(int sig);
+static void sig_handler(int sig);
 int main(void);
 
 /* Executed at exit */
@@ -127,19 +127,24 @@ void evil_dead() {
     }
 }
 
-void shotgun(int sig)
+/* Deal with signals */
+void sig_handler(int sig)
 {
-    evil_dead();
-}
-
-/* Pass SIGINTs to the foreground process */
-void handle_sigint(int sig)
-{
-    if (fg_pid != 0) {
-        kill(fg_pid, sig);
-        waitpid(fg_pid, NULL, 0);
+    switch(sig) {
+        case SIGINT:
+            if (fg_pid != 0) {
+                kill(fg_pid, sig);
+                waitpid(fg_pid, NULL, 0);
+            }
+            printf("\n");
+            break;
+        case SIGCHLD:
+            evil_dead();
+            break;
+        default:
+            printf("Caught unexpected signal %d\n", sig);
+            break;
     }
-    printf("\n");
 }
 
 int main()
@@ -153,14 +158,10 @@ int main()
 
     /* Signal stuff */
     static struct sigaction act;
-    act.sa_handler = handle_sigint;
+    act.sa_handler = sig_handler;
     sigfillset(&(act.sa_mask));
-    sigaction(SIGINT, &act, NULL);
-
-    static struct sigaction act2;
-    act2.sa_handler = shotgun;
-    sigfillset(&(act2.sa_mask));
-    sigaction(SIGCHLD, &act2, NULL);
+    sigaction(SIGINT, &act, NULL);      /* Handle SIGINTs, that is, ^C */
+    sigaction(SIGCHLD, &act, NULL);     /* Handle SIGCHLD -- children death */
 
     while ( 1 ) {
         line[0] = '\0';                 /* Clear the user input buffer */
