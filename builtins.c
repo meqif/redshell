@@ -40,10 +40,6 @@ static int string_cmp(const void *a, const void *b)
 /* List directory contents and/or file properties */
 int cmd_listar(char **argv)
 {
-    /*
-     * TODO:
-     * - Converter '~' para getenv("HOME")
-     */
     struct dirent *d;
     struct stat s;
     DIR *dir = NULL;

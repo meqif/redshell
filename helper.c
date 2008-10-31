@@ -70,4 +70,25 @@ int add_pid(pid_t new_pid)
     return -1;
 }
 
+/* Replace '~' with the contents of $HOME */
+char *expand_tilde(char *src)
+{
+    char *tilde = NULL;
+    int length = strlen(src)+100; /* That should be enough */
+    char *dest = calloc(length, sizeof(char));
+
+    tilde = strstr(src, "~");
+
+    if (tilde != NULL) {
+        *tilde = '\0';
+        strcat(dest, src);
+        strcat(dest, getenv("HOME"));
+        src = tilde+1;
+        strcat(dest, src);
+    }
+    else
+        strcat(dest, src);
+    return dest;
+}
+
 // vim: et ts=4 sw=4 sts=4

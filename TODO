@@ -6,3 +6,4 @@ TODO:
 XXX:
  * Sanitize user input
  * Spaces in paths
+ * Fix memory leak when expanding tilde

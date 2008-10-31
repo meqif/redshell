@@ -81,6 +81,9 @@ int interpret_line(char *buffer, char **myArgv)
         *aux = '\0';
     }
 
+    /* Expand tilde */
+    char *newbuffer = expand_tilde(buffer);
+
     /* Check if the user wants to redirect the input or output */
     char *infile = NULL;
     char *outfile = NULL;
@@ -94,10 +97,13 @@ int interpret_line(char *buffer, char **myArgv)
     }
 
     /* Split user input by pipe */
-    tokenize(commands, buffer, "|\n");
+    tokenize(commands, newbuffer, "|\n");
 
     /* Execute the user command(s) */
     pipe_exec(commands, n_commands, bg, infile, outfile);
+
+    /* XXX: If the user wants to exit, this doesn't execute :( -- small leak */
+    free(newbuffer);
 
     return 0;
 }
