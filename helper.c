@@ -88,4 +88,15 @@ char *expand_tilde(char *dest, char *src)
     return dest;
 }
 
+int expand_env(char **argv)
+{
+    char **tmp = argv;
+    char *aux;
+    while(*tmp != NULL) {
+        if (**tmp == '$' && (aux = getenv(*tmp+1)) != NULL)
+            *tmp = aux;
+        tmp++;
+    }
+    return 0;
+}
 // vim: et ts=4 sw=4 sts=4
