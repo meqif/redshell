@@ -71,12 +71,9 @@ int add_pid(pid_t new_pid)
 }
 
 /* Replace '~' with the contents of $HOME */
-char *expand_tilde(char *src)
+char *expand_tilde(char *dest, char *src)
 {
     char *tilde = NULL;
-    int length = strlen(src)+100; /* That should be enough */
-    char *dest = calloc(length, sizeof(char));
-
     tilde = strstr(src, "~");
 
     if (tilde != NULL) {
