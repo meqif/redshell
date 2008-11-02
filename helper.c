@@ -94,23 +94,22 @@ int expand_env(char **argv)
     char **tmp = argv;
     while(*tmp != NULL) {
         if (**tmp == '$') {
-            char expanded[strlen(*tmp)+100];
-            char var[50];
-            int i = 0;
-            (*tmp)++;
-            while (**tmp != '\0' && **tmp != '/') {
-                var[i++] = **tmp;
-                (*tmp)++;
+            char *p = strstr(*tmp, "/");
+            if (p != NULL) {
+                int len = p-(*tmp)-1;
+                char envvar[len+1+strlen(p)];
+                strncpy(envvar, (*tmp)+1, len);
+                envvar[len] = 0;
+                char *var = getenv(envvar);
+                strcpy(envvar, var);
+                strcat(envvar, p);
+                *tmp = strdup(envvar);
             }
-            var[i] = '\0';
-            expanded[0] = '\0';
-            if (getenv(var) != NULL)
-                strcat(expanded, getenv(var));
-            else
-                strcat(expanded, "$");
-            if (*tmp != NULL)
-                strcat(expanded, *tmp);
-            *tmp = expanded;
+            else {
+                char *envvar = getenv((*tmp)+1);
+                if (envvar != NULL)
+                    *tmp = envvar;
+            }
         }
         tmp++;
     }
