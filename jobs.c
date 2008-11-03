@@ -151,7 +151,7 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
             executioner(myArgv[i]);
         }
         else
-            launched[i] = p;
+            fg_pid = launched[i] = p;
     }
 
     /* Only the parent gets here and waits for children to finish */
@@ -162,10 +162,8 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     dup2(stdout_copy, 1);
 
     if (!bg)
-        for (i = 0; i < n_commands; i++) {
-            fg_pid = launched[i];
-            while (waitpid(launched[i], NULL, 0) < 0);
-        }
+        for (i = 0; i < n_commands; i++)
+            while (waitpid(launched[i], NULL, 0) == -1 && errno != ECHILD);
     else
         for (i = 0; i < n_commands; i++) {
             int pid_counter = add_pid(launched[i]);
