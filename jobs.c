@@ -79,12 +79,21 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     /* Redirect input */
     if (infile != NULL) {
         fd_in = open(infile, O_RDONLY);
+        if (fd_in == -1) {
+            perror("");
+            return -1;
+        }
         dup2(fd_in, 0);
     }
 
     /* Redirect output */
     if (outfile != NULL) {
         fd_out = open(outfile, O_WRONLY|O_CREAT|O_TRUNC, PERMS);
+        if (fd_out == -1) {
+            perror("");
+            if (fd_in == -1) close(fd_in);
+            return -1;
+        }
         dup2(fd_out, 1);
     }
 
