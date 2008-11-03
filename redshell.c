@@ -113,15 +113,12 @@ void evil_dead() {
     for (i = 0; i < HIST_SIZE; i++) {
         if (pids[i] != 0) {
             state = waitpid(pids[i], NULL, WNOHANG);
-            if (state > 0) {
+            if (state > 0 || errno == ECHILD) {
                 printf("\n[%d] %d done\n", i+1, pids[i]);
                 pids[i] = 0;
             }
             else if (state == -1) {
-                if (errno == ECHILD) /* Someone else killed the child */
-                    pids[i] = 0;
-                else
-                    perror("");
+                perror("");
             }
         }
     }
@@ -135,6 +132,7 @@ void sig_handler(int sig)
             if (fg_pid != 0) {
                 kill(fg_pid, sig);
                 waitpid(fg_pid, NULL, 0);
+                fg_pid = 0;
             }
             printf("\n");
             break;
