@@ -160,8 +160,10 @@ int main()
     static struct sigaction act;
     act.sa_handler = sig_handler;
     sigfillset(&(act.sa_mask));
-    sigaction(SIGINT, &act, NULL);      /* Handle SIGINTs, that is, ^C */
-    sigaction(SIGCHLD, &act, NULL);     /* Handle SIGCHLD -- children death */
+    if (sigaction(SIGINT, &act, NULL) == -1)
+        perror_exit("Setting SIGINT handler failed");
+    if (sigaction(SIGCHLD, &act, NULL) == -1)
+        perror_exit("Setting SIGCHLD handler failed");
 
     while ( 1 ) {
         line[0] = '\0';                 /* Clear the user input buffer */
