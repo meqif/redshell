@@ -115,4 +115,10 @@ int expand_env(char **argv)
     }
     return 0;
 }
+
+void perror_exit(char *msg)
+{
+    perror(msg);
+    exit(EXIT_FAILURE);
+}
 // vim: et ts=4 sw=4 sts=4

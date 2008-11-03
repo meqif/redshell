@@ -12,5 +12,6 @@ void tokenize(char **dst, char *buffer, const char *delimiters);
 int add_pid(pid_t new_pid);
 char *expand_tilde(char *dest, char *src);
 int expand_env(char **argv);
+void perror_exit(char *msg);
 
 #endif /* HELPER_H */
