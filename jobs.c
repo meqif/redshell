@@ -128,24 +128,13 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
                 dup2(pipes[1], 1);
                 if (fd_in != -1) dup2(fd_in, 0);
             }
-            else if (i == n_commands-1) {    /* Last comand */
-                if (i == 1)
-                    dup2(pipes[0], 0);
-                else if (i%2 == 0)
-                    dup2(pipes[i], 0);
-                else
-                    dup2(pipes[i+1], 0);
+            else if (i == n_commands-1) {    /* Last command */
+                dup2(pipes[2*(i-1)], 0);
                 if (fd_out != -1) dup2(fd_out, 1);
             }
             else {                           /* Everything in between */
-                if (i%2 == 1) {
-                    dup2(pipes[i-1], 0);
-                    dup2(pipes[i+2], 1);
-                }
-                else {
-                    dup2(pipes[i], 0);
-                    dup2(pipes[i+3], 1);
-                }
+                dup2(pipes[2*(i-1)], 0);
+                dup2(pipes[(2*i)+1], 1);
             }
             closepipes(pipes, tot_pipes);
             executioner(myArgv[i]);
