@@ -80,7 +80,7 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     if (infile != NULL) {
         fd_in = open(infile, O_RDONLY);
         if (fd_in == -1) {
-            perror("");
+            perror(infile);
             return -1;
         }
         dup2(fd_in, 0);
@@ -90,7 +90,7 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     if (outfile != NULL) {
         fd_out = open(outfile, O_WRONLY|O_CREAT|O_TRUNC, PERMS);
         if (fd_out == -1) {
-            perror("");
+            perror(outfile);
             if (fd_in == -1) close(fd_in);
             return -1;
         }
