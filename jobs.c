@@ -120,17 +120,13 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     for (i = 0; i < n_commands; i++) {
         pid_t p = fork();
         if (p == 0) {
-            if (n_commands == 1) {
-                if (fd_in != -1)  dup2(fd_in, 0);
-                if (fd_out != -1) dup2(fd_out, 1);
+            if (i == 0) {               /* First command */
+                if (n_commands > 1) dup2(pipes[1], 1);
+                if (fd_in != -1)    dup2(fd_in, 0);
             }
-            else if (i == 0) {               /* First command */
-                dup2(pipes[1], 1);
-                if (fd_in != -1) dup2(fd_in, 0);
-            }
-            else if (i == n_commands-1) {    /* Last command */
-                dup2(pipes[2*(i-1)], 0);
-                if (fd_out != -1) dup2(fd_out, 1);
+            if (i == n_commands-1) {    /* Last command */
+                if (n_commands > 1) dup2(pipes[2*(i-1)], 0);
+                if (fd_out != -1)   dup2(fd_out, 1);
             }
             else {                           /* Everything in between */
                 dup2(pipes[2*(i-1)], 0);
