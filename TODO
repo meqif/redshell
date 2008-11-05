@@ -2,6 +2,7 @@ TODO:
  * History
  * Tab completion
  * Add more error checking
+ * String replace
 
 XXX:
  * Sanitize user input

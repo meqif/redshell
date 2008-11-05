@@ -140,7 +140,7 @@ void sig_handler(int sig)
             evil_dead();
             break;
         default:
-            printf("Caught unexpected signal %d\n", sig);
+            fprintf(stderr, "Caught unexpected signal %d\n", sig);
             break;
     }
 }
