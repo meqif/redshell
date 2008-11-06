@@ -97,7 +97,8 @@ int expand_env(char **argv)
             /* head will point to where we are in the string, tok will point to
              * the beggining of the last token */
             head = tok = *argv;
-            char *new = calloc(BUF_SIZE,1);
+            char new[BUF_SIZE];
+            memset(new, 0, BUF_SIZE);
             int stop = 0;
             do {
                 if (*head == 0) stop = 1;
@@ -109,7 +110,7 @@ int expand_env(char **argv)
                     else
                         strcat(new, word);
                     free(word);
-                    if (*head == '/')
+                    if (*head == '/')      /* TODO: Flexibilizar */
                         strcat(new, "/");
                     *head = 0;             /* Separate tokens */
                     tok = head+1;          /* Ignore current character ('\0') */
@@ -117,8 +118,8 @@ int expand_env(char **argv)
                 head++;
             } while (!stop);
             if (*new != 0)
-                *argv = new;
-            free(new);
+                *argv = strdup(new);
+            //free(new);
         }
         argv++;
     }
