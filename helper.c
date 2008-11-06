@@ -124,39 +124,36 @@ int expand_env(char **argv)
 
 int expand_env2(char **argv)
 {
-    char **tmp = argv;
-    while (*tmp != NULL) {
-        if (strstr(*tmp, "$")) {
-            char *arg, *ptr, *word;
-            arg = ptr = *tmp;
+    while (*argv != NULL) {
+        if (strstr(*argv, "$")) { /* Do we really need to mangle the argument? */
+            char *head, *tok, *word;
+            /* head will point to where we are in the string, tok will point to
+             * the beggining of the last token */
+            head = tok = *argv;
             char *new = calloc(1000,1);
-            int go = 1;
+            int stop = 0;
             do {
-                if (*arg == 0) go = 0;
-                switch(*arg) {
-                    case '$':
-                    case '\0':
-                    case '/':
-                        word = calloc(arg-ptr+1,1);
-                        strncat(word, ptr, arg-ptr);
-                        if (getenv(word) != NULL)
-                            strcat(new, getenv(word));
-                        else
-                            strcat(new, word);
-                        free(word);
-                        if (*arg == '/')
-                            strcat(new, "/");
-                        *arg = 0;
-                        ptr = arg+1;
-                        break;
+                if (*head == 0) stop = 1;
+                if (*head == '$' || *head == '/' || *head == 0) {
+                    word = calloc(head-tok+1,1);  /* Get the word since the last */
+                    strncat(word, tok, head-tok); /* symbol to the current one   */
+                    if (getenv(word) != NULL)
+                        strcat(new, getenv(word));
+                    else
+                        strcat(new, word);
+                    free(word);
+                    if (*head == '/')
+                        strcat(new, "/");
+                    *head = 0;             /* Separate tokens */
+                    tok = head+1;          /* Ignore current character ('\0') */
                 }
-                arg++;
-            } while (go);
+                head++;
+            } while (!stop);
             if (*new != 0)
-                *tmp = new;
+                *argv = new;
             free(new);
         }
-        tmp++;
+        argv++;
     }
     return 0;
 }
