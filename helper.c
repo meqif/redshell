@@ -110,6 +110,45 @@ int expand_env(char **argv)
                 if (envvar != NULL)
                     *tmp = envvar;
             }
+    }
+    return 0;
+}
+
+int expand_env2(char **argv)
+{
+    char **tmp = argv;
+    while (*tmp != NULL) {
+        if (strstr(*tmp, "$")) {
+            char *arg, *ptr, *bleh;
+            arg = ptr = *tmp;
+            char *new = calloc(1000,1);
+            int go = 1;
+            int len;
+            do {
+                if (*arg == 0) go = 0;
+                switch(*arg) {
+                    case '$':
+                    case '\0':
+                    case '/':
+                        len = arg-ptr;
+                        bleh = calloc(len+1,1);
+                        strncat(bleh, ptr, len);
+                        if (getenv(bleh) != NULL)
+                            strcat(new, getenv(bleh));
+                        else
+                            strcat(new, bleh);
+                        free(bleh);
+                        if (*arg == '/')
+                            strcat(new, "/");
+                        *arg = 0;
+                        ptr = arg+1;
+                        break;
+                }
+                arg++;
+            } while (go);
+            if (*new != 0)
+                *tmp = new;
+            free(new);
         }
         tmp++;
     }
