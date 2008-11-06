@@ -88,44 +88,6 @@ char *expand_tilde(char *dest, char *src)
     return dest;
 }
 
-/* Expand environment variables */
-int expand_env(char **argv)
-{
-    while (*argv != NULL) {
-        if (strstr(*argv, "$")) { /* Do we need to mangle the argument? */
-            char *head, *tok, *word;
-            /* head will point to where we are in the string, tok will point to
-             * the beggining of the last token */
-            head = tok = *argv;
-            char new[BUF_SIZE];
-            memset(new, 0, BUF_SIZE);
-            int stop = 0;
-            do {
-                if (*head == 0) stop = 1;
-                if (*head == '$' || *head == '/' || *head == 0) {
-                    word = calloc(head-tok+1,1);  /* Get the word between the */
-                    strncat(word, tok, head-tok); /* last and current symbols */
-                    if (getenv(word) != NULL)
-                        strcat(new, getenv(word));
-                    else
-                        strcat(new, word);
-                    free(word);
-                    if (*head == '/')      /* TODO: Flexibilizar */
-                        strcat(new, "/");
-                    *head = 0;             /* Separate tokens */
-                    tok = head+1;          /* Ignore current character ('\0') */
-                }
-                head++;
-            } while (!stop);
-            if (*new != 0)
-                *argv = strdup(new);
-            //free(new);
-        }
-        argv++;
-    }
-    return 0;
-}
-
 void perror_exit(char *msg)
 {
     perror(msg);
