@@ -92,18 +92,18 @@ char *expand_tilde(char *dest, char *src)
 int expand_env(char **argv)
 {
     while (*argv != NULL) {
-        if (strstr(*argv, "$")) { /* Do we really need to mangle the argument? */
+        if (strstr(*argv, "$")) { /* Do we need to mangle the argument? */
             char *head, *tok, *word;
             /* head will point to where we are in the string, tok will point to
              * the beggining of the last token */
             head = tok = *argv;
-            char *new = calloc(1000,1);
+            char *new = calloc(BUF_SIZE,1);
             int stop = 0;
             do {
                 if (*head == 0) stop = 1;
                 if (*head == '$' || *head == '/' || *head == 0) {
-                    word = calloc(head-tok+1,1);  /* Get the word since the last */
-                    strncat(word, tok, head-tok); /* symbol to the current one   */
+                    word = calloc(head-tok+1,1);  /* Get the word between the */
+                    strncat(word, tok, head-tok); /* last and current symbols */
                     if (getenv(word) != NULL)
                         strcat(new, getenv(word));
                     else
