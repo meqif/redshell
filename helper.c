@@ -91,39 +91,6 @@ char *expand_tilde(char *dest, char *src)
 /* Expand environment variables */
 int expand_env(char **argv)
 {
-    char **tmp = argv;
-    while(*tmp != NULL) {
-        char *dollar = strstr(*tmp, "$");
-        if (dollar != NULL) {
-            char *new = calloc(1000, 1);
-            int len = dollar-(*tmp);
-            strncpy(new, *tmp, len);
-            char *p = strstr(dollar, "/");
-            if (p != NULL) {
-                int len2 = p-dollar;
-                char *word = calloc(len2,1);
-                strncpy(word, dollar+1, len2-1);
-                char *envvar = getenv(word);
-                free(word);
-                if (envvar != NULL)
-                    strcat(new, envvar);
-                strcat(new, dollar+len2);
-            }
-            else {
-                char *envvar = getenv(dollar+1);
-                if (envvar != NULL)
-                    strcat(new, envvar);
-            }
-            *tmp = new;
-            free(new);
-        }
-        tmp++;
-    }
-    return 0;
-}
-
-int expand_env2(char **argv)
-{
     while (*argv != NULL) {
         if (strstr(*argv, "$")) { /* Do we really need to mangle the argument? */
             char *head, *tok, *word;
