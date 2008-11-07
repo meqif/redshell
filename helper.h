@@ -11,8 +11,7 @@ char *getgroupname(gid_t gid);
 void tokenize(char **dst, char *buffer, const char *delimiters);
 int add_pid(pid_t new_pid);
 char *expand_tilde(char *dest, char *src);
-int expand_env(char **argv);
-int expand_env2(char **argv);
+int expand_env(char *dest, char *src);
 void perror_exit(char *msg);
 
 #endif /* HELPER_H */

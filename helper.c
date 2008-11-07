@@ -88,6 +88,34 @@ char *expand_tilde(char *dest, char *src)
     return dest;
 }
 
+/* Expand environment variables */
+char *expand_env(char *dest, char *src) {
+    extern char **environ;
+    char **env = environ;
+    char *buf;
+    strcpy(dest, src);
+    while(*env != NULL) {
+        char *ptr = strchr(*env, '=');
+        buf = calloc(ptr-(*env)+1, 1);
+        strncpy(buf, *env, ptr-(*env));
+        char *buffer = calloc(strlen(buf)+2, 1);
+        sprintf(buffer, "$%s", buf);
+        char *dollar = strstr(dest, buffer);
+        if (dollar != NULL) {
+            char *blip = calloc(BUF_SIZE,1);
+            strncat(blip, dest, dollar-dest);
+            strcat(blip, getenv(buf));
+            strncat(blip, dollar+strlen(buffer), dollar-dest+strlen(buffer));
+            strcpy(dest, blip);
+            free(blip);
+        }
+        free(buf);
+        free(buffer);
+        env++;
+    }
+    return 0;
+}
+
 void perror_exit(char *msg)
 {
     perror(msg);
