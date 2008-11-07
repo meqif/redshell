@@ -83,10 +83,10 @@ int interpret_line(char *buffer, char **myArgv)
 
     /* Expand tilde */
     char newbuffer[strlen(buffer)+100];
-    memset(newbuffer, 0, strlen(buffer)+100);
+    memset(newbuffer, 0, strlen(buffer)+101);
     expand_tilde(newbuffer, buffer);
-    char newbuffer2[strlen(newbuffer)*2];
-    memset(newbuffer2, 0, strlen(newbuffer)*2);
+    char newbuffer2[BUF_SIZE];
+    memset(newbuffer2, 0, BUF_SIZE+1);
     expand_env(newbuffer2, newbuffer);
 
     /* Check if the user wants to redirect the input or output */

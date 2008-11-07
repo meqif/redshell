@@ -92,24 +92,22 @@ char *expand_tilde(char *dest, char *src)
 char *expand_env(char *dest, char *src) {
     extern char **environ;
     char **env = environ;
-    char *buf;
+    char *buffer;
     strcpy(dest, src);
     while(*env != NULL) {
         char *ptr = strchr(*env, '=');
-        buf = calloc(ptr-(*env)+1, 1);
-        strncpy(buf, *env, ptr-(*env));
-        char *buffer = calloc(strlen(buf)+2, 1);
-        sprintf(buffer, "$%s", buf);
+        buffer = calloc(ptr-(*env)+2, 1);
+        strcpy(buffer, "$");
+        strncat(buffer, *env, ptr-(*env));
         char *dollar = strstr(dest, buffer);
         if (dollar != NULL) {
             char *blip = calloc(BUF_SIZE,1);
             strncat(blip, dest, dollar-dest);
-            strcat(blip, getenv(buf));
+            strcat(blip, getenv(buffer+1));
             strncat(blip, dollar+strlen(buffer), dollar-dest+strlen(buffer));
             strcpy(dest, blip);
             free(blip);
         }
-        free(buf);
         free(buffer);
         env++;
     }
