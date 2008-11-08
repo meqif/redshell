@@ -108,10 +108,12 @@ int cmd_eco(char **argv)
 /* Export/set environment variables */
 int cmd_export(char **argv)
 {
-    char *exp[2];
-    tokenize(exp, *argv, "=");
+    char *key = *argv;
+    char *value = strstr(*argv, "=");
+    *value = '\0';
+    value++;
 
-    return setenv(exp[0], exp[1], 1);
+    return setenv(key, value, 1);
 }
 
 /* Display the current directory */
