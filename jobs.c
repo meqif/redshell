@@ -127,7 +127,7 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
                 if (n_commands > 1) dup2(pipes[2*(i-1)], 0);
                 if (fd_out != -1)   dup2(fd_out, 1);
             }
-            else {                           /* Everything in between */
+            else {                      /* Everything in between */
                 dup2(pipes[2*(i-1)], 0);
                 dup2(pipes[(2*i)+1], 1);
             }
