@@ -89,11 +89,14 @@ char *expand_tilde(char *dest, char *src)
 }
 
 /* Expand environment variables */
-char *expand_env(char *dest, char *src) {
+char *expand_env(char *dest, char *src)
+{
     extern char **environ;
-    char **env, *buffer;
+    char **env, *buffer, *dest_ptr;
     strcpy(dest, src);
-    while (strstr(dest, "$")) {
+    dest_ptr = dest;
+    while ((dest_ptr = strstr(dest_ptr, "$"))) {
+        dest_ptr++;                               /* Avoid infinite loop */
         env = environ;
         while(*env != NULL) {
             char *ptr = strchr(*env, '=');
