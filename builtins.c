@@ -64,7 +64,7 @@ int cmd_listar(char **argv)
 
         char *list[dir_size];
         while ( (d = readdir(dir)) ) {
-            if (d->d_ino != 0) /* XXX: I can't for the life of me remember why this is here */
+            if (d->d_ino != 0)                 /* Ignore invalid inodes */
                 list[i++] = strdup(d->d_name);
         }
         list[i] = NULL;
@@ -75,7 +75,7 @@ int cmd_listar(char **argv)
         for (j = 0; j < i; j++) {
             char buf[BUF_SIZE];
             char *name = list[j];
-            if (strncmp(name, ".", 1) != 0) { /* Don't list hidden files nor special dirs */
+            if (strncmp(name, ".", 1) != 0) {  /* Don't list hidden files and directories */
                 snprintf(buf, BUF_SIZE, "%s/%s", path, name);
                 print_file_info(name, buf, s);
             }
@@ -85,8 +85,8 @@ int cmd_listar(char **argv)
         closedir(dir);
     }
     else if (errno == ENOTDIR) {               /* Then it's probably a file */
-        char *name = strrchr(path,  '/');      /* We only want the filename */
-        name = (name == NULL) ? path : name+1; /* Get rid of the trailing slash */
+        char *name = strrchr(path, '/');       /* We only want the filename */
+        name = (name == NULL) ? path : name+1; /* Remove the trailing slash */
         print_file_info(name, path, s);
     }
     else {
