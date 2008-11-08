@@ -91,26 +91,27 @@ char *expand_tilde(char *dest, char *src)
 /* Expand environment variables */
 char *expand_env(char *dest, char *src) {
     extern char **environ;
-    char **env = environ;
-    char *buffer;
+    char **env, *buffer;
     strcpy(dest, src);
-    while(*env != NULL) {
-        char *ptr = strchr(*env, '=');
-        buffer = calloc(ptr-(*env)+2, 1);
-        strcpy(buffer, "$");
-        strncat(buffer, *env, ptr-(*env));    /* Copy the env var name */
-        char *dollar = strstr(dest, buffer);
-        if (dollar != NULL) {
-            char *blip = calloc(BUF_SIZE,1);
-            strncat(blip, dest, dollar-dest); /* Copy everything before the $ */
-            strcat(blip, getenv(buffer+1));   /* Copy the value of the env var */
-            /* Copy the rest */
-            strncat(blip, dollar+strlen(buffer), dollar-dest+strlen(buffer));
-            strcpy(dest, blip); /* Copy the final result to the destination */
-            free(blip);
+    while (strstr(dest, "$")) {
+        env = environ;
+        while(*env != NULL) {
+            char *ptr = strchr(*env, '=');
+            buffer = calloc(ptr-(*env)+2, 1);
+            strcpy(buffer, "$");
+            strncat(buffer, *env, ptr-(*env));    /* Copy the env var name */
+            char *dollar = strstr(dest, buffer);
+            if (dollar != NULL) {
+                char *blip = calloc(BUF_SIZE,1);
+                strncat(blip, dest, dollar-dest); /* Copy everything before the $ */
+                strcat(blip, getenv(buffer+1));   /* Copy the value of the env var */
+                strcat(blip, dollar+strlen(buffer)); /* Copy the rest */
+                strcpy(dest, blip); /* Copy the final result to the destination */
+                free(blip);
+            }
+            free(buffer);
+            env++;
         }
-        free(buffer);
-        env++;
     }
     return 0;
 }
