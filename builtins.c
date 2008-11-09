@@ -14,6 +14,7 @@
 
 #include "common.h"
 #include "helper.h"
+#include "jobs.h"
 
 /* Print file properties */
 static void print_file_info(char *name, char *path, struct stat s)
@@ -152,6 +153,56 @@ int cmd_exit(char **argv)
     (void) argv; /* avoid warning about unused parameter */
     printf("Bye!\n");
     exit(EXIT_SUCCESS);
+}
+
+/* Executes a command and lets it run for at most the seconds given in the
+ * first position of the argument */
+int cmd_timeout(char **argv)
+{
+    int seconds = atoi(*argv);
+
+    if (seconds <= 0) {
+        fprintf(stderr, "Invalid waiting time\n");
+        return -1;
+    }
+
+    argv++; /* Ignore timeout parameter */
+
+    /* Rebuild command */
+    char *cmds[2];
+    char *cmd = calloc(BUF_SIZE, 1);
+    while (*argv != NULL) {
+        strcat(cmd, *argv);
+        strcat(cmd, " ");
+        argv++;
+    }
+    cmds[0] = cmd;
+    cmds[1] = NULL;
+
+    pid_t pid = fork();
+    switch(pid) {
+        case -1:
+            perror("fork failed");
+            return -1;
+            break;
+        case 0:
+            setpgrp(); /* Thank you internet: http://is.gd/6MV3 */
+            pipe_exec(cmds, 1, 0, NULL, NULL);
+            free(cmd);
+            exit(0);
+            break;
+        default:
+            free(cmd);
+            sleep(seconds);
+            if (waitpid(pid, NULL, WNOHANG) == 0) {
+                kill(-pid, SIGKILL);
+                waitpid(pid, NULL, 0);
+                printf("Timeout\n");
+            }
+            break;
+    }
+
+    return 0;
 }
 
 // vim: et ts=4 sw=4 sts=4

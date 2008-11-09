@@ -5,12 +5,13 @@
 #define BUILTINS_H
 
 /* Builtin commands */
-int cmd_cd     (char **argv);
-int cmd_eco    (char **argv);
-int cmd_exit   (char **argv);
-int cmd_export (char **argv);
-int cmd_listar (char **argv);
-int cmd_pwd    (char **argv);
+int cmd_cd      (char **argv);
+int cmd_eco     (char **argv);
+int cmd_exit    (char **argv);
+int cmd_export  (char **argv);
+int cmd_listar  (char **argv);
+int cmd_pwd     (char **argv);
+int cmd_timeout (char **argv);
 
 /* command structure */
 struct cmd_struct {
@@ -19,12 +20,13 @@ struct cmd_struct {
 };
 
 static const struct cmd_struct commands[] = {
-    { "cd",     cmd_cd     },
-    { "eco",    cmd_eco    },
-    { "exit",   cmd_exit   },
-    { "export", cmd_export },
-    { "listar", cmd_listar },
-    { "pwd",    cmd_pwd    },
+    { "cd",      cmd_cd      },
+    { "eco",     cmd_eco     },
+    { "exit",    cmd_exit    },
+    { "export",  cmd_export  },
+    { "listar",  cmd_listar  },
+    { "pwd",     cmd_pwd     },
+    { "timeout", cmd_timeout },
 };
 
 #endif /* BUILTINS_H */
