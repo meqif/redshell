@@ -131,9 +131,16 @@ void evil_dead() {
 void sig_handler(int sig)
 {
     switch(sig) {
+        case SIGALRM:
+            kill(-fg_pid, SIGKILL);
+            printf("Murdered [PID: %d]\n", getpid());
+            waitpid(fg_pid, NULL, 0);
+            printf("Timeout\n");
+            fg_pid = 0;
+            break;
         case SIGINT:
             if (fg_pid != 0) {
-                kill(fg_pid, sig);
+                kill(-fg_pid, sig);
                 waitpid(fg_pid, NULL, 0);
                 fg_pid = 0;
             }
@@ -165,6 +172,8 @@ int main()
         perror_exit("Setting SIGINT handler failed");
     if (sigaction(SIGCHLD, &act, NULL) == -1)
         perror_exit("Setting SIGCHLD handler failed");
+    if (sigaction(SIGALRM, &act, NULL) == -1)
+        perror_exit("Setting SIGALRM handler failed");
 
     while ( 1 ) {
         line[0] = '\0';                 /* Clear the user input buffer */

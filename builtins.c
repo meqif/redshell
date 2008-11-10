@@ -159,6 +159,7 @@ int cmd_exit(char **argv)
  * first position of the argument */
 int cmd_timeout(char **argv)
 {
+    extern int fg_pid;
     int seconds = atoi(*argv);
 
     if (seconds <= 0) {
@@ -189,23 +190,16 @@ int cmd_timeout(char **argv)
             setpgrp(); /* Thank you internet: http://is.gd/6MV3 */
             pipe_exec(cmds, 1, 0, NULL, NULL);
             free(cmd);
+            waitpid(0, NULL, 0);
             printf("Bang, I'm dead (PID: %d)\n", getpid());
             exit(0);
             break;
         default:
             free(cmd);
-            //sleep(seconds);
-            //while ((seconds = sleep(seconds))); /* Force sleep even if a signal arrives */
-            while ((seconds = sleep(seconds))) {
-                if (waitpid(pid, NULL, WNOHANG) != 0)
-                    break;
-            }
-            if (waitpid(pid, NULL, WNOHANG) == 0) {
-                kill(-pid, SIGKILL);
-                printf("Murdered [PID: %d]\n", getpid());
-                waitpid(pid, NULL, 0);
-                printf("Timeout\n");
-            }
+            fg_pid = pid;
+            while ((seconds = alarm(seconds))); /* Set alarm */
+            waitpid(pid, NULL, 0);              /* Wait! */
+            alarm(0);                           /* Unset alarm */
             break;
     }
 
