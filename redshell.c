@@ -133,9 +133,8 @@ void sig_handler(int sig)
     switch(sig) {
         case SIGALRM:
             kill(-fg_pid, SIGKILL);
-            printf("Murdered [PID: %d]\n", getpid());
+            printf("[?] %d timeout\n", fg_pid);
             waitpid(fg_pid, NULL, 0);
-            printf("Timeout\n");
             fg_pid = 0;
             break;
         case SIGINT:

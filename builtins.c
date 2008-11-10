@@ -191,14 +191,13 @@ int cmd_timeout(char **argv)
             pipe_exec(cmds, 1, 0, NULL, NULL);
             free(cmd);
             waitpid(0, NULL, 0);
-            printf("Bang, I'm dead (PID: %d)\n", getpid());
             exit(0);
             break;
         default:
             free(cmd);
             fg_pid = pid;
             while ((seconds = alarm(seconds))); /* Set alarm */
-            waitpid(pid, NULL, 0);              /* Wait! */
+            while ((waitpid(pid, NULL, 0) == -1) && errno != ECHILD);/* Wait! */
             alarm(0);                           /* Unset alarm */
             break;
     }
