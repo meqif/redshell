@@ -3,6 +3,8 @@ TODO:
  * Tab completion
  * Add more error checking
  * String replace
+ * CTRL-L clears the screen
+ * time
 
 XXX:
  * Sanitize user input

@@ -105,6 +105,8 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     }
 
     /* Try to execute builtin command, if it exists */
+    /* NOTE: This is needed because 'cd' and 'exit' mustn't be executed in a
+     * child process (the parent process wouldn't be affected) */
     if (!bg && n_commands == 1 && builtin_exec(myArgv[0]) == 0) {
         /* Restore stdin and stdout */
         dup2(stdin_copy,  0);

@@ -173,13 +173,12 @@ int set_signals()
 int main()
 {
     char *myArgv[MAX_ARGS];
-    char line[BUF_SIZE];               /* Buffer for user input */
+    char line[BUF_SIZE];                /* Buffer for user input */
 
     pids = calloc(HIST_SIZE, sizeof(pid_t));
 
-    atexit(cleanup);                   /* Define some cleaning up operations */
-
-    set_signals();
+    atexit(cleanup);                    /* Define some cleaning up operations */
+    set_signals();                      /* Set signal handlers */
 
     while ( 1 ) {
         line[0] = '\0';                 /* Clear the user input buffer */
