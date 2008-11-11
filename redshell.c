@@ -133,13 +133,13 @@ void sig_handler(int sig)
     switch(sig) {
         case SIGALRM:
             kill(-fg_pid, SIGKILL);
-            printf("[?] %d timeout\n", fg_pid);
+            fprintf(stderr, "[?] %d timeout\n", fg_pid);
             waitpid(fg_pid, NULL, 0);
             fg_pid = 0;
             break;
         case SIGINT:
             if (fg_pid != 0) {
-                kill(-fg_pid, sig);
+                kill(fg_pid, sig);
                 waitpid(fg_pid, NULL, 0);
                 fg_pid = 0;
             }

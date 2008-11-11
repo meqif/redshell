@@ -185,20 +185,19 @@ int cmd_timeout(char **argv)
         case -1:
             perror("fork failed");
             return -1;
-            break;
+            break;                            /* Execution never arrives here */
         case 0:
-            setpgrp(); /* Thank you internet: http://is.gd/6MV3 */
-            pipe_exec(cmds, 1, 0, NULL, NULL);
+            setpgrp(); /* Set process group so this process and its children can be killed */
+            pipe_exec(cmds, 1, 0, NULL, NULL); /* TODO: Allow execution of more than one command */
             free(cmd);
-            waitpid(0, NULL, 0);
             exit(0);
-            break;
+            break;                            /* Execution never arrives here */
         default:
             free(cmd);
             fg_pid = pid;
-            while ((seconds = alarm(seconds))); /* Set alarm */
-            while ((waitpid(pid, NULL, 0) == -1) && errno != ECHILD);/* Wait! */
-            alarm(0);                           /* Unset alarm */
+            alarm(seconds);                   /* Set alarm */
+            while (waitpid(pid, NULL, 0) == -1 && errno == EINTR); /* Wait! */
+            alarm(0);                         /* Unset alarm */
             break;
     }
 
