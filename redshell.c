@@ -35,6 +35,7 @@ static int print_prompt(void);
 static int interpret_line(char *buffer, char **myArgv);
 static void evil_dead(void);
 static void sig_handler(int sig);
+static int set_signals(void);
 int main(void);
 
 /* Executed at exit */
@@ -154,16 +155,9 @@ void sig_handler(int sig)
     }
 }
 
-int main()
+/* Set signal handlers */
+int set_signals()
 {
-    char *myArgv[MAX_ARGS];
-    char line[BUF_SIZE];               /* Buffer for user input */
-
-    pids = calloc(HIST_SIZE, sizeof(pid_t));
-
-    atexit(cleanup);                   /* Define some cleaning up operations */
-
-    /* Signal stuff */
     static struct sigaction act;
     act.sa_handler = sig_handler;
     sigfillset(&(act.sa_mask));
@@ -173,6 +167,19 @@ int main()
         perror_exit("Setting SIGCHLD handler failed");
     if (sigaction(SIGALRM, &act, NULL) == -1)
         perror_exit("Setting SIGALRM handler failed");
+    return 0;
+}
+
+int main()
+{
+    char *myArgv[MAX_ARGS];
+    char line[BUF_SIZE];               /* Buffer for user input */
+
+    pids = calloc(HIST_SIZE, sizeof(pid_t));
+
+    atexit(cleanup);                   /* Define some cleaning up operations */
+
+    set_signals();
 
     while ( 1 ) {
         line[0] = '\0';                 /* Clear the user input buffer */
