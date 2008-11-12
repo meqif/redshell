@@ -169,17 +169,6 @@ int cmd_timeout(char **argv)
 
     argv++; /* Ignore timeout parameter */
 
-    /* Rebuild command */
-    char *cmds[2];
-    char *cmd = calloc(BUF_SIZE, 1);
-    while (*argv != NULL) {
-        strcat(cmd, *argv);
-        strcat(cmd, " ");
-        argv++;
-    }
-    cmds[0] = cmd;
-    cmds[1] = NULL;
-
     pid_t pid = fork();
     switch(pid) {
         case -1:
@@ -188,12 +177,9 @@ int cmd_timeout(char **argv)
             break;                            /* Execution never arrives here */
         case 0:
             setpgrp(); /* Set process group so this process and its children can be killed */
-            pipe_exec(cmds, 1, 0, NULL, NULL); /* TODO: Allow execution of more than one command */
-            free(cmd);
-            exit(0);
+            executioner(argv); /* TODO: Allow execution of more than one command */
             break;                            /* Execution never arrives here */
         default:
-            free(cmd);
             fg_pid = pid;
             alarm(seconds);                   /* Set alarm */
             while (waitpid(pid, NULL, 0) == -1 && errno == EINTR); /* Wait! */
