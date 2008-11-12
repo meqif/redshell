@@ -54,7 +54,7 @@ int cmd_listar(char **argv)
     dir = opendir(path);
 
     if (dir != NULL) {
-        int i = 0, j, dir_size = 0;
+        int i = 0, dir_size = 0;
 
         /* Count used inodes, so we can create an array of the correct size */
         while ( (d = readdir(dir)) )
@@ -71,16 +71,16 @@ int cmd_listar(char **argv)
         list[i] = NULL;
 
         /* Sort entries */
-        qsort(list, i, sizeof(char *), string_cmp);
+        qsort(list, dir_size, sizeof(char *), string_cmp);
 
-        for (j = 0; j < i; j++) {
+        for (i = 0; i < dir_size; i++) {
             char buf[BUF_SIZE];
-            char *name = list[j];
+            char *name = list[i];
             if (strncmp(name, ".", 1) != 0) {  /* Don't list hidden files and directories */
                 snprintf(buf, BUF_SIZE, "%s/%s", path, name);
                 print_file_info(name, buf, s);
             }
-            free(list[j]);
+            free(list[i]);
         }
 
         closedir(dir);
@@ -144,7 +144,7 @@ int cmd_cd(char **argv)
     if ( status == -1 )
         perror(path);
 
-    return 0;
+    return status;
 }
 
 /* Exit shell */
