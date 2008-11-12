@@ -35,7 +35,7 @@ static int builtin_exec(char **cmd)
 }
 
 /* Exec wrapper that performs some error handling */
-static void executioner(char **cmd)
+void executioner(char **cmd)
 {
     /* First, check if it is a builtin command */
     if (builtin_exec(cmd) == 0) exit(EXIT_SUCCESS);
