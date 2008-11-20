@@ -2,11 +2,9 @@ TODO:
  * History
  * Tab completion
  * Add more error checking
- * String replace
  * CTRL-L clears the screen
  * time
  * aliases
 
 XXX:
  * Sanitize user input
- * Spaces in paths
