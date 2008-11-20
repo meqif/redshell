@@ -64,7 +64,7 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
 {
     int i;
     int fd_in = -1, fd_out = -1;
-    int tot_pipes = 2*(n_commands-1); // Total pipe ends
+    int tot_pipes = 2*(n_commands-1); /* Total pipe ends */
     int pipes[tot_pipes];
     char *myArgv[n_commands][100];
     char *aux;
