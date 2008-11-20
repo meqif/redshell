@@ -59,7 +59,7 @@ void tokenize(char **dst, char *buffer, const char *delimiters)
     free(result);
 }
 
-void expandize(char **dest, char *cmd)
+void expandize(command_t *command, char *cmd)
 {
     wordexp_t p;
     char **w;
@@ -67,9 +67,10 @@ void expandize(char **dest, char *cmd)
 
     wordexp(cmd, &p, 0);
     w = p.we_wordv;
+    command->argv = calloc(p.we_wordc+1, sizeof(char *));
     for (i=0; i < p.we_wordc; i++)
-        dest[i] = strdup(w[i]);
-    dest[i] = NULL;
+        command->argv[i] = strdup(w[i]);
+    command->argv[i] = NULL;
     wordfree(&p);
 }
 

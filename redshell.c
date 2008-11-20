@@ -104,10 +104,8 @@ int interpret_line(char *buffer, char **myArgv)
         if ((aux = strstr(commands[i], "<")) != NULL) *aux = '\0';
         if ((aux = strstr(commands[i], ">")) != NULL) *aux = '\0';
         command_t *command = commandNew();
-        char **argv = calloc(100, sizeof(char *));
-        expandize(argv, commands[i]);
-        command->argv          = argv;
-        command->path          = argv[0];
+        expandize(command, commands[i]);
+        command->path = command->argv[0];
         cmds[i] = command;
     }
 
@@ -122,8 +120,10 @@ int interpret_line(char *buffer, char **myArgv)
     /* Execute the user command(s) */
     pipe_exec(pipeline);
 
-    for (i = 0; i < pipeline->pipes; i++)
-        free(pipeline->commands[i]->argv);
+    for (i = 0; i < n_commands; i++) {
+        commandFree(pipeline->commands[i]);
+        pipeline->commands[i] = NULL;
+    }
     free(pipeline);
 
     return 0;
