@@ -8,6 +8,7 @@
  */
 
 #include <sys/types.h>
+#include <assert.h>
 #include <pwd.h>
 #include <grp.h>
 #include <wordexp.h>
@@ -105,6 +106,31 @@ command_t *commandNew()
     command->redirectFromPath = NULL;
 
     return command;
+}
+
+void commandFree(command_t *command)
+{
+    int i = 0;
+    assert(command != NULL);
+    if (command->argv != NULL) {
+        while(command->argv[i] != NULL) {
+            free(command->argv[i]);
+            command->argv[i++] = NULL;
+        }
+        free(command->argv);
+        command->argv = NULL;
+        command->path = NULL;
+    }
+    /* path is an alias for argv[0], which has already been freed */
+    if(command->redirectToPath != NULL) {
+        free(command->redirectToPath);
+        command->redirectToPath = NULL;
+    }
+    if(command->redirectFromPath != NULL) {
+        free(command->redirectFromPath);
+        command->redirectFromPath = NULL;
+    }
+    free(command);
 }
 
 pipeline_t *pipelineNew()

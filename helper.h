@@ -13,6 +13,7 @@ int add_pid(pid_t new_pid);
 void expandize(char **dest, char *cmd);
 void perror_exit(char *msg);
 command_t *commandNew();
+void commandFree(command_t *command);
 pipeline_t *pipelineNew();
 
 #endif /* HELPER_H */
