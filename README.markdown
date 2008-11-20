@@ -13,6 +13,11 @@ Building
 To build it, you need SCons and Python installed. Just run `scons` and you're
 done! There are no other dependencies.
 
+Redshell also comes with a Makefile. As there aren't any dependencies, a
+configure script seemed unnecessary. To compile just run `make`.
+
+There's still no install option in either method, sorry.
+
 Bugs
 ----
 
