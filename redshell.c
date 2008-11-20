@@ -56,22 +56,6 @@ int print_prompt()
     return 0;
 }
 
-command_t *commandNew()
-{
-  command_t *command = NULL;
-  command = malloc(sizeof(*command));
-  if(command == NULL) {
-    return NULL;
-  }
-  command->path = NULL;
-  command->argc = 0;
-  command->argv = NULL;
-  command->redirectToPath = NULL;
-  command->redirectFromPath = NULL;
-
-  return command;
-}
-
 /* Interpret command array */
 int interpret_line(char *buffer, char **myArgv)
 {

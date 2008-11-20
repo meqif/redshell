@@ -90,4 +90,21 @@ void perror_exit(char *msg)
     perror(msg);
     exit(EXIT_FAILURE);
 }
+
+command_t *commandNew()
+{
+  command_t *command = NULL;
+  command = malloc(sizeof(*command));
+  if(command == NULL) {
+    return NULL;
+  }
+  command->path = NULL;
+  command->argc = 0;
+  command->argv = NULL;
+  command->redirectToPath = NULL;
+  command->redirectFromPath = NULL;
+
+  return command;
+}
+
 // vim: et ts=4 sw=4 sts=4
