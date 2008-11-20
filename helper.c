@@ -93,33 +93,33 @@ void perror_exit(char *msg)
 
 command_t *commandNew()
 {
-  command_t *command = NULL;
-  command = malloc(sizeof(*command));
-  if(command == NULL) {
-    return NULL;
-  }
-  command->path = NULL;
-  command->argc = 0;
-  command->argv = NULL;
-  command->redirectToPath = NULL;
-  command->redirectFromPath = NULL;
+    command_t *command = NULL;
+    command = malloc(sizeof(*command));
+    if(command == NULL) {
+        return NULL;
+    }
+    command->path = NULL;
+    command->argc = 0;
+    command->argv = NULL;
+    command->redirectToPath = NULL;
+    command->redirectFromPath = NULL;
 
-  return command;
+    return command;
 }
 
 pipeline_t *pipelineNew()
 {
-  pipeline_t *pipeline = NULL;
-  pipeline = malloc(sizeof(*pipeline));
-  if(pipeline == NULL) {
-    return NULL;
-  }
-  pipeline->pipes = 0;
-  pipeline->commands = NULL;
-  pipeline->redirectToPath = NULL;
-  pipeline->redirectFromPath = NULL;
+    pipeline_t *pipeline = NULL;
+    pipeline = malloc(sizeof(*pipeline));
+    if(pipeline == NULL) {
+        return NULL;
+    }
+    pipeline->pipes = 0;
+    pipeline->commands = NULL;
+    pipeline->redirectToPath = NULL;
+    pipeline->redirectFromPath = NULL;
 
-  return pipeline;
+    return pipeline;
 }
 
 // vim: et ts=4 sw=4 sts=4
