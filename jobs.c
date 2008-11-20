@@ -101,7 +101,7 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     for (i = 0; i < n_commands; i++) {
         if ((aux = strstr(argv[i], "<")) != NULL) *aux = '\0';
         if ((aux = strstr(argv[i], ">")) != NULL) *aux = '\0';
-        tokenize(myArgv[i], argv[i], DELIMITERS);
+        expandize(myArgv[i], argv[i]);
     }
 
     /* Try to execute builtin command, if it exists */

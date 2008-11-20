@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <grp.h>
+#include <wordexp.h>
 
 #include "common.h"
 
@@ -55,6 +56,19 @@ void tokenize(char **dst, char *buffer, const char *delimiters)
     *dst = NULL; /* NULL terminate the array */
 
     free(result);
+}
+
+void expandize(char **dest, char *cmd)
+{
+    wordexp_t p;
+    char **w;
+    int i;
+
+    wordexp(cmd, &p, 0);
+    w = p.we_wordv;
+    for (i=0; i < p.we_wordc; i++)
+        dest[i] = w[i];
+    dest[i] = NULL;
 }
 
 /* Add pid to the first empty index in pids array */
