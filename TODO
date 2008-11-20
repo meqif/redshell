@@ -5,6 +5,7 @@ TODO:
  * String replace
  * CTRL-L clears the screen
  * time
+ * aliases
 
 XXX:
  * Sanitize user input
