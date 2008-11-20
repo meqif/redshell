@@ -60,15 +60,13 @@ static void closepipes(int *pipes, int count)
 }
 
 /* Executes several external commands, with pipelines */
-int pipe_exec(char **argv, command_t *command)
+int pipe_exec(pipeline_t *pipeline)
 {
     int i, j;
-    int n_commands = command->argc;
+    int n_commands = pipeline->pipes;
     int fd_in = -1, fd_out = -1;
     int tot_pipes = 2*(n_commands-1); /* Total pipe ends */
     int pipes[tot_pipes];
-    char *myArgv[n_commands][100];
-    char *aux;
     pid_t launched[n_commands];
 
     /* Save original stdin and stdout */
@@ -78,37 +76,31 @@ int pipe_exec(char **argv, command_t *command)
     stdout_copy = dup(1);
 
     /* Redirect input */
-    if (command->redirectFromPath != NULL) {
-        fd_in = open(command->redirectFromPath, O_RDONLY);
+    if (pipeline->redirectFromPath != NULL) {
+        fd_in = open(pipeline->redirectFromPath, O_RDONLY);
         if (fd_in == -1) {
-            perror(command->redirectFromPath);
+            perror(pipeline->redirectFromPath);
             return -1;
         }
         dup2(fd_in, 0);
     }
 
     /* Redirect output */
-    if (command->redirectToPath != NULL) {
-        fd_out = open(command->redirectToPath, O_WRONLY|O_CREAT|O_TRUNC, PERMS);
+    if (pipeline->redirectToPath != NULL) {
+        fd_out = open(pipeline->redirectToPath, O_WRONLY|O_CREAT|O_TRUNC, PERMS);
         if (fd_out == -1) {
-            perror(command->redirectToPath);
+            perror(pipeline->redirectToPath);
             if (fd_in == -1) close(fd_in);
             return -1;
         }
         dup2(fd_out, 1);
     }
 
-    /* Tokenize given commands */
-    for (i = 0; i < n_commands; i++) {
-        if ((aux = strstr(argv[i], "<")) != NULL) *aux = '\0';
-        if ((aux = strstr(argv[i], ">")) != NULL) *aux = '\0';
-        expandize(myArgv[i], argv[i]);
-    }
-
     /* Try to execute builtin command, if it exists */
     /* NOTE: This is needed because 'cd' and 'exit' mustn't be executed in a
      * child process (the parent process wouldn't be affected) */
-    if (!command->bg && n_commands == 1 && builtin_exec(myArgv[0]) == 0) {
+    if (!pipeline->bg && n_commands == 1 &&
+            builtin_exec(pipeline->commands[0]->argv) == 0) {
         /* Restore stdin and stdout */
         dup2(stdin_copy,  0);
         dup2(stdout_copy, 1);
@@ -135,13 +127,13 @@ int pipe_exec(char **argv, command_t *command)
                 dup2(pipes[(2*i)+1], 1);
             }
             closepipes(pipes, tot_pipes);
-            executioner(myArgv[i]);
+            executioner(pipeline->commands[i]->argv);
         }
         else {
             fg_pid = launched[i] = p;
             j = 0;
-            while (myArgv[i][j] != NULL)
-                free(myArgv[i][j++]);
+            while (pipeline->commands[i]->argv[j] != NULL)
+                free(pipeline->commands[i]->argv[j++]);
         }
 
     }
@@ -153,7 +145,7 @@ int pipe_exec(char **argv, command_t *command)
     dup2(stdin_copy,  0);
     dup2(stdout_copy, 1);
 
-    if (!command->bg)
+    if (!pipeline->bg)
         for (i = 0; i < n_commands; i++)
             while (waitpid(launched[i], NULL, 0) == -1 && errno != ECHILD);
     else

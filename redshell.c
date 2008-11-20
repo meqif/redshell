@@ -97,19 +97,34 @@ int interpret_line(char *buffer, char **myArgv)
     /* Split user input by pipe */
     tokenize(commands, buffer, "|\n");
 
-    command_t *command = commandNew();
+    command_t *cmds[n_commands];
+    /* Tokenize given commands */
+    int i;
+    for (i = 0; i < n_commands; i++) {
+        if ((aux = strstr(commands[i], "<")) != NULL) *aux = '\0';
+        if ((aux = strstr(commands[i], ">")) != NULL) *aux = '\0';
+        command_t *command = commandNew();
+        char **argv = calloc(100, sizeof(char *));
+        expandize(argv, commands[i]);
+        command->argv          = argv;
+        command->path          = argv[0];
+        cmds[i] = command;
+    }
 
-    command->path             = *commands;
-    command->argc             = n_commands;
-    command->argv             = commands+1;
-    command->redirectToPath   = outfile;
-    command->redirectFromPath = infile;
-    command->bg               = bg;
+    pipeline_t *pipeline = pipelineNew();
+
+    pipeline->pipes            = n_commands;
+    pipeline->commands         = cmds;
+    pipeline->redirectToPath   = outfile;
+    pipeline->redirectFromPath = infile;
+    pipeline->bg               = bg;
 
     /* Execute the user command(s) */
-    pipe_exec(commands, command);
+    pipe_exec(pipeline);
 
-    free(command);
+    for (i = 0; i < pipeline->pipes; i++)
+        free(pipeline->commands[i]->argv);
+    free(pipeline);
 
     return 0;
 }

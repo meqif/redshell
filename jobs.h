@@ -4,6 +4,6 @@
 #define JOBS_H
 
 void executioner(char **cmd);
-int pipe_exec(char **argv, command_t *command);
+int pipe_exec(pipeline_t *pipeline);
 
 #endif /* JOBS_H */

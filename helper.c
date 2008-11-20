@@ -107,4 +107,19 @@ command_t *commandNew()
   return command;
 }
 
+pipeline_t *pipelineNew()
+{
+  pipeline_t *pipeline = NULL;
+  pipeline = malloc(sizeof(*pipeline));
+  if(pipeline == NULL) {
+    return NULL;
+  }
+  pipeline->pipes = 0;
+  pipeline->commands = NULL;
+  pipeline->redirectToPath = NULL;
+  pipeline->redirectFromPath = NULL;
+
+  return pipeline;
+}
+
 // vim: et ts=4 sw=4 sts=4
