@@ -84,55 +84,6 @@ int add_pid(pid_t new_pid)
     return -1;
 }
 
-/* Replace '~' with the contents of $HOME */
-char *expand_tilde(char *dest, char *src)
-{
-    char *tilde = NULL;
-    tilde = strstr(src, "~");
-
-    if (tilde != NULL) {
-        *tilde = '\0';
-        strcat(dest, src);
-        strcat(dest, getenv("HOME"));
-        src = tilde+1;
-        strcat(dest, src);
-    }
-    else
-        strcat(dest, src);
-    return dest;
-}
-
-/* Expand environment variables */
-char *expand_env(char *dest, char *src)
-{
-    extern char **environ;
-    char **env, *buffer, *dest_ptr;
-    strcpy(dest, src);
-    dest_ptr = dest;
-    while ((dest_ptr = strstr(dest_ptr, "$"))) {
-        dest_ptr++;                               /* Avoid infinite loop */
-        env = environ;
-        while(*env != NULL) {
-            char *ptr = strchr(*env, '=');
-            buffer = calloc(ptr-(*env)+2, 1);
-            strcpy(buffer, "$");
-            strncat(buffer, *env, ptr-(*env));    /* Copy the env var name */
-            char *dollar = strstr(dest, buffer);
-            if (dollar != NULL) {
-                char *blip = calloc(BUF_SIZE,1);
-                strncat(blip, dest, dollar-dest); /* Copy everything before the $ */
-                strcat(blip, getenv(buffer+1));   /* Copy the value of the env var */
-                strcat(blip, dollar+strlen(buffer)); /* Copy the rest */
-                strcpy(dest, blip); /* Copy the final result to the destination */
-                free(blip);
-            }
-            free(buffer);
-            env++;
-        }
-    }
-    return 0;
-}
-
 void perror_exit(char *msg)
 {
     perror(msg);
