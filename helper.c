@@ -67,8 +67,9 @@ void expandize(char **dest, char *cmd)
     wordexp(cmd, &p, 0);
     w = p.we_wordv;
     for (i=0; i < p.we_wordc; i++)
-        dest[i] = w[i];
+        dest[i] = strdup(w[i]);
     dest[i] = NULL;
+    wordfree(&p);
 }
 
 /* Add pid to the first empty index in pids array */
