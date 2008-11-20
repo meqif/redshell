@@ -60,9 +60,10 @@ static void closepipes(int *pipes, int count)
 }
 
 /* Executes several external commands, with pipelines */
-int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
+int pipe_exec(char **argv, command_t *command)
 {
     int i, j;
+    int n_commands = command->argc;
     int fd_in = -1, fd_out = -1;
     int tot_pipes = 2*(n_commands-1); /* Total pipe ends */
     int pipes[tot_pipes];
@@ -77,20 +78,20 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     stdout_copy = dup(1);
 
     /* Redirect input */
-    if (infile != NULL) {
-        fd_in = open(infile, O_RDONLY);
+    if (command->redirectFromPath != NULL) {
+        fd_in = open(command->redirectFromPath, O_RDONLY);
         if (fd_in == -1) {
-            perror(infile);
+            perror(command->redirectFromPath);
             return -1;
         }
         dup2(fd_in, 0);
     }
 
     /* Redirect output */
-    if (outfile != NULL) {
-        fd_out = open(outfile, O_WRONLY|O_CREAT|O_TRUNC, PERMS);
+    if (command->redirectToPath != NULL) {
+        fd_out = open(command->redirectToPath, O_WRONLY|O_CREAT|O_TRUNC, PERMS);
         if (fd_out == -1) {
-            perror(outfile);
+            perror(command->redirectToPath);
             if (fd_in == -1) close(fd_in);
             return -1;
         }
@@ -107,7 +108,7 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     /* Try to execute builtin command, if it exists */
     /* NOTE: This is needed because 'cd' and 'exit' mustn't be executed in a
      * child process (the parent process wouldn't be affected) */
-    if (!bg && n_commands == 1 && builtin_exec(myArgv[0]) == 0) {
+    if (!command->bg && n_commands == 1 && builtin_exec(myArgv[0]) == 0) {
         /* Restore stdin and stdout */
         dup2(stdin_copy,  0);
         dup2(stdout_copy, 1);
@@ -152,7 +153,7 @@ int pipe_exec(char **argv, int n_commands, int bg, char *infile, char *outfile)
     dup2(stdin_copy,  0);
     dup2(stdout_copy, 1);
 
-    if (!bg)
+    if (!command->bg)
         for (i = 0; i < n_commands; i++)
             while (waitpid(launched[i], NULL, 0) == -1 && errno != ECHILD);
     else

@@ -56,6 +56,22 @@ int print_prompt()
     return 0;
 }
 
+command_t *commandNew()
+{
+  command_t *command = NULL;
+  command = malloc(sizeof(*command));
+  if(command == NULL) {
+    return NULL;
+  }
+  command->path = NULL;
+  command->argc = 0;
+  command->argv = NULL;
+  command->redirectToPath = NULL;
+  command->redirectFromPath = NULL;
+
+  return command;
+}
+
 /* Interpret command array */
 int interpret_line(char *buffer, char **myArgv)
 {
@@ -97,8 +113,19 @@ int interpret_line(char *buffer, char **myArgv)
     /* Split user input by pipe */
     tokenize(commands, buffer, "|\n");
 
+    command_t *command = commandNew();
+
+    command->path             = *commands;
+    command->argc             = n_commands;
+    command->argv             = commands+1;
+    command->redirectToPath   = outfile;
+    command->redirectFromPath = infile;
+    command->bg               = bg;
+
     /* Execute the user command(s) */
-    pipe_exec(commands, n_commands, bg, infile, outfile);
+    pipe_exec(commands, command);
+
+    free(command);
 
     return 0;
 }
