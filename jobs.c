@@ -21,7 +21,7 @@
 extern pid_t fg_pid;
 
 /* Run given builtin command, if possible */
-static int builtin_exec(char **cmd)
+static int _executeBuiltinCommand(char **cmd)
 {
     unsigned int i;
     for (i = 0; i < ARRAY_SIZE(commands); i++) {
@@ -35,10 +35,10 @@ static int builtin_exec(char **cmd)
 }
 
 /* Exec wrapper that performs some error handling */
-int executioner(char **cmd)
+int executeCommand(char **cmd)
 {
     /* First, check if it is a builtin command */
-    if (builtin_exec(cmd) == 0) return 0;
+    if (_executeBuiltinCommand(cmd) == 0) return 0;
 
     /* If not, try to execute as an external command */
     int status = execvp(*cmd, cmd);
@@ -60,7 +60,7 @@ static void closepipes(int *pipes, int count)
 }
 
 /* Executes several external commands, with pipelines */
-int pipe_exec(pipeline_t *pipeline)
+int spawnCommand(pipeline_t *pipeline)
 {
     int i;
     int n_commands = pipeline->pipes;
@@ -110,7 +110,7 @@ int pipe_exec(pipeline_t *pipeline)
         /* Restore stdin and stdout */
         dup2(stdin_copy,  0);
         dup2(stdout_copy, 1);
-        builtin_exec(pipeline->commands[0]->argv);
+        _executeBuiltinCommand(pipeline->commands[0]->argv);
         return 0;
     }
 
@@ -134,7 +134,7 @@ int pipe_exec(pipeline_t *pipeline)
                 dup2(pipes[(2*i)+1], 1);
             }
             closepipes(pipes, tot_pipes);
-            int status = executioner(pipeline->commands[i]->argv);
+            int status = executeCommand(pipeline->commands[i]->argv);
             pipelineFree(pipeline);
             exit(status);
         }

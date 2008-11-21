@@ -104,7 +104,7 @@ int interpret_line(char *buffer, char **myArgv)
         if ((aux = strstr(commands[i], "<")) != NULL) *aux = '\0';
         if ((aux = strstr(commands[i], ">")) != NULL) *aux = '\0';
         command_t *command = commandNew();
-        expandize(command, commands[i]);
+        expandGlob(command, commands[i]);
         command->path = command->argv[0];
         cmds[i] = command;
     }
@@ -118,7 +118,7 @@ int interpret_line(char *buffer, char **myArgv)
     pipeline->bg               = bg;
 
     /* Execute the user command(s) */
-    pipe_exec(pipeline);
+    spawnCommand(pipeline);
 
     pipelineFree(pipeline);
 

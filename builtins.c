@@ -177,7 +177,7 @@ int cmd_timeout(char **argv)
             break;                            /* Execution never arrives here */
         case 0:
             setpgrp(); /* Set process group so this process and its children can be killed */
-            executioner(argv); /* TODO: Allow execution of more than one command */
+            executeCommand(argv); /* TODO: Allow execution of more than one command */
             exit(0);
             break;                            /* Execution never arrives here */
         default:

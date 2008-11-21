@@ -59,7 +59,7 @@ void tokenize(char **dst, char *buffer, const char *delimiters)
     free(result);
 }
 
-void expandize(command_t *command, char *cmd)
+void expandGlob(command_t *command, char *cmd)
 {
     wordexp_t p;
     char **w;
