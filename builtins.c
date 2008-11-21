@@ -109,12 +109,20 @@ int cmd_eco(char **argv)
 /* Export/set environment variables */
 int cmd_export(char **argv)
 {
-    char *key = *argv;
-    char *value = strstr(*argv, "=");
+    int status;
+    char *envvar = strdup(*argv);
+    char *key = envvar;
+    char *value = strstr(envvar, "=");
+    if (value == NULL) {
+        free(envvar);
+        return -1;
+    }
     *value = '\0';
     value++;
+    status = setenv(key, value, 1);
+    free(envvar);
 
-    return setenv(key, value, 1);
+    return status;
 }
 
 /* Display the current directory */
