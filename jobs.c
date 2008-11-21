@@ -106,11 +106,11 @@ int spawnCommand(pipeline_t *pipeline)
         return -1; /* Execution won't reach here */
     }
 
-    if (strcmp(pipeline->commands[0]->argv[0], "cd") == 0) {
+    if (!pipeline->bg && n_commands == 1 && 
+            _executeBuiltinCommand(pipeline->commands[0]->argv) == 0) {
         /* Restore stdin and stdout */
         dup2(stdin_copy,  0);
         dup2(stdout_copy, 1);
-        _executeBuiltinCommand(pipeline->commands[0]->argv);
         return 0;
     }
 
