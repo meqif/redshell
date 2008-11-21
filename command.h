@@ -9,7 +9,6 @@ typedef struct __command_t {
     char **argv;            /* arguments provided for the command */
     char *redirectToPath;   /* path to redirect output, or NULL */
     char *redirectFromPath; /* path from which input is redirected, or NULL */
-    int bg;                 /* whether this is a background command */
 } command_t;
 
 command_t *commandNew(void);

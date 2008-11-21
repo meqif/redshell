@@ -17,6 +17,7 @@ pipeline_t *pipelineNew()
     pipeline->commands = NULL;
     pipeline->redirectToPath = NULL;
     pipeline->redirectFromPath = NULL;
+    pipeline->bg = 0;
 
     return pipeline;
 }
