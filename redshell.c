@@ -120,11 +120,7 @@ int interpret_line(char *buffer, char **myArgv)
     /* Execute the user command(s) */
     pipe_exec(pipeline);
 
-    for (i = 0; i < n_commands; i++) {
-        commandFree(pipeline->commands[i]);
-        pipeline->commands[i] = NULL;
-    }
-    free(pipeline);
+    pipelineFree(pipeline);
 
     return 0;
 }

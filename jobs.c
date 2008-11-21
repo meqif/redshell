@@ -35,10 +35,10 @@ static int builtin_exec(char **cmd)
 }
 
 /* Exec wrapper that performs some error handling */
-void executioner(char **cmd)
+int executioner(char **cmd)
 {
     /* First, check if it is a builtin command */
-    if (builtin_exec(cmd) == 0) exit(EXIT_SUCCESS);
+    if (builtin_exec(cmd) == 0) return 0;
 
     /* If not, try to execute as an external command */
     int status = execvp(*cmd, cmd);
@@ -48,7 +48,7 @@ void executioner(char **cmd)
         else
             perror(*cmd);
     }
-    exit(status); /* If the execvp failed for some reason, exit here */
+    return status;
 }
 
 /* Closes all pipes */
@@ -62,7 +62,7 @@ static void closepipes(int *pipes, int count)
 /* Executes several external commands, with pipelines */
 int pipe_exec(pipeline_t *pipeline)
 {
-    int i, j;
+    int i;
     int n_commands = pipeline->pipes;
     int fd_in = -1, fd_out = -1;
     int tot_pipes = 2*(n_commands-1); /* Total pipe ends */
@@ -96,14 +96,21 @@ int pipe_exec(pipeline_t *pipeline)
         dup2(fd_out, 1);
     }
 
-    /* Try to execute builtin command, if it exists */
-    /* NOTE: This is needed because 'cd' and 'exit' mustn't be executed in a
-     * child process (the parent process wouldn't be affected) */
-    if (!pipeline->bg && n_commands == 1 &&
-            builtin_exec(pipeline->commands[0]->argv) == 0) {
+    if (strcmp(pipeline->commands[0]->argv[0], "exit") == 0) {
         /* Restore stdin and stdout */
         dup2(stdin_copy,  0);
         dup2(stdout_copy, 1);
+        /* Free pipeline structure */
+        pipelineFree(pipeline);
+        cmd_exit(NULL);
+        return -1; /* Execution won't reach here */
+    }
+
+    if (strcmp(pipeline->commands[0]->argv[0], "cd") == 0) {
+        /* Restore stdin and stdout */
+        dup2(stdin_copy,  0);
+        dup2(stdout_copy, 1);
+        builtin_exec(pipeline->commands[0]->argv);
         return 0;
     }
 
@@ -127,14 +134,12 @@ int pipe_exec(pipeline_t *pipeline)
                 dup2(pipes[(2*i)+1], 1);
             }
             closepipes(pipes, tot_pipes);
-            executioner(pipeline->commands[i]->argv);
+            int status = executioner(pipeline->commands[i]->argv);
+            pipelineFree(pipeline);
+            exit(status);
         }
-        else {
+        else
             fg_pid = launched[i] = p;
-            j = 0;
-            while (pipeline->commands[i]->argv[j] != NULL)
-                free(pipeline->commands[i]->argv[j++]);
-        }
 
     }
 
