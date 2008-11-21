@@ -63,15 +63,18 @@ static void closepipes(int *pipes, int count)
 int spawnCommand(pipeline_t *pipeline)
 {
     int i;
+    int status;
+    int pid_counter;
     int n_commands = pipeline->pipes;
-    int fd_in = -1, fd_out = -1;
     int tot_pipes = 2*(n_commands-1); /* Total pipe ends */
     int pipes[tot_pipes];
+    int fd_in = -1;
+    int fd_out = -1;
+    int stdin_copy  = -1;
+    int stdout_copy = -1;
     pid_t launched[n_commands];
 
     /* Save original stdin and stdout */
-    int stdin_copy  = -1;
-    int stdout_copy = -1;
     stdin_copy  = dup(0);
     stdout_copy = dup(1);
 
@@ -96,6 +99,7 @@ int spawnCommand(pipeline_t *pipeline)
         dup2(fd_out, 1);
     }
 
+    /* If the command is 'exit', clean up before executing it */
     if (strcmp(pipeline->commands[0]->argv[0], "exit") == 0) {
         /* Restore stdin and stdout */
         dup2(stdin_copy,  0);
@@ -106,7 +110,7 @@ int spawnCommand(pipeline_t *pipeline)
         return -1; /* Execution won't reach here */
     }
 
-    if (!pipeline->bg && n_commands == 1 && 
+    if (!pipeline->bg && n_commands == 1 &&
             _executeBuiltinCommand(pipeline->commands[0]->argv) == 0) {
         /* Restore stdin and stdout */
         dup2(stdin_copy,  0);
@@ -134,7 +138,7 @@ int spawnCommand(pipeline_t *pipeline)
                 dup2(pipes[(2*i)+1], 1);
             }
             closepipes(pipes, tot_pipes);
-            int status = executeCommand(pipeline->commands[i]->argv);
+            status = executeCommand(pipeline->commands[i]->argv);
             pipelineFree(pipeline);
             exit(status);
         }
@@ -155,7 +159,7 @@ int spawnCommand(pipeline_t *pipeline)
             while (waitpid(launched[i], NULL, 0) == -1 && errno != ECHILD);
     else
         for (i = 0; i < n_commands; i++) {
-            int pid_counter = add_pid(launched[i]);
+            pid_counter = add_pid(launched[i]);
             printf("[%d] %d\n", pid_counter+1, launched[i]);
         }
 
