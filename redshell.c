@@ -84,16 +84,7 @@ int interpret_line(char *buffer, char **myArgv)
     }
 
     /* Check if the user wants to redirect the input or output */
-    pipeline->redirectFromPath = NULL;
-    pipeline->redirectToPath   = NULL;
-    char **tmp = myArgv;
-    while(*tmp != NULL) {
-        if ((strcmp(*tmp, ">") == 0) && *(tmp+1) != NULL)
-            pipeline->redirectToPath = *(++tmp);
-        else if ((strcmp(*tmp, "<") == 0) && *(tmp+1) != NULL)
-            pipeline->redirectFromPath = *(++tmp);
-        tmp++;
-    }
+    findRedirections(pipeline, myArgv);
 
     /* Split user input by pipe */
     tokenize(commands, buffer, "|\n");

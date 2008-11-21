@@ -74,6 +74,17 @@ void expandGlob(command_t *command, char *cmd)
     wordfree(&p);
 }
 
+void findRedirections(pipeline_t *pipeline, char **argv)
+{
+    while(*argv != NULL) {
+        if ((strcmp(*argv, ">") == 0) && *(argv+1) != NULL)
+            pipeline->redirectToPath = *(++argv);
+        else if ((strcmp(*argv, "<") == 0) && *(argv+1) != NULL)
+            pipeline->redirectFromPath = *(++argv);
+        argv++;
+    }
+}
+
 /* Add pid to the first empty index in pids array */
 int add_pid(pid_t new_pid)
 {
