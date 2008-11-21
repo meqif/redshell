@@ -10,7 +10,7 @@ char *getusername(uid_t uid);
 char *getgroupname(gid_t gid);
 void tokenize(char **dst, char *buffer, const char *delimiters);
 int add_pid(pid_t new_pid);
-void expandGlob(char **dest, char *cmd);
+void expandGlob(command_t *command, char *cmd);
 void perror_exit(char *msg);
 
 #endif /* HELPER_H */

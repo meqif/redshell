@@ -12,7 +12,7 @@ typedef struct __command_t {
     int bg;                 /* whether this is a background command */
 } command_t;
 
-command_t *commandNew();
+command_t *commandNew(void);
 void commandFree(command_t *command);
 
 #endif /* COMMAND_H */

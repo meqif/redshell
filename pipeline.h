@@ -11,7 +11,7 @@ typedef struct __pipeline_t {
     int bg;                 /* whether this is a background command */
 } pipeline_t;
 
-pipeline_t *pipelineNew();
+pipeline_t *pipelineNew(void);
 void pipelineFree(pipeline_t *pipeline);
 
 #endif /* PIPELINE_H */

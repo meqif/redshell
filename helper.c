@@ -8,7 +8,6 @@
  */
 
 #include <sys/types.h>
-#include <assert.h>
 #include <pwd.h>
 #include <grp.h>
 #include <wordexp.h>
@@ -63,7 +62,7 @@ void expandGlob(command_t *command, char *cmd)
 {
     wordexp_t p;
     char **w;
-    int i;
+    unsigned int i;
 
     wordexp(cmd, &p, 0);
     w = p.we_wordv;
