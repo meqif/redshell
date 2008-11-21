@@ -70,37 +70,38 @@ int interpret_line(char *buffer, char **myArgv)
     /* Do nothing if we get a blank line */
     if (cmd == NULL) return -1;
 
+    pipeline_t *pipeline = pipelineNew();
+
     /* Number of commands = number of pipes + 1 */
-    int n_commands = strstrcnt(buffer, '|')+1;
-    char *commands[n_commands];
+    pipeline->pipes = strstrcnt(buffer, '|')+1;
+    char *commands[pipeline->pipes];
 
     /* Should this job run in background? */
-    int bg = 0;
     char *aux;
     if ((aux = strstr(buffer, "&")) != NULL) {
-        bg = 1;
+        pipeline->bg = 1;
         *aux = '\0';
     }
 
     /* Check if the user wants to redirect the input or output */
-    char *infile = NULL;
-    char *outfile = NULL;
+    pipeline->redirectFromPath = NULL;
+    pipeline->redirectToPath   = NULL;
     char **tmp = myArgv;
     while(*tmp != NULL) {
         if ((strcmp(*tmp, ">") == 0) && *(tmp+1) != NULL)
-            outfile = *(++tmp);
+            pipeline->redirectToPath = *(++tmp);
         else if ((strcmp(*tmp, "<") == 0) && *(tmp+1) != NULL)
-            infile = *(++tmp);
+            pipeline->redirectFromPath = *(++tmp);
         tmp++;
     }
 
     /* Split user input by pipe */
     tokenize(commands, buffer, "|\n");
 
-    command_t *cmds[n_commands];
+    command_t *cmds[pipeline->pipes];
     /* Tokenize given commands */
     int i;
-    for (i = 0; i < n_commands; i++) {
+    for (i = 0; i < pipeline->pipes; i++) {
         if ((aux = strstr(commands[i], "<")) != NULL) *aux = '\0';
         if ((aux = strstr(commands[i], ">")) != NULL) *aux = '\0';
         command_t *command = commandNew();
@@ -108,14 +109,7 @@ int interpret_line(char *buffer, char **myArgv)
         command->path = command->argv[0];
         cmds[i] = command;
     }
-
-    pipeline_t *pipeline = pipelineNew();
-
-    pipeline->pipes            = n_commands;
-    pipeline->commands         = cmds;
-    pipeline->redirectToPath   = outfile;
-    pipeline->redirectFromPath = infile;
-    pipeline->bg               = bg;
+    pipeline->commands = cmds;
 
     /* Execute the user command(s) */
     spawnCommand(pipeline);
