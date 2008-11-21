@@ -15,5 +15,6 @@ void perror_exit(char *msg);
 command_t *commandNew();
 void commandFree(command_t *command);
 pipeline_t *pipelineNew();
+void pipelineFree(pipeline_t *pipeline);
 
 #endif /* HELPER_H */

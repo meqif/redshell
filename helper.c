@@ -134,6 +134,28 @@ void commandFree(command_t *command)
     free(command);
 }
 
+void pipelineFree(pipeline_t *pipeline)
+{
+    int i;
+    assert(pipeline != NULL);
+
+    for (i = 0; i < pipeline->pipes; i++) {
+        commandFree(pipeline->commands[i]);
+        pipeline->commands[i] = NULL;
+    }
+
+    /* path is an alias for argv[0], which has already been freed */
+    if(pipeline->redirectToPath != NULL) {
+        free(pipeline->redirectToPath);
+        pipeline->redirectToPath = NULL;
+    }
+    if(pipeline->redirectFromPath != NULL) {
+        free(pipeline->redirectFromPath);
+        pipeline->redirectFromPath = NULL;
+    }
+    free(pipeline);
+}
+
 pipeline_t *pipelineNew()
 {
     pipeline_t *pipeline = NULL;
