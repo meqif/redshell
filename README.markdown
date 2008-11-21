@@ -18,6 +18,27 @@ configure script seemed unnecessary. To compile just run `make`.
 
 There's still no install option in either method, sorry.
 
+Features
+--------
+
+Redshell has most features one expects from a POSIX shell:
+
+* globbing
+* tilde (~) and environment variable expansion
+* command expansion -- i.e., ``ldd `which gcc` ``
+* `timeout` -- run a command for at most *n* seconds
+* `listar` -- similar to `ls`, also shows inode number)
+* `eco` -- similar to `echo`
+* `pwd` as a shell built-in
+* `exit` as a shell built-in
+* changing directory (`cd`)
+* input and output redirection via ">" and "<"
+* unlimited pipes
+* background job execution
+
+It's a very simple shell: there's no fancy stuff such as history or
+tab-completion, but that might come later. :)
+
 Bugs
 ----
 
