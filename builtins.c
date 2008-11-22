@@ -12,6 +12,7 @@
 #include <sys/wait.h>
 #include <errno.h>
 
+#include "alias.h"
 #include "common.h"
 #include "helper.h"
 #include "jobs.h"
@@ -196,6 +197,38 @@ int cmd_timeout(char **argv)
             break;
     }
 
+    return 0;
+}
+
+int cmd_alias(char **argv)
+{
+    if (*argv == NULL) {
+        traverseAliases();
+        return 0;
+    }
+    char *alias = strdup(*argv);
+    char *key;
+    char *value = strstr(alias, "=");
+    if (value == NULL) {
+        free(alias);
+        return -1;
+    }
+    *value = '\0';
+    value++;
+    key = strdup(alias);
+    value = strdup(value);
+    free(alias);
+    addAlias(key, value);
+    return 0;
+}
+
+int cmd_unalias(char **argv)
+{
+    if (*argv == NULL) {
+        fprintf(stderr, "unalias: not enough arguments\n");
+        return -1;
+    }
+    removeAlias(*argv);
     return 0;
 }
 

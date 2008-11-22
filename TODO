@@ -4,7 +4,6 @@ TODO:
  * Add more error checking
  * CTRL-L clears the screen
  * time
- * aliases
 
 XXX:
  * Sanitize user input

@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <signal.h>
 
+#include "alias.h"
 #include "common.h"
 #include "helper.h"
 #include "jobs.h"
@@ -42,6 +43,7 @@ int main(void);
 void cleanup()
 {
     free(pids);
+    destroyAliases();
 }
 
 /* Print the shell prompt */
@@ -178,6 +180,7 @@ int main()
 
     atexit(cleanup);                    /* Define some cleaning up operations */
     set_signals();                      /* Set signal handlers */
+    initializeAliases();
 
     while ( 1 ) {
         line[0] = '\0';                 /* Clear the user input buffer */

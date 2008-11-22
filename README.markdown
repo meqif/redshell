@@ -7,14 +7,18 @@ redshell is a simple and light UNIX shell.
 
 Suggestions and patches are very welcome.
 
+Dependencies
+------------
+
+* glib-2.0
+
 Building
 --------
 
 To build it, you need SCons and Python installed. Just run `scons` and you're
-done! There are no other dependencies.
+done!
 
-Redshell also comes with a Makefile. As there aren't any dependencies, a
-configure script seemed unnecessary. To compile just run `make`.
+Redshell also comes with a Makefile. To compile just run `make`.
 
 There's still no install option in either method, sorry.
 

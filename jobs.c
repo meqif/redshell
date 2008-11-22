@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include "alias.h"
 #include "builtins.h"
 #include "common.h"
 #include "helper.h"
@@ -35,18 +36,23 @@ static int _executeBuiltinCommand(char **cmd)
 }
 
 /* Exec wrapper that performs some error handling */
-int executeCommand(char **cmd)
+int executeCommand(command_t *cmd)
 {
+    char *alias = getAlias(cmd->path);
+    if (alias != NULL) {
+        cmd->argv[0] = strdup(alias);
+        cmd->path = cmd->argv[0];
+    }
     /* First, check if it is a builtin command */
-    if (_executeBuiltinCommand(cmd) == 0) return 0;
+    if (_executeBuiltinCommand(cmd->argv) == 0) return 0;
 
     /* If not, try to execute as an external command */
-    int status = execvp(*cmd, cmd);
+    int status = execvp(cmd->path, cmd->argv);
     if (status == -1) {
         if (errno == ENOENT)
-            fprintf(stderr, "%s: command not found\n", *cmd);
+            fprintf(stderr, "%s: command not found\n", cmd->path);
         else
-            perror(*cmd);
+            perror(cmd->path);
     }
     return status;
 }
@@ -139,7 +145,7 @@ int spawnCommand(pipeline_t *pipeline)
                 dup2(pipes[(2*i)+1], 1);
             }
             closepipes(pipes, tot_pipes);
-            status = executeCommand(pipeline->commands[i]->argv);
+            status = executeCommand(pipeline->commands[i]);
             pipelineFree(pipeline);
             exit(status);
         }
