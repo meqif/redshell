@@ -110,6 +110,7 @@ int spawnCommand(pipeline_t *pipeline)
         return -1; /* Execution won't reach here */
     }
 
+    /* Try to execute builtin command, if it exists */
     if (!pipeline->bg && n_commands == 1 &&
             _executeBuiltinCommand(pipeline->commands[0]->argv) == 0) {
         /* Restore stdin and stdout */
