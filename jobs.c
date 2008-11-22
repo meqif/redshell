@@ -38,11 +38,6 @@ static int _executeBuiltinCommand(char **cmd)
 /* Exec wrapper that performs some error handling */
 int executeCommand(command_t *cmd)
 {
-    char *alias = getAlias(cmd->path);
-    if (alias != NULL) {
-        cmd->argv[0] = strdup(alias);
-        cmd->path = cmd->argv[0];
-    }
     /* First, check if it is a builtin command */
     if (_executeBuiltinCommand(cmd->argv) == 0) return 0;
 
