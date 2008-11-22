@@ -169,6 +169,7 @@ int cmd_exit(char **argv)
 int cmd_timeout(char **argv)
 {
     extern int fg_pid;
+    int i;
     int seconds = atoi(*argv);
 
     if (seconds <= 0) {
@@ -177,6 +178,16 @@ int cmd_timeout(char **argv)
     }
 
     argv++; /* Ignore timeout parameter */
+    command_t *command = commandNew();
+    i = 0;
+    while(argv[i] != NULL)
+        i++;
+    char **arrg = calloc(i+2, sizeof(char *));
+    i = 0;
+    while(argv[i] != NULL)
+        arrg[i] = strdup(argv[i++]);
+    command->argv = arrg;
+    command->path = *arrg;
 
     pid_t pid = fork();
     switch(pid) {
@@ -186,7 +197,8 @@ int cmd_timeout(char **argv)
             break;                            /* Execution never arrives here */
         case 0:
             setpgrp(); /* Set process group so this process and its children can be killed */
-            executeCommand(argv); /* TODO: Allow execution of more than one command */
+            executeCommand(command); /* TODO: Allow execution of more than one command */
+            commandFree(command);
             exit(0);
             break;                            /* Execution never arrives here */
         default:
@@ -194,6 +206,7 @@ int cmd_timeout(char **argv)
             alarm(seconds);                   /* Set alarm */
             while (waitpid(pid, NULL, 0) == -1 && errno == EINTR); /* Wait! */
             alarm(0);                         /* Unset alarm */
+            commandFree(command);
             break;
     }
 
