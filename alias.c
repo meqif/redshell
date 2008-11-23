@@ -6,6 +6,11 @@
 
 static GTree *tree;
 
+static gint compare(gconstpointer a, gconstpointer b, gpointer data)
+{
+    return strcmp(a,b);
+}
+
 void addAlias(char *key, char *value)
 {
     g_tree_insert(tree, key, value);
@@ -23,7 +28,7 @@ char *getAlias(char *key)
 
 void initializeAliases()
 {
-    tree = g_tree_new_full(strcmp, NULL, g_free, g_free);
+    tree = g_tree_new_full(compare, NULL, g_free, g_free);
 }
 
 void destroyAliases()

@@ -67,7 +67,7 @@ int interpret_line(char *buffer, char **myArgv)
     tokenize(myArgv, bufcopy, DELIMITERS);
 
     /* Get command name */
-    const char *cmd = *myArgv;
+    char *cmd = *myArgv;
 
     /* Do nothing if we get a blank line */
     if (cmd == NULL) return -1;

@@ -184,8 +184,10 @@ int cmd_timeout(char **argv)
         i++;
     char **arrg = calloc(i+2, sizeof(char *));
     i = 0;
-    while(argv[i] != NULL)
-        arrg[i] = strdup(argv[i++]);
+    while(argv[i] != NULL) {
+        arrg[i] = strdup(argv[i]);
+        i++;
+    }
     command->argv = arrg;
     command->path = *arrg;
 
