@@ -1,15 +1,15 @@
 PROG = redshell
-SRCS = redshell.c builtins.c command.c jobs.c helper.c pipeline.c
-HDRS = command.h common.h builtins.h jobs.h helper.h pipeline.h
+SRCS = redshell.c alias.c builtins.c command.c jobs.c helper.c pipeline.c
+HDRS = alias.h command.h common.h builtins.h jobs.h helper.h pipeline.h
 
 OBJS = $(SRCS:.c=.o)
 
 #CFLAGS += -g -W -Wall -Wshadow -Waggregate-return -Wstrict-prototypes
-CFLAGS += -Os -Wall -g
-
+CFLAGS += -Os -Wall -g $(shell pkg-config --cflags glib-2.0)
+LIBS += $(shell pkg-config --libs glib-2.0)
 
 $(PROG): $(OBJS)
-	cc -o $(PROG) $(OBJS)
+	cc -o $(PROG) $(OBJS) $(LIBS)
 
 
 clean:
