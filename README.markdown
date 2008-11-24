@@ -20,6 +20,10 @@ done!
 
 Redshell also comes with a Makefile. To compile just run `make`.
 
+I'm also playing with [waf](http://code.google.com/p/waf/ waf). You can use the
+script I'm distributing (as allowed by waf's license), just run `./waf` and
+you're good to go.
+
 There's still no install option in either method, sorry.
 
 Features
