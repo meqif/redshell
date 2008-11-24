@@ -1,6 +1,8 @@
 PROG = redshell
-SRCS = redshell.c alias.c builtins.c command.c jobs.c helper.c pipeline.c
-HDRS = alias.h command.h common.h builtins.h jobs.h helper.h pipeline.h
+SRCS = src/redshell.c src/alias.c src/builtins.c src/command.c src/jobs.c \
+       src/helper.c src/pipeline.c
+HDRS = src/alias.h src/command.h src/common.h src/builtins.h src/jobs.h \
+       src/helper.h src/pipeline.h
 
 OBJS = $(SRCS:.c=.o)
 
