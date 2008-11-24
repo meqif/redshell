@@ -7,10 +7,6 @@ VERSION='0.4'
 srcdir = '.'
 blddir = 'build'
 
-sources = [
-        'redshell.c', 'builtins.c', 'command.c', 'jobs.c', 'helper.c',
-        'pipeline.c', 'alias.c' ]
-
 def set_options(opt):
     pass
 
@@ -27,7 +23,7 @@ def build(bld):
      obj = bld.new_task_gen('cc', 'program')
      obj.name           = 'redshell'
      obj.target         = 'redshell'
-     obj.source         = sources
+     obj.find_sources_in_dirs('src')
      obj.includes       = '.'
      obj.uselib         = 'GLIB'
 
