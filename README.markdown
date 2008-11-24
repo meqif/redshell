@@ -7,25 +7,6 @@ redshell is a simple and light UNIX shell.
 
 Suggestions and patches are very welcome.
 
-Dependencies
-------------
-
-* glib-2.0
-
-Building
---------
-
-To build it, you need SCons and Python installed. Just run `scons` and you're
-done!
-
-Redshell also comes with a Makefile. To compile just run `make`.
-
-I'm also playing with [waf](http://code.google.com/p/waf/ waf). You can use the
-script I'm distributing (as allowed by waf's license), just run `./waf` and
-you're good to go.
-
-There's still no install option in either method, sorry.
-
 Features
 --------
 
@@ -46,6 +27,25 @@ Redshell has most features one expects from a POSIX shell:
 
 It's a very simple shell: there's no fancy stuff such as history or
 tab-completion, but that might come later. :)
+
+Dependencies
+------------
+
+* glib-2.0
+
+Building
+--------
+
+To build it, you need SCons and Python installed. Just run `scons` and you're
+done!
+
+Redshell also comes with a Makefile. To compile just run `make`.
+
+I'm also playing with [waf](http://code.google.com/p/waf/ "waf"). You can use the
+script I'm distributing (as allowed by waf's license), just run `./waf` and
+you're good to go.
+
+There's still no install option in either method, sorry.
 
 Bugs
 ----
