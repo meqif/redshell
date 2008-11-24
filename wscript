@@ -1,4 +1,5 @@
 import Build, Configure, Options, Runner, Task, Utils
+import os
 
 APPNAME='redshell'
 VERSION='0.4'
@@ -29,3 +30,8 @@ def build(bld):
      obj.source         = sources
      obj.includes       = '.'
      obj.uselib         = 'GLIB'
+
+def dist_hook():
+    blergh = 'redshell dep.mak .sconsign.dblite'.split()
+    for file in blergh:
+        os.remove(file)
