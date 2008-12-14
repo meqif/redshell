@@ -14,8 +14,6 @@
 
 #include "common.h"
 
-extern pid_t *pids;
-
 /* Counts the ocurrences of a given char in a given string */
 int strstrcnt(char *str, char ch)
 {
@@ -83,19 +81,6 @@ void findRedirections(pipeline_t *pipeline, char **argv)
             pipeline->redirectFromPath = *(++argv);
         argv++;
     }
-}
-
-/* Add pid to the first empty index in pids array */
-int add_pid(pid_t new_pid)
-{
-    int i;
-    for (i = 0; i < HIST_SIZE; i++) {
-        if (pids[i] == 0) {
-            pids[i] = new_pid;
-            return i;
-        }
-    }
-    return -1;
 }
 
 void perror_exit(char *msg)
