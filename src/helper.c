@@ -104,6 +104,8 @@ char *expandAlias(char *command)
         strncpy(cmd, aux, ptr-aux);
     }
 
+    free(cmd);
+
     if (strlen(final) == 0)
         strcpy(final, command);
     else {
