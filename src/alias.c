@@ -24,8 +24,9 @@ alias_t *aliasNew()
     return alias;
 }
 
-void aliasFree(alias_t *alias)
+void aliasFree(gpointer data)
 {
+    alias_t *alias = data;
     assert(alias != NULL);
     free(alias->value);
     free(alias);
