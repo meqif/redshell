@@ -10,6 +10,8 @@ OBJS = $(SRCS:.c=.o)
 CFLAGS += -Os -Wall -g $(shell pkg-config --cflags glib-2.0)
 LIBS += $(shell pkg-config --libs glib-2.0)
 
+all: build/ $(PROG)
+
 $(PROG): $(OBJS)
 	cc -o $(PROG) $(OBJS) $(LIBS)
 
@@ -21,3 +23,4 @@ dep.mak:	$(SRCS) $(HDRS)
 	cc -MM $(SRCS) > dep.mak
 
 include dep.mak
+-include Tests.mk
