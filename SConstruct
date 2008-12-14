@@ -15,6 +15,7 @@ env = Environment(options = opts)
 Help(opts.GenerateHelpText(env))
 env['CFLAGS'] = Split('-Os -Wall -g')
 env.ParseConfig("pkg-config --cflags --libs glib-2.0")
+dbg = env.Clone()
 
 """
 Set up install path.
@@ -26,11 +27,17 @@ man_dir = env['mandir'].replace('PREFIX', prefix)
 """
 Compile the program.
 """
-sources = ['redshell.c', 'builtins.c', 'command.c', 'jobs.c', 'helper.c',
-           'pipeline.c', 'alias.c']
-sources = [ 'src/' + file for file in sources ]
+sources = Glob('src/*.c')
+tests = Glob('tests/*.c')
+objs = ['src/alias.o', 'src/helper.o']
 
 redshell = env.Program('redshell', sources)
+runtests = dbg.Program('run_tests', tests + objs +
+        ['build/cmockery/lib/libcmockery.a'],
+        #LIBS=['cmockery', 'glib-2.0'], LIBPATH='./build/cmockery/lib/',
+        CPPPATH=['build/cmockery/include/google', 'src'])
+Depends(runtests, redshell)
+Default(redshell)
 
 """
 Install the program.
