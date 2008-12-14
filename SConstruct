@@ -15,7 +15,7 @@ env = Environment(options = opts)
 Help(opts.GenerateHelpText(env))
 env['CFLAGS'] = Split('-Os -Wall -g')
 env.ParseConfig("pkg-config --cflags --libs glib-2.0")
-dbg = env.Clone()
+testing = env.Clone()
 
 """
 Set up install path.
@@ -32,7 +32,7 @@ tests = Glob('tests/*.c')
 objs = ['src/alias.o', 'src/helper.o']
 
 redshell = env.Program('redshell', sources)
-runtests = dbg.Program('run_tests', tests + objs +
+runtests = testing.Program('run_tests', tests + objs +
         ['build/cmockery/lib/libcmockery.a'],
         #LIBS=['cmockery', 'glib-2.0'], LIBPATH='./build/cmockery/lib/',
         CPPPATH=['build/cmockery/include/google', 'src'])
@@ -45,5 +45,6 @@ Install the program.
 env.Install(bin_dir, redshell)
 
 env.Alias('install', prefix)
+env.Alias('tests', runtests)
 
 # vim: filetype=python
