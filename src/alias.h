@@ -6,6 +6,7 @@
 void addAlias(char *key, char *value);
 void removeAlias(char *key);
 char *getAlias(char *key);
+void releaseAliases();
 void initializeAliases();
 void destroyAliases();
 void traverseAliases();

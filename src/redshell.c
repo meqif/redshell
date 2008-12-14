@@ -97,15 +97,8 @@ int interpret_line(char *buffer, char **myArgv)
     for (i = 0; i < pipeline->pipes; i++) {
         if ((aux = strstr(commands[i], "<")) != NULL) *aux = '\0';
         if ((aux = strstr(commands[i], ">")) != NULL) *aux = '\0';
-        char *a = strdup(commands[i]);
-        if ((aux = getAlias(cmd)) != NULL) {
-            free(a);
-            a = calloc(BUF_SIZE,1);
-            strcat(a, aux);
-            char *ptr = strstr(commands[i], " ");
-            if (ptr != NULL)
-                strcat(a, ptr);
-        }
+        char *a = expandAlias(commands[i]);
+        releaseAliases();
         command_t *command = commandNew();
         expandGlob(command, a);
         command->path = command->argv[0];

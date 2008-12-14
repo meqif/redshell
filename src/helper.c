@@ -12,6 +12,7 @@
 #include <grp.h>
 #include <wordexp.h>
 
+#include "alias.h"
 #include "common.h"
 
 /* Counts the ocurrences of a given char in a given string */
@@ -70,6 +71,49 @@ void expandGlob(command_t *command, char *cmd)
         command->argv[i] = strdup(w[i]);
     command->argv[i] = NULL;
     wordfree(&p);
+}
+
+char *expandAlias(char *command)
+{
+    char *aux;
+    char *final = calloc(BUF_SIZE, 1);
+    char *ptr = strstr(command, " ");
+    char *cmd;
+    if (ptr != NULL) {
+        cmd = calloc(ptr-command+1, sizeof(char));
+        strncpy(cmd, command, ptr-command);
+    }
+    else {
+        cmd = calloc(strlen(command)+1, sizeof(char));
+        strcpy(cmd, command);
+    }
+
+    if ((aux = getAlias(cmd)) != NULL) {
+        strcat(final, aux);
+        ptr = strstr(aux, " ");
+        free(cmd);
+        cmd = calloc(ptr-aux, sizeof(char));
+        strncpy(cmd, aux, ptr-aux);
+    }
+    while ((aux = getAlias(cmd)) != NULL) {
+        strcat(final, " ");
+        ptr = strstr(aux, " ");
+        strcat(final, ptr+1);
+        free(cmd);
+        cmd = calloc(ptr-aux, sizeof(char));
+        strncpy(cmd, aux, ptr-aux);
+    }
+
+    if (strlen(final) == 0)
+        strcpy(final, command);
+    else {
+        ptr = strstr(command, " ");
+        if (ptr != NULL) {
+            strcat(final, " ");
+            strcat(final, ptr+1);
+        }
+    }
+    return final;
 }
 
 void findRedirections(pipeline_t *pipeline, char **argv)
