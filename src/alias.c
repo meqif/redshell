@@ -45,6 +45,8 @@ void addAlias(char *key, char *value)
 
 void removeAlias(char *key)
 {
+    alias_t *alias = g_tree_lookup(tree, key);
+    free(alias->value);
     g_tree_remove(tree, key);
 }
 
@@ -71,7 +73,7 @@ void releaseAliases()
 
 void initializeAliases()
 {
-    tree = g_tree_new_full(compare, NULL, g_free, g_free);
+    tree = g_tree_new_full(compare, NULL, g_free, aliasFree);
 }
 
 void destroyAliases()
