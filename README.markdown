@@ -24,6 +24,7 @@ Redshell has most features one expects from a POSIX shell:
 * input and output redirection via ">" and "<"
 * unlimited pipes
 * background job execution
+* `alias`es
 
 It's a very simple shell: there's no fancy stuff such as history or
 tab-completion, but that might come later. :)
