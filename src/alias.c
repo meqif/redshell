@@ -82,7 +82,8 @@ void destroyAliases()
 
 static gboolean printAliases(gpointer key, gpointer value, gpointer data)
 {
-    printf("%s=%s\n", (char *)key, (char *)value);
+    alias_t *alias = value;
+    printf("%s=%s\n", (char *)key, alias->value);
     return FALSE;
 }
 
