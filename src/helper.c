@@ -92,7 +92,7 @@ char *expandAlias(char *command)
         strcat(final, aux);
         ptr = strstr(aux, " ");
         free(cmd);
-        cmd = calloc(ptr-aux, sizeof(char));
+        cmd = calloc(ptr-aux+1, sizeof(char));
         strncpy(cmd, aux, ptr-aux);
     }
     while ((aux = getAlias(cmd)) != NULL) {
@@ -106,7 +106,7 @@ char *expandAlias(char *command)
 
         ptr = strstr(aux, " ");
         free(cmd);
-        cmd = calloc(ptr-aux, sizeof(char));
+        cmd = calloc(ptr-aux+1, sizeof(char));
         strncpy(cmd, aux, ptr-aux);
     }
 
