@@ -46,8 +46,6 @@ void addAlias(char *key, char *value)
 
 void removeAlias(char *key)
 {
-    alias_t *alias = g_tree_lookup(tree, key);
-    free(alias->value);
     g_tree_remove(tree, key);
 }
 
