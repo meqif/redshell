@@ -48,13 +48,24 @@ void testAlias(void **state)
     strcpy(content2, "ls -lh");
     addAlias(name2, content2);
 
+    char *name3 = calloc(4, sizeof(char));
+    strcpy(name3, "lld");
+    char *content3 = calloc(15, sizeof(char));
+    strcpy(content3, "ll --sort=date");
+    addAlias(name3, content3);
+
     char *command = expandAlias("ll");
-    assert_string_equal(command, "ls -lh --color");
+    assert_string_equal(command, "ls --color -lh");
     free(command);
     releaseAliases();
 
     command = expandAlias("ll $HOME");
-    assert_string_equal(command, "ls -lh --color $HOME");
+    assert_string_equal(command, "ls --color -lh $HOME");
+    free(command);
+    releaseAliases();
+
+    command = expandAlias("lld");
+    assert_string_equal(command, "ls --color -lh --sort=date");
     free(command);
     releaseAliases();
 }
