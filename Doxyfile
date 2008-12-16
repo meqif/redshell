@@ -1,0 +1,13 @@
+# Doxyfile 1.5.7.1
+
+#---------------------------------------------------------------------------
+# Project related configuration options
+#---------------------------------------------------------------------------
+PROJECT_NAME           = redshell
+PROJECT_NUMBER         =
+OUTPUT_DIRECTORY       = doc
+TYPEDEF_HIDES_STRUCT   = YES
+#---------------------------------------------------------------------------
+# configuration options related to the input files
+#---------------------------------------------------------------------------
+INPUT                  = src tests

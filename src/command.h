@@ -3,15 +3,31 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
+/*!
+ \addtogroup command
+ \{
+ */
+
+/*! \brief Represents a command and all relevant information */
 typedef struct __command_t {
-    char *path;             /* path of the command */
-    int argc;               /* amount of command line arguments for the command */
-    char **argv;            /* arguments provided for the command */
-    char *redirectToPath;   /* path to redirect output, or NULL */
-    char *redirectFromPath; /* path from which input is redirected, or NULL */
+    /*! \brief Path of the command */
+    char *path;
+    /*! \brief Number of command line arguments for the command */
+    int argc;
+    /*! \brief Arguments provided for the command */
+    char **argv;
+    /*! \brief Path to redirect output, or NULL */
+    char *redirectToPath;
+    /*! \brief Path from which input is redirected, or NULL */
+    char *redirectFromPath;
 } command_t;
 
+/*! \brief Create new command */
 command_t *commandNew(void);
+
+/*! \brief Remove a command */
 void commandFree(command_t *command);
+
+/*! \} */
 
 #endif /* COMMAND_H */
