@@ -3,6 +3,13 @@
 #ifndef ALIAS_H
 #define ALIAS_H
 
+#include <glib.h>
+
+typedef struct __alias_t {
+    char *value;
+    int in_use;
+} alias_t;
+
 void addAlias(char *key, char *value);
 void removeAlias(char *key);
 char *getAlias(char *key);

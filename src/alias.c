@@ -1,16 +1,11 @@
 /* See LICENSE file for copyright and license details. */
 
 #include <assert.h>
-#include <glib.h>
 #include <string.h>
+#include "alias.h"
 #include "common.h"
 
 static GTree *tree;
-
-typedef struct __alias_t {
-    char *value;
-    int in_use;
-} alias_t;
 
 alias_t *aliasNew()
 {
@@ -34,6 +29,7 @@ void aliasFree(gpointer data)
 
 static gint compare(gconstpointer a, gconstpointer b, gpointer data)
 {
+    (void) data; /* avoid warning about unused parameter */
     return strcmp(a,b);
 }
 
@@ -61,6 +57,8 @@ char *getAlias(char *key)
 
 static gboolean releaseAlias(gpointer key, gpointer value, gpointer data)
 {
+    (void) key;  /* avoid warning about unused parameter */
+    (void) data; /* avoid warning about unused parameters */
     ((alias_t *)value)->in_use = 0;
     return FALSE;
 }
@@ -83,6 +81,7 @@ void destroyAliases()
 
 static gboolean printAliases(gpointer key, gpointer value, gpointer data)
 {
+    (void) data; /* avoid warning about unused parameter */
     alias_t *alias = value;
     printf("%s=%s\n", (char *)key, alias->value);
     return FALSE;
