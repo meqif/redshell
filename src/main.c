@@ -162,7 +162,19 @@ int main()
 
     while ( 1 ) {
         line = readline(getPrompt());
-        interpret_line(line, myArgv);   /* Interpret the command and make three wishes come true */
+
+        char *expansion;
+        int result = history_expand(line, &expansion);
+
+        if (result < 0 || result == 2)
+            fprintf(stderr, "%s\n", expansion);
+        else {
+            add_history(expansion);
+            interpret_line(expansion, myArgv);
+        }
+
+        free(expansion);
+        free(line);
     }
 
     return 0;
