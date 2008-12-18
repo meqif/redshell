@@ -8,13 +8,36 @@ opts.AddVariables(
   ('mandir', 'man documentation', 'PREFIX/man'),
 )
 
+opts.Add(BoolVariable("libedit", "Set to link to libedit instead of readline", "no"))
+
 """
 Set up environment.
 """
 env = Environment(options = opts)
 Help(opts.GenerateHelpText(env))
 env['CFLAGS'] = Split('-Os -Wall -g')
-env.ParseConfig("pkg-config --cflags --libs glib-2.0 libedit")
+
+conf = Configure(env)
+if not conf.CheckLib('glib-2.0'):
+    print 'Did not find glib2, exiting'
+    Exit(1)
+
+if not env['libedit']:
+    readline = conf.CheckLib('readline')
+    if not readline and not conf.CheckLib('libedit'):
+        print 'Did not find either readline or libedit, exiting'
+        Exit(1)
+elif not conf.CheckLib('libedit'):
+    print 'Did not find libedit, exiting'
+    Exit(1)
+
+if env['libedit']:
+    readline_lib = " libedit"
+else:
+    readline_lib = ""
+    env.Append(CPPDEFINES='GNU_READLINE')
+
+env.ParseConfig("pkg-config --cflags --libs glib-2.0" + readline_lib)
 testing = env.Clone()
 testing.Append(CPPPATH = ['build/cmockery/include/google', 'src'])
 
