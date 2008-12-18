@@ -151,6 +151,15 @@ int setupSignalHandler()
     return 0;
 }
 
+void initialize_readline()
+{
+    /* Allow conditional parsing of the ~/.inputrc file. */
+    rl_readline_name = "redshell";
+
+    /* Our completer function */
+    rl_attempted_completion_function = NULL;
+}
+
 int main()
 {
     char *myArgv[MAX_ARGS];
