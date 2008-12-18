@@ -22,8 +22,12 @@
 #include "parser.h"
 
 /* Readline */
-/* TODO: ifdef for GNU readline vs editline */
-#include <editline/readline.h>
+#ifdef GNU_READLINE
+# include <readline/readline.h>
+# include <readline/history.h>
+#else
+# include <editline/readline.h>
+#endif /* GNU_READLINE */
 
 /*! \brief Assuming max 100 program name + args */
 #define MAX_ARGS 100
