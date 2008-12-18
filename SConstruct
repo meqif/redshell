@@ -14,7 +14,7 @@ Set up environment.
 env = Environment(options = opts)
 Help(opts.GenerateHelpText(env))
 env['CFLAGS'] = Split('-Os -Wall -g')
-env.ParseConfig("pkg-config --cflags --libs glib-2.0")
+env.ParseConfig("pkg-config --cflags --libs glib-2.0 libedit")
 testing = env.Clone()
 testing.Append(CPPPATH = ['build/cmockery/include/google', 'src'])
 

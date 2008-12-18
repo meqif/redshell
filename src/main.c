@@ -20,6 +20,10 @@
 #include "jobs.h"
 #include "parser.h"
 
+/* Readline */
+/* TODO: ifdef for GNU readline vs editline */
+#include <editline/readline.h>
+
 /*! \brief Assuming max 100 program name + args */
 #define MAX_ARGS 100
 /* Shell colours */
@@ -32,6 +36,7 @@ pid_t *pids;
 /*! \brief Foreground process' pid */
 pid_t fg_pid = 0;
 
+static char *prompt;
 
 /**************
  * Prototypes *
@@ -39,9 +44,6 @@ pid_t fg_pid = 0;
 
 /*! \brief Memory cleaning up */
 static void cleanup(void);
-
-/*! \brief Print the shell prompt */
-static int print_prompt(void);
 
 /*! \brief Exorcise all zombies */
 static void evil_dead(void);
@@ -63,15 +65,30 @@ void cleanup()
     destroyAliases();
 }
 
-int print_prompt()
+int setPrompt(char *format)
 {
-    char *username = getusername(getuid());
-    char hostname[100];
+    if (format == NULL) {
+        char *username = getusername(getuid());
+        char hostname[100];
+        char *tmp = malloc(200 * sizeof(char));
 
-    gethostname(hostname, 100);
-    printf("%s%s@%s > %s", RED, username, hostname, CLEAR);
+        gethostname(hostname, 100);
+        snprintf(tmp, 200, "%s%s@%s > %s", RED, username, hostname, CLEAR);
+
+        free(prompt);
+        prompt = malloc(strlen(tmp)+1);
+        strcpy(prompt, tmp);
+        free(tmp);
+    } else {
+        prompt = format;
+    }
 
     return 0;
+}
+
+char *getPrompt()
+{
+    return prompt;
 }
 
 void evil_dead() {
@@ -134,18 +151,17 @@ int setupSignalHandler()
 int main()
 {
     char *myArgv[MAX_ARGS];
-    char line[BUF_SIZE];                /* Buffer for user input */
+    char *line;                         /* Buffer for user input */
 
     pids = calloc(HIST_SIZE, sizeof(pid_t));
 
     atexit(cleanup);                    /* Define some cleaning up operations */
     setupSignalHandler();               /* Set signal handlers */
+    setPrompt(NULL);
     initializeAliases();
 
     while ( 1 ) {
-        line[0] = '\0';                 /* Clear the user input buffer */
-        print_prompt();                 /* Print the prompt */
-        fgets(line, BUF_SIZE, stdin);   /* Read the user input to a buffer */
+        line = readline(getPrompt());
         interpret_line(line, myArgv);   /* Interpret the command and make three wishes come true */
     }
 
