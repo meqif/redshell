@@ -35,8 +35,8 @@ pid_t fg_pid = 0;
 static void cleanup(void);
 static int print_prompt(void);
 static void evil_dead(void);
-static void sig_handler(int sig);
-static int set_signals(void);
+static void signalHandler(int sig);
+static int setupSignalHandler(void);
 int main(void);
 
 /* Executed at exit */
@@ -76,7 +76,7 @@ void evil_dead() {
 }
 
 /* Deal with signals */
-void sig_handler(int sig)
+void signalHandler(int sig)
 {
     switch(sig) {
         case SIGALRM:
@@ -103,10 +103,11 @@ void sig_handler(int sig)
 }
 
 /* Set signal handlers */
-int set_signals()
+int setupSignalHandler()
 {
     static struct sigaction act;
-    act.sa_handler = sig_handler;
+    act.sa_flags = 0;
+    act.sa_handler = signalHandler;
     sigfillset(&(act.sa_mask));
     if (sigaction(SIGINT, &act, NULL) == -1)
         perror_exit("Setting SIGINT handler failed");
@@ -125,7 +126,7 @@ int main()
     pids = calloc(HIST_SIZE, sizeof(pid_t));
 
     atexit(cleanup);                    /* Define some cleaning up operations */
-    set_signals();                      /* Set signal handlers */
+    setupSignalHandler();               /* Set signal handlers */
     initializeAliases();
 
     while ( 1 ) {

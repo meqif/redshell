@@ -67,7 +67,7 @@ int executeCommand(command_t *cmd)
 }
 
 /* Closes all pipes */
-static void closepipes(int *pipes, int count)
+static void _closepipes(int *pipes, int count)
 {
     int i;
     for (i = 0; i < count; i++)
@@ -153,7 +153,7 @@ int spawnCommand(pipeline_t *pipeline)
                 dup2(pipes[2*(i-1)], 0);
                 dup2(pipes[(2*i)+1], 1);
             }
-            closepipes(pipes, tot_pipes);
+            _closepipes(pipes, tot_pipes);
             status = executeCommand(pipeline->commands[i]);
             pipelineFree(pipeline);
             exit(status);
@@ -164,7 +164,7 @@ int spawnCommand(pipeline_t *pipeline)
     }
 
     /* Only the parent gets here and waits for children to finish */
-    closepipes(pipes, tot_pipes);
+    _closepipes(pipes, tot_pipes);
 
     /* Restore stdin and stdout */
     dup2(stdin_copy,  0);
