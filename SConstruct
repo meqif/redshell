@@ -16,6 +16,7 @@ Help(opts.GenerateHelpText(env))
 env['CFLAGS'] = Split('-Os -Wall -g')
 env.ParseConfig("pkg-config --cflags --libs glib-2.0")
 testing = env.Clone()
+testing['CPPPATH'] += ['build/cmockery/include/google', 'src']
 
 """
 Set up install path.
@@ -33,9 +34,7 @@ objs = ['src/alias.o', 'src/helper.o']
 
 redshell = env.Program('redshell', sources)
 runtests = testing.Program('run_tests', tests + objs +
-        ['build/cmockery/lib/libcmockery.a'],
-        #LIBS=['cmockery', 'glib-2.0'], LIBPATH='./build/cmockery/lib/',
-        CPPPATH=['build/cmockery/include/google', 'src'])
+        ['build/cmockery/lib/libcmockery.a'])
 Depends(runtests, redshell)
 Default(redshell)
 
