@@ -13,6 +13,7 @@
 #include <sys/wait.h>
 #include <errno.h>
 #include <signal.h>
+#include <setjmp.h>
 
 #include "alias.h"
 #include "common.h"
@@ -37,6 +38,7 @@ pid_t *pids;
 pid_t fg_pid = 0;
 
 static char *prompt;
+jmp_buf buf;
 
 /**************
  * Prototypes *
@@ -123,6 +125,7 @@ void signalHandler(int sig)
                 fg_pid = 0;
             }
             printf("\n");
+            siglongjmp(buf,1);
             break;
         case SIGCHLD:
             evil_dead();
@@ -161,6 +164,7 @@ int main()
     initializeAliases();
 
     while ( 1 ) {
+        sigsetjmp(buf,1);
         line = readline(getPrompt());
 
         char *expansion;
