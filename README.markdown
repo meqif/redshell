@@ -26,13 +26,15 @@ Redshell has most features one expects from a POSIX shell:
 * background job execution
 * `alias`es
 
-It's a very simple shell: there's no fancy stuff such as history or
-tab-completion, but that might come later. :)
+<del>It's a very simple shell: there's no fancy stuff such as history or
+tab-completion, but that might come later.</del>
+I finally got around to implementing both of them. :)
 
 Dependencies
 ------------
 
 * glib-2.0
+* GNU readline or libedit >= 2.11
 
 Building
 --------
@@ -41,10 +43,6 @@ To build it, you need SCons and Python installed. Just run `scons` and you're
 done!
 
 Redshell also comes with a Makefile. To compile just run `make`.
-
-I'm also playing with [waf](http://code.google.com/p/waf/ "waf"). You can use the
-script I'm distributing (as allowed by waf's license), just run `./waf` and
-you're good to go.
 
 There's still no install option in either method, sorry.
 
