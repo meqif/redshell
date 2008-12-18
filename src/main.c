@@ -18,6 +18,7 @@
 #include "common.h"
 #include "helper.h"
 #include "jobs.h"
+#include "parser.h"
 
 #define MAX_ARGS 100        /* Assuming max 100 program name + args */
 /* Shell colours */
@@ -33,7 +34,6 @@ pid_t fg_pid = 0;
 /* Prototypes */
 static void cleanup(void);
 static int print_prompt(void);
-static int interpret_line(char *buffer, char **myArgv);
 static void evil_dead(void);
 static void sig_handler(int sig);
 static int set_signals(void);
@@ -54,63 +54,6 @@ int print_prompt()
 
     gethostname(hostname, 100);
     printf("%s%s@%s > %s", RED, username, hostname, CLEAR);
-
-    return 0;
-}
-
-/* Interpret command array */
-int interpret_line(char *buffer, char **myArgv)
-{
-    /* Split user input into tokens */
-    char bufcopy[strlen(buffer)+1];
-    strcpy(bufcopy, buffer);
-    tokenize(myArgv, bufcopy, DELIMITERS);
-
-    /* Get command name */
-    char *cmd = *myArgv;
-
-    /* Do nothing if we get a blank line */
-    if (cmd == NULL) return -1;
-
-    pipeline_t *pipeline = pipelineNew();
-
-    /* Number of commands = number of pipes + 1 */
-    pipeline->pipes = strstrcnt(buffer, '|')+1;
-    char *commands[pipeline->pipes];
-
-    /* Should this job run in background? */
-    char *aux;
-    if ((aux = strstr(buffer, "&")) != NULL) {
-        pipeline->bg = 1;
-        *aux = '\0';
-    }
-
-    /* Check if the user wants to redirect the input or output */
-    findRedirections(pipeline, myArgv);
-
-    /* Split user input by pipe */
-    tokenize(commands, buffer, "|\n");
-
-    command_t *cmds[pipeline->pipes];
-    /* Tokenize given commands */
-    int i;
-    for (i = 0; i < pipeline->pipes; i++) {
-        if ((aux = strstr(commands[i], "<")) != NULL) *aux = '\0';
-        if ((aux = strstr(commands[i], ">")) != NULL) *aux = '\0';
-        char *a = expandAlias(commands[i]);
-        releaseAliases();
-        command_t *command = commandNew();
-        expandGlob(command, a);
-        command->path = command->argv[0];
-        cmds[i] = command;
-        free(a);
-    }
-    pipeline->commands = cmds;
-
-    /* Execute the user command(s) */
-    spawnCommand(pipeline);
-
-    pipelineFree(pipeline);
 
     return 0;
 }
