@@ -20,33 +20,49 @@
 #include "jobs.h"
 #include "parser.h"
 
-#define MAX_ARGS 100        /* Assuming max 100 program name + args */
+/*! \brief Assuming max 100 program name + args */
+#define MAX_ARGS 100
 /* Shell colours */
 #define RED      "\033[1;31m"
 #define CLEAR    "\033[0m"
 
-/* Array of background processes' pids */
+/*! \brief Array of background processes' pids */
 pid_t *pids;
-/* Foreground process' pid */
+
+/*! \brief Foreground process' pid */
 pid_t fg_pid = 0;
 
 
-/* Prototypes */
+/**************
+ * Prototypes *
+ **************/
+
+/*! \brief Memory cleaning up */
 static void cleanup(void);
+
+/*! \brief Print the shell prompt */
 static int print_prompt(void);
+
+/*! \brief Exorcise all zombies */
 static void evil_dead(void);
+
+/*! \brief Handle signals */
 static void signalHandler(int sig);
+
+/*! \brief Set signal handlers */
 static int setupSignalHandler(void);
 int main(void);
 
-/* Executed at exit */
+/********
+ * Code *
+ ********/
+
 void cleanup()
 {
     free(pids);
     destroyAliases();
 }
 
-/* Print the shell prompt */
 int print_prompt()
 {
     char *username = getusername(getuid());
@@ -58,7 +74,6 @@ int print_prompt()
     return 0;
 }
 
-/* Exorcise all zombies */
 void evil_dead() {
     int i, state;
     for (i = 0; i < HIST_SIZE; i++) {
@@ -75,7 +90,6 @@ void evil_dead() {
     }
 }
 
-/* Deal with signals */
 void signalHandler(int sig)
 {
     switch(sig) {
@@ -102,7 +116,6 @@ void signalHandler(int sig)
     }
 }
 
-/* Set signal handlers */
 int setupSignalHandler()
 {
     static struct sigaction act;
