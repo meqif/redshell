@@ -166,7 +166,9 @@ int main()
         char *expansion;
         int result = history_expand(line, &expansion);
 
-        if (result < 0 || result == 2)
+        if (expansion == NULL || strlen(expansion) == 0)
+            ;
+        else if (result < 0 || result == 2)
             fprintf(stderr, "%s\n", expansion);
         else {
             add_history(expansion);
