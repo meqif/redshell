@@ -9,7 +9,6 @@
  * for copyright and license details.
  */
 
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <errno.h>
 #include <signal.h>
@@ -20,6 +19,7 @@
 #include "helper.h"
 #include "jobs.h"
 #include "parser.h"
+#include "prompt.h"
 
 /* Readline */
 #ifdef GNU_READLINE
@@ -31,9 +31,6 @@
 
 /*! \brief Assuming max 100 program name + args */
 #define MAX_ARGS 100
-/* Shell colours */
-#define RED      "\033[1;31m"
-#define CLEAR    "\033[0m"
 
 /*! \brief Array of background processes' pids */
 pid_t *pids;
@@ -41,7 +38,6 @@ pid_t *pids;
 /*! \brief Foreground process' pid */
 pid_t fg_pid = 0;
 
-static char *prompt;
 jmp_buf buf;
 
 /**************
@@ -69,32 +65,6 @@ void cleanup()
 {
     free(pids);
     destroyAliases();
-}
-
-int setPrompt(char *format)
-{
-    if (format == NULL) {
-        char *username = getusername(getuid());
-        char hostname[100];
-        char *tmp = malloc(200 * sizeof(char));
-
-        gethostname(hostname, 100);
-        snprintf(tmp, 200, "%s%s@%s > %s", RED, username, hostname, CLEAR);
-
-        free(prompt);
-        prompt = malloc(strlen(tmp)+1);
-        strcpy(prompt, tmp);
-        free(tmp);
-    } else {
-        prompt = format;
-    }
-
-    return 0;
-}
-
-char *getPrompt()
-{
-    return prompt;
 }
 
 void evil_dead() {
