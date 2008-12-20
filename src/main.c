@@ -55,6 +55,10 @@ static void signalHandler(int sig);
 
 /*! \brief Set signal handlers */
 static int setupSignalHandler(void);
+
+/*! \brief Main loop */
+static void run(void);
+
 int main(void);
 
 /********
@@ -134,24 +138,18 @@ void initialize_readline()
     rl_attempted_completion_function = NULL;
 }
 
-int main()
+void run()
 {
     char *myArgv[MAX_ARGS];
     char *line;                         /* Buffer for user input */
-
-    pids = calloc(HIST_SIZE, sizeof(pid_t));
-
-    atexit(cleanup);                    /* Define some cleaning up operations */
-    setupSignalHandler();               /* Set signal handlers */
-    setPrompt(NULL);
-    initializeAliases();
+    char *expansion;
+    int result;
 
     while ( 1 ) {
         sigsetjmp(buf,1);
         line = readline(getPrompt());
 
-        char *expansion;
-        int result = history_expand(line, &expansion);
+        result = history_expand(line, &expansion);
 
         if (expansion == NULL || strlen(expansion) == 0)
             ;
@@ -165,6 +163,18 @@ int main()
         free(expansion);
         free(line);
     }
+
+}
+
+int main()
+{
+    pids = calloc(HIST_SIZE, sizeof(pid_t));
+
+    atexit(cleanup);                    /* Define some cleaning up operations */
+    setupSignalHandler();               /* Set signal handlers */
+    setPrompt(NULL);
+    initializeAliases();
+    run();
 
     return 0;
 }
