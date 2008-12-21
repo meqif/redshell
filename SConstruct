@@ -1,8 +1,8 @@
 """
 Set up options.
 """
-opts = Options()
-opts.AddOptions(
+opts = Variables()
+opts.AddVariables(
   ('prefix', 'install architecture-independent files in', '/usr/local'),
   ('bindir', 'user executables', 'PREFIX/bin'),
   ('mandir', 'man documentation', 'PREFIX/man'),
@@ -16,7 +16,7 @@ Help(opts.GenerateHelpText(env))
 env['CFLAGS'] = Split('-Os -Wall -g')
 env.ParseConfig("pkg-config --cflags --libs glib-2.0")
 testing = env.Clone()
-testing['CPPPATH'] += ['build/cmockery/include/google', 'src']
+testing.Append(CPPPATH = ['build/cmockery/include/google', 'src'])
 
 """
 Set up install path.
