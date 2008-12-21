@@ -57,7 +57,7 @@ Compile the program.
 """
 sources = Glob('src/*.c')
 tests = Glob('tests/*.c')
-objs = ['src/alias.o', 'src/helper.o', 'src/builtins.o']
+objs = ['src/alias.o', 'src/helper.o', 'src/builtins.o', 'src/queue.o']
 
 redshell = env.Program('redshell', sources)
 runtests = testing.Program('run_tests', tests + objs +

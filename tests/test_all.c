@@ -8,6 +8,7 @@
 #include "test_alias.h"
 #include "test_builtins.h"
 #include "test_helper.h"
+#include "test_queue.h"
 
 int main()
 {
@@ -17,7 +18,10 @@ int main()
         unit_test(testAlias),
         unit_test(testDestroyAliases),
         unit_test(testStringCount),
-        unit_test(testIsBuiltin),
+		unit_test(testIsBuiltin),
+        unit_test(testCreateQueue),
+        unit_test(testInsertIntoQueue),
+        unit_test(testDestroyQueue),
     };
     return run_tests(tests);
 }
