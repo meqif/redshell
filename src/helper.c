@@ -92,22 +92,33 @@ char *expandAlias(char *command)
         strcat(final, aux);
         ptr = strstr(aux, " ");
         free(cmd);
-        cmd = calloc(ptr-aux+1, sizeof(char));
-        strncpy(cmd, aux, ptr-aux);
+        if (ptr != NULL) {
+            cmd = calloc(ptr-aux+1, sizeof(char));
+            strncpy(cmd, aux, ptr-aux);
+        } else {
+            cmd = calloc(strlen(aux)+1, sizeof(char));
+            strcpy(cmd, aux);
+        }
     }
     while ((aux = getAlias(cmd)) != NULL) {
         char *tmp = calloc(BUF_SIZE, 1);
         strcpy(tmp, aux);
         char *space = strstr(final, " ");
-        strcat(tmp, space);
+        if (space != NULL)
+            strcat(tmp, space);
         free(final);
         final = tmp;
         tmp = NULL;
 
         ptr = strstr(aux, " ");
         free(cmd);
-        cmd = calloc(ptr-aux+1, sizeof(char));
-        strncpy(cmd, aux, ptr-aux);
+        if (ptr != NULL) {
+            cmd = calloc(ptr-aux+1, sizeof(char));
+            strncpy(cmd, aux, ptr-aux);
+        } else {
+            cmd = calloc(strlen(aux)+1, sizeof(char));
+            strcpy(cmd, aux);
+        }
     }
 
     free(cmd);
