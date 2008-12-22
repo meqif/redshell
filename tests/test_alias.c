@@ -54,6 +54,12 @@ void testAlias(void **state)
     strcpy(content3, "ll --sort=date");
     addAlias(name3, content3);
 
+    char *name4 = calloc(5, sizeof(char));
+    strcpy(name4, "grep");
+    char *content4 = calloc(4, sizeof(char));
+    strcpy(content4, "ack");
+    addAlias(name4, content4);
+
     char *command = expandAlias("ll");
     assert_string_equal(command, "ls --color -lh");
     free(command);
@@ -66,6 +72,11 @@ void testAlias(void **state)
 
     command = expandAlias("lld");
     assert_string_equal(command, "ls --color -lh --sort=date");
+    free(command);
+    releaseAliases();
+
+    command = expandAlias("grep");
+    assert_string_equal(command, "ack");
     free(command);
     releaseAliases();
 }
