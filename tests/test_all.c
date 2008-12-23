@@ -6,6 +6,7 @@
 #include <cmockery.h>
 
 #include "test_alias.h"
+#include "test_builtins.h"
 #include "test_helper.h"
 
 int main()
@@ -16,6 +17,7 @@ int main()
         unit_test(testAlias),
         unit_test(testDestroyAliases),
         unit_test(testStringCount),
+        unit_test(testIsBuiltin),
     };
     return run_tests(tests);
 }
