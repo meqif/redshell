@@ -44,6 +44,7 @@ testing.Append(CPPPATH = ['build/cmockery/include/google', 'src'])
 debug = int(ARGUMENTS.get('debug', '0'))
 if debug:
     env['CC'] = 'cgcc'
+    env.Append(CPPDEFINES=['DEBUG'])
 
 """
 Set up install path.
@@ -57,7 +58,8 @@ Compile the program.
 """
 sources = Glob('src/*.c')
 tests = Glob('tests/*.c')
-objs = ['src/alias.o', 'src/helper.o', 'src/builtins.o', 'src/queue.o']
+objs = ['src/alias.o', 'src/helper.o', 'src/builtins.o', 'src/queue.o',
+        'src/command.o']
 
 redshell = env.Program('redshell', sources)
 runtests = testing.Program('run_tests', tests + objs +

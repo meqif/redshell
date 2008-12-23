@@ -1,8 +1,8 @@
 PROG = redshell
 SRCS = src/main.c src/alias.c src/builtins.c src/command.c src/jobs.c \
-       src/helper.c src/parser.c src/pipeline.c
+       src/helper.c src/parser.c src/pipeline.c src/prompt.c src/queue.c
 HDRS = src/alias.h src/command.h src/common.h src/builtins.h src/jobs.h \
-       src/helper.h src/parser.h src/pipeline.h
+       src/helper.h src/parser.h src/pipeline.h src/prompt.h src/queue.h
 
 OBJS = $(SRCS:.c=.o)
 
