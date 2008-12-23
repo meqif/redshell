@@ -8,6 +8,13 @@
  \{
  */
 
+enum {
+    commandConnectionNone       = 0,
+    commandConnectionPipe       = 1,
+    commandConnectionBackground = 2,
+    commandConnectionSequential = 3,
+};
+
 /*! \brief Represents a command and all relevant information */
 typedef struct __command_t {
     /*! \brief Path of the command */
@@ -20,6 +27,8 @@ typedef struct __command_t {
     char *redirectToPath;
     /*! \brief Path from which input is redirected, or NULL */
     char *redirectFromPath;
+
+    int connectionMask;
 } command_t;
 
 /*! \brief Create new command */

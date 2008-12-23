@@ -17,6 +17,7 @@ command_t *commandNew()
     command->argv = NULL;
     command->redirectToPath = NULL;
     command->redirectFromPath = NULL;
+    command->connectionMask = commandConnectionNone;
 
     return command;
 }

@@ -16,6 +16,7 @@
 #include "builtins.h"
 #include "common.h"
 #include "helper.h"
+#include "jobs.h"
 
 #define PERMS 0644
 
@@ -74,13 +75,18 @@ static void _closepipes(int *pipes, int count)
         close(pipes[i]);
 }
 
-/* Executes several external commands, with pipelines */
-int spawnCommand(pipeline_t *pipeline)
+/* Executes command queue */
+int executeCommandsInQueue(queue_t *commandQueue)
 {
+    if (commandQueue == NULL)
+        return -1;
+
+    if (commandQueue->count == 0)
+        return 0;
+
     int i;
     int status;
-    int pid_counter;
-    int n_commands = pipeline->pipes;
+    int n_commands = commandQueue->count;
     int tot_pipes = 2*(n_commands-1); /* Total pipe ends */
     int pipes[tot_pipes];
     int fd_in = -1;
@@ -88,59 +94,60 @@ int spawnCommand(pipeline_t *pipeline)
     int stdin_copy  = -1;
     int stdout_copy = -1;
     pid_t launched[n_commands];
+    command_t *cmd = NULL;
+    command_t *lastCommand = NULL;
 
     /* Save original stdin and stdout */
     stdin_copy  = dup(0);
     stdout_copy = dup(1);
-
-    /* Redirect input */
-    if (pipeline->redirectFromPath != NULL) {
-        fd_in = open(pipeline->redirectFromPath, O_RDONLY);
-        if (fd_in == -1) {
-            perror(pipeline->redirectFromPath);
-            return -1;
-        }
-        dup2(fd_in, 0);
-    }
-
-    /* Redirect output */
-    if (pipeline->redirectToPath != NULL) {
-        fd_out = open(pipeline->redirectToPath, O_WRONLY|O_CREAT|O_TRUNC, PERMS);
-        if (fd_out == -1) {
-            perror(pipeline->redirectToPath);
-            if (fd_in == -1) close(fd_in);
-            return -1;
-        }
-        dup2(fd_out, 1);
-    }
-
-    /* If the command is 'exit', clean up before executing it */
-    if (strcmp(pipeline->commands[0]->argv[0], "exit") == 0) {
-        /* Restore stdin and stdout */
-        dup2(stdin_copy,  0);
-        dup2(stdout_copy, 1);
-        /* Free pipeline structure */
-        pipelineFree(pipeline);
-        cmd_exit(NULL);
-        return -1; /* Execution won't reach here */
-    }
-
-    /* Try to execute builtin command, if it exists */
-    if (!pipeline->bg && n_commands == 1 &&
-            _executeBuiltinCommand(pipeline->commands[0]->argv) == 0) {
-        /* Restore stdin and stdout */
-        dup2(stdin_copy,  0);
-        dup2(stdout_copy, 1);
-        return 0;
-    }
 
     /* Initialize pipes */
     for (i = 0; i < tot_pipes; i += 2)
         pipe(pipes+i);
 
     for (i = 0; i < n_commands; i++) {
+        cmd = queuePop(commandQueue);
+
+        if (cmd->connectionMask != commandConnectionBackground &&
+                commandQueue->count == 0 && isBuiltin(cmd->path)) {
+            executeCommand(cmd);
+            return 0;
+        }
+
+        if (cmd->connectionMask != commandConnectionPipe && lastCommand != NULL
+                && lastCommand->connectionMask != commandConnectionPipe) {
+            pid_t p = fork();
+            if (p == 0) {
+                executeCommand(cmd);
+                exit(0);
+            }
+            waitpid(p, NULL, 0);
+            commandFree(lastCommand);
+            lastCommand = cmd;
+            return 0;
+        }
+
         pid_t p = fork();
         if (p == 0) {
+            /* Redirect input */
+            if (cmd->redirectFromPath != NULL) {
+                fd_in = open(cmd->redirectFromPath, O_RDONLY);
+                if (fd_in == -1) {
+                    perror(cmd->redirectFromPath);
+                    return -1;
+                }
+            }
+
+            /* Redirect output */
+            if (cmd->redirectToPath != NULL) {
+                fd_out = open(cmd->redirectToPath, O_WRONLY|O_CREAT|O_TRUNC, PERMS);
+                if (fd_out == -1) {
+                    perror(cmd->redirectToPath);
+                    if (fd_in == -1) close(fd_in);
+                    return -1;
+                }
+            }
+
             if (i == 0) {               /* First command */
                 if (n_commands > 1) dup2(pipes[1], 1);
                 if (fd_in != -1)    dup2(fd_in, 0);
@@ -154,8 +161,9 @@ int spawnCommand(pipeline_t *pipeline)
                 dup2(pipes[(2*i)+1], 1);
             }
             _closepipes(pipes, tot_pipes);
-            status = executeCommand(pipeline->commands[i]);
-            pipelineFree(pipeline);
+            status = executeCommand(cmd);
+            commandFree(cmd);
+            queueFree(commandQueue);
             exit(status);
         }
         else
@@ -170,14 +178,14 @@ int spawnCommand(pipeline_t *pipeline)
     dup2(stdin_copy,  0);
     dup2(stdout_copy, 1);
 
-    if (!pipeline->bg)
+//    if (!commandQueue->bg)
         for (i = 0; i < n_commands; i++)
             while (waitpid(launched[i], NULL, 0) == -1 && errno != ECHILD);
-    else
-        for (i = 0; i < n_commands; i++) {
-            pid_counter = add_pid(launched[i]);
-            printf("[%d] %d\n", pid_counter+1, launched[i]);
-        }
+//    else
+//        for (i = 0; i < n_commands; i++) {
+//            pid_counter = add_pid(launched[i]);
+//            printf("[%d] %d\n", pid_counter+1, launched[i]);
+//        }
 
     /* Since either the execution of the external command ended or it was
      * on the background, we have nothing running on the foreground. */

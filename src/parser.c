@@ -8,62 +8,49 @@
 #include "helper.h"
 #include "jobs.h"
 #include "pipeline.h"
+#include "queue.h"
 
 /* Interpret command array */
-int interpret_line(char *buffer, char **myArgv)
+queue_t *interpret_line(char *buffer, char **myArgv)
 {
-    /* Split user input into tokens */
-    char bufcopy[strlen(buffer)+1];
-    strcpy(bufcopy, buffer);
-    tokenize(myArgv, bufcopy, DELIMITERS);
+    queue_t *queue = queueNew();
 
-    /* Get command name */
-    char *cmd = *myArgv;
-
-    /* Do nothing if we get a blank line */
-    if (cmd == NULL) return -1;
-
-    pipeline_t *pipeline = pipelineNew();
-
-    /* Number of commands = number of pipes + 1 */
-    pipeline->pipes = strstrcnt(buffer, '|')+1;
-    char *commands[pipeline->pipes];
-
-    /* Should this job run in background? */
-    char *aux;
-    if ((aux = strstr(buffer, "&")) != NULL) {
-        pipeline->bg = 1;
-        *aux = '\0';
-    }
-
-    /* Check if the user wants to redirect the input or output */
-    findRedirections(pipeline, myArgv);
-
-    /* Split user input by pipe */
-    tokenize(commands, buffer, "|\n");
-
-    command_t *cmds[pipeline->pipes];
-    /* Tokenize given commands */
     int i;
-    for (i = 0; i < pipeline->pipes; i++) {
-        if ((aux = strstr(commands[i], "<")) != NULL) *aux = '\0';
-        if ((aux = strstr(commands[i], ">")) != NULL) *aux = '\0';
-        char *a = expandAlias(commands[i]);
-        releaseAliases();
-        command_t *command = commandNew();
-        expandGlob(command, a);
-        command->path = command->argv[0];
-        cmds[i] = command;
-        free(a);
-    }
-    pipeline->commands = cmds;
+    char *ptr = buffer;
+    char *ptr_orig = buffer;
+    do {
+        if (*ptr_orig == '\n' || *ptr_orig == '|' ||
+            *ptr_orig == ';'  || *ptr_orig == '\0' || *ptr_orig == '&') {
+            command_t *command = commandNew();
+            switch(*ptr_orig) {
+                case '|':
+                    command->connectionMask = commandConnectionPipe;
+                    break;
+                case ';':
+                    command->connectionMask = commandConnectionSequential;
+                    break;
+                case '&':
+                    *ptr_orig = '\0'; /* work around this later */
+                    command->connectionMask = commandConnectionBackground;
+                    break;
+                default:
+                    command->connectionMask = commandConnectionNone;
+            }
+            char *aux;
+            char *tmp = calloc((size_t) (ptr_orig-ptr+1), sizeof(char));
+            strncpy(tmp, ptr, ptr_orig-ptr);
+            char *a = expandAlias(tmp);
+            releaseAliases();
+            expandGlob(command, a);
+            command->path = command->argv[0];
+            free(a);
+            free(tmp);
+            ptr = ptr_orig+1;
+            queueInsert(queue, command, (queueNodeFreeFunction) commandFree);
+        }
+    } while (*ptr_orig++ != 0);
 
-    /* Execute the user command(s) */
-    spawnCommand(pipeline);
-
-    pipelineFree(pipeline);
-
-    return 0;
+    return queue;
 }
 
 // vim: et ts=4 sw=4 sts=4

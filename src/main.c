@@ -20,6 +20,7 @@
 #include "jobs.h"
 #include "parser.h"
 #include "prompt.h"
+#include "queue.h"
 
 /* Readline */
 #ifdef GNU_READLINE
@@ -144,6 +145,7 @@ void run()
     char *line;                         /* Buffer for user input */
     char *expansion;
     int result;
+    queue_t *commandQueue;
 
     while ( 1 ) {
         sigsetjmp(buf,1);
@@ -157,7 +159,9 @@ void run()
             fprintf(stderr, "%s\n", expansion);
         else {
             add_history(expansion);
-            interpret_line(expansion, myArgv);
+            commandQueue = interpret_line(expansion, myArgv);
+            executeCommandsInQueue(commandQueue);
+            queueFree(commandQueue);
         }
 
         free(expansion);

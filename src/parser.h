@@ -8,8 +8,10 @@
  \{
  */
 
+#include "queue.h"
+
 /*! \brief Interpret user input */
-int interpret_line(char *buffer, char **myArgv);
+queue_t *interpret_line(char *buffer, char **myArgv);
 
 /*! \} */
 
