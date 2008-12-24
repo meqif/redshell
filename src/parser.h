@@ -11,7 +11,7 @@
 #include "queue.h"
 
 /*! \brief Interpret user input */
-queue_t *interpret_line(char *buffer, char **myArgv);
+queue_t *interpret_line(char *buffer);
 
 /*! \} */
 

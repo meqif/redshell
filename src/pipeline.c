@@ -6,7 +6,7 @@
 #include "common.h"
 #include "pipeline.h"
 
-pipeline_t *pipelineNew()
+pipeline_t *pipelineNew(void)
 {
     pipeline_t *pipeline = NULL;
     pipeline = malloc(sizeof(*pipeline));

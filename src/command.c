@@ -5,7 +5,7 @@
 #include "command.h"
 #include "common.h"
 
-command_t *commandNew()
+command_t *commandNew(void)
 {
     command_t *command = NULL;
     command = malloc(sizeof(*command));

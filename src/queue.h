@@ -17,7 +17,7 @@ typedef struct __queue_t {
     queue_node_t *tail;
 } queue_t;
 
-queue_t *queueNew();
+queue_t *queueNew(void);
 void queueInsert(queue_t *queue, void *data, queueNodeFreeFunction freeNode);
 void *queuePop(queue_t *queue);
 void queueFree(queue_t *queue);

@@ -60,6 +60,7 @@ static int setupSignalHandler(void);
 /*! \brief Main loop */
 static void run(void);
 
+void initialize_readline(void);
 int main(void);
 
 /********
@@ -141,7 +142,6 @@ void initialize_readline()
 
 void run()
 {
-    char *myArgv[MAX_ARGS];
     char *line;                         /* Buffer for user input */
     char *expansion;
     int result;
@@ -159,7 +159,7 @@ void run()
             fprintf(stderr, "%s\n", expansion);
         else {
             add_history(expansion);
-            commandQueue = interpret_line(expansion, myArgv);
+            commandQueue = interpret_line(expansion);
             executeCommandsInQueue(commandQueue);
             queueFree(commandQueue);
         }

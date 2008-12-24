@@ -5,7 +5,7 @@
 #include "common.h"
 #include "queue.h"
 
-queue_t *queueNew()
+queue_t *queueNew(void)
 {
     queue_t *queue = malloc(sizeof(*queue));
     if (queue != NULL) {
@@ -18,9 +18,11 @@ queue_t *queueNew()
 
 void queueInsert(queue_t *queue, void *data, queueNodeFreeFunction freeNode)
 {
-    assert(queue != NULL);
-    queue_node_t *node = malloc(sizeof(*node));
+    queue_node_t *node;
 
+    assert(queue != NULL);
+
+    node = malloc(sizeof(*node));
     node->next = NULL;
     node->data = data;
     node->freeFunction = freeNode;
@@ -36,11 +38,14 @@ void queueInsert(queue_t *queue, void *data, queueNodeFreeFunction freeNode)
 }
 
 void *queuePop(queue_t *queue) {
+    void *data;
+    queue_node_t *next;
+
     if (queue->count == 0)
         return NULL;
 
-    void *data = queue->head->data;
-    queue_node_t *next = queue->head->next;
+    data = queue->head->data;
+    next = queue->head->next;
     free(queue->head);
     queue->head = next;
     queue->count--;

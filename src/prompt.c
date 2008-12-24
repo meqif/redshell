@@ -29,7 +29,7 @@ int setPrompt(char *format)
     return 0;
 }
 
-char *getPrompt()
+char *getPrompt(void)
 {
     return prompt;
 }

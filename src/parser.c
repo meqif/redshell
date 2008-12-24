@@ -11,11 +11,10 @@
 #include "queue.h"
 
 /* Interpret command array */
-queue_t *interpret_line(char *buffer, char **myArgv)
+queue_t *interpret_line(char *buffer)
 {
     queue_t *queue = queueNew();
 
-    int i;
     char *ptr = buffer;
     char *ptr_orig = buffer;
     do {
@@ -36,7 +35,6 @@ queue_t *interpret_line(char *buffer, char **myArgv)
                 default:
                     command->connectionMask = commandConnectionNone;
             }
-            char *aux;
             char *tmp = calloc((size_t) (ptr_orig-ptr+1), sizeof(char));
             strncpy(tmp, ptr, ptr_orig-ptr);
             char *a = expandAlias(tmp);
