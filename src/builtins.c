@@ -13,6 +13,7 @@
 #include <errno.h>
 
 #include "alias.h"
+#include "builtins.h"
 #include "common.h"
 #include "helper.h"
 #include "jobs.h"
@@ -244,6 +245,18 @@ int cmd_unalias(char **argv)
         return -1;
     }
     removeAlias(*argv);
+    return 0;
+}
+
+int isBuiltin(char *cmd)
+{
+    unsigned int i;
+    for (i = 0; i < ARRAY_SIZE(commands); i++) {
+        const struct cmd_struct *p = commands+i;
+        if (strcmp(p->cmd, cmd))
+            continue;
+        return 1;
+    }
     return 0;
 }
 

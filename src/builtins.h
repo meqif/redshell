@@ -40,6 +40,9 @@ int cmd_timeout (char **argv);
 /*! \brief Remove an alias */
 int cmd_unalias (char **argv);
 
+/*! \brief Check if a given command is builtin */
+int isBuiltin(char *cmd);
+
 /*! \brief Represents an entry with the builtin command name and its function */
 struct cmd_struct {
     /*! \brief Name of the command */
