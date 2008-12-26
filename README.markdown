@@ -15,7 +15,7 @@ Redshell has most features one expects from a POSIX shell:
 * globbing
 * tilde (~) and environment variable expansion
 * command expansion -- i.e., ``ldd `which gcc` ``
-* `timeout` -- run a command for at most *n* seconds
+* <del>`timeout` -- run a command for at most *n* seconds</del> I'm reworking this one
 * `listar` -- similar to `ls`, also shows inode number)
 * `eco` -- similar to `echo`
 * `pwd` as a shell built-in
@@ -39,10 +39,12 @@ Dependencies
 Building
 --------
 
+The preferred method is using SCons, the Makefile is usually lagging behind.
+
 To build it, you need SCons and Python installed. Just run `scons` and you're
 done!
 
-Redshell also comes with a Makefile. To compile just run `make`.
+redshell also comes with a Makefile. To compile just run `make`.
 
 There's still no install option in either method, sorry.
 
