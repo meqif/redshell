@@ -7,7 +7,7 @@ HDRS = src/alias.h src/command.h src/common.h src/builtins.h src/jobs.h \
 OBJS = $(SRCS:.c=.o)
 
 #CFLAGS += -g -W -Wall -Wshadow -Waggregate-return -Wstrict-prototypes \
-#	  $(shell pkg-config --cflags glib-2.0)
+#	  $(shell pkg-config --cflags glib-2.0 libedit)
 CFLAGS += -Os -Wall -g \
 	  $(shell pkg-config --cflags glib-2.0 libedit)
 LIBS += $(shell pkg-config --libs glib-2.0 libedit)
