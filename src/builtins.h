@@ -34,9 +34,6 @@ int cmd_listar  (char **argv);
 /*! \brief Print the current working directory */
 int cmd_pwd     (char **argv);
 
-/*! \brief Run a command for at most n seconds */
-int cmd_timeout (char **argv);
-
 /*! \brief Remove an alias */
 int cmd_unalias (char **argv);
 
@@ -60,7 +57,6 @@ static const struct cmd_struct commands[] = {
     { "export",  cmd_export  },
     { "listar",  cmd_listar  },
     { "pwd",     cmd_pwd     },
-    { "timeout", cmd_timeout },
     { "unalias", cmd_unalias },
 };
 

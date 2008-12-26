@@ -16,7 +16,6 @@
 #include "builtins.h"
 #include "common.h"
 #include "helper.h"
-#include "jobs.h"
 
 /* Print file properties */
 static void print_file_info(char *name, char *path, struct stat s)
@@ -163,57 +162,6 @@ int cmd_exit(char **argv)
     (void) argv; /* avoid warning about unused parameter */
     printf("Bye!\n");
     exit(EXIT_SUCCESS);
-}
-
-/* Executes a command and lets it run for at most the seconds given in the
- * first position of the argument */
-int cmd_timeout(char **argv)
-{
-    extern int fg_pid;
-    int i;
-    int seconds = atoi(*argv);
-
-    if (seconds <= 0) {
-        fprintf(stderr, "Invalid waiting time\n");
-        return -1;
-    }
-
-    argv++; /* Ignore timeout parameter */
-    command_t *command = commandNew();
-    i = 0;
-    while(argv[i] != NULL)
-        i++;
-    char **arrg = calloc(i+2, sizeof(char *));
-    i = 0;
-    while(argv[i] != NULL) {
-        arrg[i] = strdup(argv[i]);
-        i++;
-    }
-    command->argv = arrg;
-    command->path = *arrg;
-
-    pid_t pid = fork();
-    switch(pid) {
-        case -1:
-            perror("fork failed");
-            return -1;
-            break;                            /* Execution never arrives here */
-        case 0:
-            setpgrp(); /* Set process group so this process and its children can be killed */
-            executeCommand(command); /* TODO: Allow execution of more than one command */
-            commandFree(command);
-            exit(0);
-            break;                            /* Execution never arrives here */
-        default:
-            fg_pid = pid;
-            alarm(seconds);                   /* Set alarm */
-            while (waitpid(pid, NULL, 0) == -1 && errno == EINTR); /* Wait! */
-            alarm(0);                         /* Unset alarm */
-            commandFree(command);
-            break;
-    }
-
-    return 0;
 }
 
 int cmd_alias(char **argv)
