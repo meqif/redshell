@@ -10,6 +10,8 @@
 
 #include "queue.h"
 
+char *getRedirectionPaths(char *line, char *paths[]);
+
 /*! \brief Interpret user input */
 queue_t *interpret_line(char *buffer);
 

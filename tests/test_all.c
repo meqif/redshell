@@ -9,6 +9,7 @@
 #include "test_builtins.h"
 #include "test_helper.h"
 #include "test_queue.h"
+#include "test_parser.h"
 
 int main()
 {
@@ -22,6 +23,8 @@ int main()
         unit_test(testCreateQueue),
         unit_test(testInsertIntoQueue),
         unit_test(testDestroyQueue),
+        unit_test(testRedirectionParser),
+        unit_test(testParser),
     };
     return run_tests(tests);
 }
