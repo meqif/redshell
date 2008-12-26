@@ -41,6 +41,10 @@ env.ParseConfig("pkg-config --cflags --libs glib-2.0" + readline_lib)
 testing = env.Clone()
 testing.Append(CPPPATH = ['build/cmockery/include/google', 'src'])
 
+debug = int(ARGUMENTS.get('debug', '0'))
+if debug:
+    env['CC'] = 'cgcc'
+
 """
 Set up install path.
 """
