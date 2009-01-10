@@ -102,10 +102,6 @@ int executeCommandsInQueue(queue_t *commandQueue)
     stdin_copy  = dup(0);
     stdout_copy = dup(1);
 
-    /* Initialize pipes */
-    for (i = 0; i < tot_pipes; i += 2)
-        pipe(pipes+i);
-
     for (i = 0; i < n_commands; i++) {
         if (lastCommand != NULL)
             commandFree(lastCommand);
@@ -116,6 +112,12 @@ int executeCommandsInQueue(queue_t *commandQueue)
         /* Parte de um pipe */
         if ( (lastCommand != NULL && lastCommand->connectionMask == commandConnectionPipe) ||
                 cmd->connectionMask == commandConnectionPipe) {
+
+            if (lastCommand == NULL || lastCommand->connectionMask != commandConnectionPipe) {
+                int j;
+                for (j = 0; j < tot_pipes; j += 2)
+                    pipe(pipes+j);
+            }
 
             /* Piped commands */
             pid = fork();
