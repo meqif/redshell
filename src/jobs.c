@@ -9,6 +9,7 @@
 
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <assert.h>
 #include <fcntl.h>
 #include <errno.h>
 
@@ -78,8 +79,7 @@ static void _closepipes(int *pipes, int count)
 /* Executes command queue */
 int executeCommandsInQueue(queue_t *commandQueue)
 {
-    if (commandQueue == NULL)
-        return -1;
+    assert(commandQueue != NULL);
 
     if (commandQueue->count == 0)
         return 0;
@@ -106,27 +106,34 @@ int executeCommandsInQueue(queue_t *commandQueue)
         pipe(pipes+i);
 
     for (i = 0; i < n_commands; i++) {
+        if (lastCommand != NULL)
+            commandFree(lastCommand);
+        lastCommand = cmd;
         cmd = queuePop(commandQueue);
 
+        /* Single builtin command */
+        /* This is needed for commands like 'exit' and 'cd' */
         if (cmd->connectionMask != commandConnectionBackground &&
                 commandQueue->count == 0 && isBuiltin(cmd->path)) {
             executeCommand(cmd);
             return 0;
         }
 
-        if (cmd->connectionMask != commandConnectionPipe && lastCommand != NULL
-                && lastCommand->connectionMask != commandConnectionPipe) {
+        /* Non-piped commands */
+        if (cmd->connectionMask != commandConnectionPipe &&
+                (lastCommand == NULL || lastCommand->connectionMask != commandConnectionPipe)) {
             pid_t p = fork();
             if (p == 0) {
-                executeCommand(cmd);
-                exit(0);
+                status = executeCommand(cmd);
+                exit(status);
             }
-            waitpid(p, NULL, 0);
-            commandFree(lastCommand);
-            lastCommand = cmd;
-            return 0;
+            if (cmd->connectionMask != commandConnectionBackground) {
+                waitpid(p, NULL, 0);
+            }
+            continue;
         }
 
+        /* Piped commands */
         pid_t p = fork();
         if (p == 0) {
             /* Redirect input */
@@ -168,7 +175,6 @@ int executeCommandsInQueue(queue_t *commandQueue)
         }
         else
             fg_pid = launched[i] = p;
-
     }
 
     /* Only the parent gets here and waits for children to finish */
