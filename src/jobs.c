@@ -109,6 +109,13 @@ int executeCommandsInQueue(queue_t *commandQueue)
 
         cmd = queuePop(commandQueue);
 
+        if (lastCommand != NULL && pid != -1 &&
+                lastCommand->connectionMask != commandConnectionPipe &&
+                lastCommand->connectionMask != commandConnectionBackground) {
+            fprintf(stderr, "Waiting for %s %d\n", lastCommand->path, pid);
+            waitpid(pid, NULL, 0);
+        }
+
         /* Parte de um pipe */
         if ( (lastCommand != NULL && lastCommand->connectionMask == commandConnectionPipe) ||
                 cmd->connectionMask == commandConnectionPipe) {
@@ -163,14 +170,6 @@ int executeCommandsInQueue(queue_t *commandQueue)
                 fg_pid = launched[i] = pid;
         }
         else {
-
-            if (lastCommand != NULL && pid != -1 &&
-                    lastCommand->connectionMask != commandConnectionPipe &&
-                    lastCommand->connectionMask != commandConnectionBackground) {
-                fprintf(stderr, "Waiting for %s %d\n", lastCommand->path, pid);
-                waitpid(pid, NULL, 0);
-            }
-
             /* Single builtin command */
             /* This is needed for commands like 'exit' and 'cd' */
             if (cmd->connectionMask != commandConnectionBackground &&
