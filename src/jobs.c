@@ -94,6 +94,7 @@ int executeCommandsInQueue(queue_t *commandQueue)
     int stdin_copy  = -1;
     int stdout_copy = -1;
     pid_t launched[n_commands];
+    pid_t pid = -1;
     command_t *cmd = NULL;
     command_t *lastCommand = NULL;
 
@@ -109,6 +110,14 @@ int executeCommandsInQueue(queue_t *commandQueue)
         if (lastCommand != NULL)
             commandFree(lastCommand);
         lastCommand = cmd;
+
+        if (lastCommand != NULL && pid != -1 &&
+                lastCommand->connectionMask != commandConnectionPipe &&
+                lastCommand->connectionMask != commandConnectionBackground) {
+            fprintf(stderr, "Waiting for %s %d\n", lastCommand->path, pid);
+            waitpid(pid, NULL, 0);
+        }
+
         cmd = queuePop(commandQueue);
 
         /* Single builtin command */
@@ -122,20 +131,17 @@ int executeCommandsInQueue(queue_t *commandQueue)
         /* Non-piped commands */
         if (cmd->connectionMask != commandConnectionPipe &&
                 (lastCommand == NULL || lastCommand->connectionMask != commandConnectionPipe)) {
-            pid_t p = fork();
-            if (p == 0) {
+            pid = fork();
+            if (pid == 0) {
                 status = executeCommand(cmd);
                 exit(status);
-            }
-            if (cmd->connectionMask != commandConnectionBackground) {
-                waitpid(p, NULL, 0);
             }
             continue;
         }
 
         /* Piped commands */
-        pid_t p = fork();
-        if (p == 0) {
+        pid = fork();
+        if (pid == 0) {
             /* Redirect input */
             if (cmd->redirectFromPath != NULL) {
                 fd_in = open(cmd->redirectFromPath, O_RDONLY);
@@ -174,8 +180,9 @@ int executeCommandsInQueue(queue_t *commandQueue)
             exit(status);
         }
         else
-            fg_pid = launched[i] = p;
+            fg_pid = launched[i] = pid;
     }
+    lastCommand = cmd;
 
     /* Only the parent gets here and waits for children to finish */
     _closepipes(pipes, tot_pipes);
@@ -183,6 +190,11 @@ int executeCommandsInQueue(queue_t *commandQueue)
     /* Restore stdin and stdout */
     dup2(stdin_copy,  0);
     dup2(stdout_copy, 1);
+
+    if (lastCommand != NULL && pid != -1 &&
+            lastCommand->connectionMask != commandConnectionPipe &&
+            lastCommand->connectionMask != commandConnectionBackground)
+        waitpid(pid, NULL, 0);
 
 //    if (!commandQueue->bg)
         for (i = 0; i < n_commands; i++)
