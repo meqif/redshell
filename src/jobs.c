@@ -111,76 +111,82 @@ int executeCommandsInQueue(queue_t *commandQueue)
             commandFree(lastCommand);
         lastCommand = cmd;
 
-        if (lastCommand != NULL && pid != -1 &&
-                lastCommand->connectionMask != commandConnectionPipe &&
-                lastCommand->connectionMask != commandConnectionBackground) {
-            fprintf(stderr, "Waiting for %s %d\n", lastCommand->path, pid);
-            waitpid(pid, NULL, 0);
-        }
-
         cmd = queuePop(commandQueue);
 
-        /* Single builtin command */
-        /* This is needed for commands like 'exit' and 'cd' */
-        if (cmd->connectionMask != commandConnectionBackground &&
-                commandQueue->count == 0 && isBuiltin(cmd->path)) {
-            executeCommand(cmd);
-            return 0;
-        }
+        /* Parte de um pipe */
+        if ( (lastCommand != NULL && lastCommand->connectionMask == commandConnectionPipe) ||
+                cmd->connectionMask == commandConnectionPipe) {
 
-        /* Non-piped commands */
-        if (cmd->connectionMask != commandConnectionPipe &&
-                (lastCommand == NULL || lastCommand->connectionMask != commandConnectionPipe)) {
+            /* Piped commands */
             pid = fork();
             if (pid == 0) {
+                /* Redirect input */
+                if (cmd->redirectFromPath != NULL) {
+                    fd_in = open(cmd->redirectFromPath, O_RDONLY);
+                    if (fd_in == -1) {
+                        perror(cmd->redirectFromPath);
+                        return -1;
+                    }
+                }
+
+                /* Redirect output */
+                if (cmd->redirectToPath != NULL) {
+                    fd_out = open(cmd->redirectToPath, O_WRONLY|O_CREAT|O_TRUNC, PERMS);
+                    if (fd_out == -1) {
+                        perror(cmd->redirectToPath);
+                        if (fd_in == -1) close(fd_in);
+                        return -1;
+                    }
+                }
+
+                if (i == 0) {               /* First command */
+                    if (n_commands > 1) dup2(pipes[1], 1);
+                    if (fd_in != -1)    dup2(fd_in, 0);
+                }
+                if (i == n_commands-1) {    /* Last command */
+                    if (n_commands > 1) dup2(pipes[2*(i-1)], 0);
+                    if (fd_out != -1)   dup2(fd_out, 1);
+                }
+                else {                      /* Everything in between */
+                    dup2(pipes[2*(i-1)], 0);
+                    dup2(pipes[(2*i)+1], 1);
+                }
+                _closepipes(pipes, tot_pipes);
                 status = executeCommand(cmd);
+                commandFree(cmd);
+                queueFree(commandQueue);
                 exit(status);
             }
-            continue;
+            else
+                fg_pid = launched[i] = pid;
         }
+        else {
 
-        /* Piped commands */
-        pid = fork();
-        if (pid == 0) {
-            /* Redirect input */
-            if (cmd->redirectFromPath != NULL) {
-                fd_in = open(cmd->redirectFromPath, O_RDONLY);
-                if (fd_in == -1) {
-                    perror(cmd->redirectFromPath);
-                    return -1;
+            if (lastCommand != NULL && pid != -1 &&
+                    lastCommand->connectionMask != commandConnectionPipe &&
+                    lastCommand->connectionMask != commandConnectionBackground) {
+                fprintf(stderr, "Waiting for %s %d\n", lastCommand->path, pid);
+                waitpid(pid, NULL, 0);
+            }
+
+            /* Single builtin command */
+            /* This is needed for commands like 'exit' and 'cd' */
+            if (cmd->connectionMask != commandConnectionBackground &&
+                    commandQueue->count == 0 && isBuiltin(cmd->path)) {
+                executeCommand(cmd);
+                return 0;
+            }
+
+            /* Non-piped commands */
+            if (cmd->connectionMask != commandConnectionPipe &&
+                    (lastCommand == NULL || lastCommand->connectionMask != commandConnectionPipe)) {
+                pid = fork();
+                if (pid == 0) {
+                    status = executeCommand(cmd);
+                    exit(status);
                 }
             }
-
-            /* Redirect output */
-            if (cmd->redirectToPath != NULL) {
-                fd_out = open(cmd->redirectToPath, O_WRONLY|O_CREAT|O_TRUNC, PERMS);
-                if (fd_out == -1) {
-                    perror(cmd->redirectToPath);
-                    if (fd_in == -1) close(fd_in);
-                    return -1;
-                }
-            }
-
-            if (i == 0) {               /* First command */
-                if (n_commands > 1) dup2(pipes[1], 1);
-                if (fd_in != -1)    dup2(fd_in, 0);
-            }
-            if (i == n_commands-1) {    /* Last command */
-                if (n_commands > 1) dup2(pipes[2*(i-1)], 0);
-                if (fd_out != -1)   dup2(fd_out, 1);
-            }
-            else {                      /* Everything in between */
-                dup2(pipes[2*(i-1)], 0);
-                dup2(pipes[(2*i)+1], 1);
-            }
-            _closepipes(pipes, tot_pipes);
-            status = executeCommand(cmd);
-            commandFree(cmd);
-            queueFree(commandQueue);
-            exit(status);
         }
-        else
-            fg_pid = launched[i] = pid;
     }
     lastCommand = cmd;
 
