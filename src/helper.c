@@ -132,6 +132,7 @@ char *expandAlias(char *command)
             strcat(final, ptr+1);
         }
     }
+    releaseAliases();
     return final;
 }
 

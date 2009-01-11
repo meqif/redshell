@@ -63,22 +63,18 @@ void testAlias(void **state)
     char *command = expandAlias("ll");
     assert_string_equal(command, "ls --color -lh");
     free(command);
-    releaseAliases();
 
     command = expandAlias("ll $HOME");
     assert_string_equal(command, "ls --color -lh $HOME");
     free(command);
-    releaseAliases();
 
     command = expandAlias("lld");
     assert_string_equal(command, "ls --color -lh --sort=date");
     free(command);
-    releaseAliases();
 
     command = expandAlias("grep");
     assert_string_equal(command, "ack");
     free(command);
-    releaseAliases();
 }
 
 void testDestroyAliases(void **state)
