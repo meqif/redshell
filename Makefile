@@ -1,3 +1,7 @@
+RAGEL = ragel
+ECHO = echo
+CC = gcc
+
 PROG = redshell
 SRCS = src/main.c src/alias.c src/builtins.c src/command.c src/jobs.c \
        src/helper.c src/parser.c src/pipeline.c src/prompt.c src/queue.c
@@ -14,8 +18,12 @@ LIBS += $(shell pkg-config --libs glib-2.0 libedit)
 
 all: build/ $(PROG)
 
+src/parser.c: src/parser.rl
+	@${ECHO} RAGEL core/pn-scan.rl
+	@${RAGEL} src/parser.rl -C -o $@
+
 $(PROG): $(OBJS)
-	cc -o $(PROG) $(OBJS) $(LIBS)
+	@${CC} -o $(PROG) $(OBJS) $(LIBS)
 
 
 clean:
