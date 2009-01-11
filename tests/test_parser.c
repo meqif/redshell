@@ -94,9 +94,20 @@ void testParser(void **state)
 
     queueFree(queue);
 
+    queue = interpret_line("");
+    assert_int_equal(queue->count, 0);
+
+    queueFree(queue);
+
+    queue = interpret_line("       ");
+    assert_int_equal(queue->count, 0);
+
+    queueFree(queue);
+
     char *line = malloc(15 * sizeof(char));
     strcpy(line, "cat < in > out");
     queue = interpret_line(line);
+    assert_int_equal(queue->count, 1);
     cmd = queuePop(queue);
     assert_string_equal(cmd->path, "cat");
     assert_true(cmd->redirectToPath != NULL);

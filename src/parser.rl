@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 
+#include <assert.h>
 #include <string.h>
 
 #include "alias.h"
@@ -7,6 +8,15 @@
 #include "common.h"
 #include "helper.h"
 #include "queue.h"
+
+#define BUFLEN 1024
+
+struct params
+{
+    char buffer[BUFLEN+1];
+    int buflen;
+    int cs;
+};
 
 char *getRedirectionPaths(char *line, char *paths[])
 {
@@ -69,47 +79,54 @@ char *getRedirectionPaths(char *line, char *paths[])
     return redir_out;
 }
 
-/* Interpret command array */
-queue_t *interpret_line(char *buffer)
-{
-    queue_t *queue = queueNew();
+%%{
+    machine parser;
+    access fsm->;
 
-    char *ptr = buffer;
-    char *ptr_orig = buffer;
-    do {
-        if (*ptr_orig == '\n' || *ptr_orig == '|' ||
-            *ptr_orig == ';'  || *ptr_orig == '\0' || *ptr_orig == '&') {
+    # Actions
+    action append {
+        if (fsm->buflen < BUFLEN)
+            fsm->buffer[fsm->buflen++] = fc;
+    }
+
+    action term {
+        if (fsm->buflen < BUFLEN)
+            fsm->buffer[fsm->buflen++] = 0;
+        if (strlen(fsm->buffer) > 0) {
+            char *a = expandAlias(fsm->buffer);
             command_t *command = commandNew();
-            switch(*ptr_orig) {
-                case '|':
-                    command->connectionMask = commandConnectionPipe;
-                    break;
-                case ';':
-                    command->connectionMask = commandConnectionSequential;
-                    break;
-                case '&':
-                    *ptr_orig = '\0'; /* work around this later */
-                    command->connectionMask = commandConnectionBackground;
-                    break;
-                default:
-                    command->connectionMask = commandConnectionNone;
-            }
-            char *tmp = calloc((size_t) (ptr_orig-ptr+1), sizeof(char));
-            strncpy(tmp, ptr, ptr_orig-ptr);
-            char *a = expandAlias(tmp);
-            releaseAliases();
             char *paths[2];
             getRedirectionPaths(a, paths);
             command->redirectFromPath = paths[0];
             command->redirectToPath   = paths[1];
             expandGlob(command, a);
             command->path = command->argv[0];
-            free(a);
-            free(tmp);
-            ptr = ptr_orig+1;
             queueInsert(queue, command, (queueNodeFreeFunction) commandFree);
+            free(a);
         }
-    } while (*ptr_orig++ != 0);
+    }
+
+    action clear { fsm->buflen = 0; }
+
+    pipe = "|";
+    seq  = ";";
+    default = space* ^(pipe|seq)+ >clear $append %term;
+
+    main := default ((pipe|seq) default)* 0;
+}%%
+
+%% write data;
+
+/* Interpret command array */
+queue_t *interpret_line(char *buffer)
+{
+    const char *p  = buffer;
+    const char *pe = buffer + strlen(buffer)+1;
+    struct params *fsm = malloc(sizeof(struct params));
+    queue_t *queue = queueNew();
+
+    %% write init;
+    %% write exec;
 
     return queue;
 }
