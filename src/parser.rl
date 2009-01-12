@@ -14,65 +14,13 @@
 struct params
 {
     char buffer[BUFLEN+1];
+    char stdin[BUFLEN+1];
+    char stdout[BUFLEN+1];
     int buflen;
+    int stdin_len;
+    int stdout_len;
     int cs;
 };
-
-%%{
-    machine redirector;
-    access fsm->;
-
-    # Actions
-    action append {
-        if (fsm->buflen < BUFLEN)
-            fsm->buffer[fsm->buflen++] = fc;
-    }
-
-    action term_in {
-        if (fsm->buflen < BUFLEN)
-            fsm->buffer[fsm->buflen++] = 0;
-        paths[0] = strdup(fsm->buffer);
-    }
-
-    action term_out {
-        if (fsm->buflen < BUFLEN)
-            fsm->buffer[fsm->buflen++] = 0;
-        paths[1] = strdup(fsm->buffer);
-    }
-
-    action clear { fsm->buflen = 0; }
-
-    stdin  = space* ^(0|"<"|">"|space)+ >clear $append %term_in;
-    stdout = space* ^(0|"<"|">"|space)+ >clear $append %term_out;
-
-    main := any* ("<" stdin)? (">" stdout)? space* 0;
-
-}%%
-
-%% write data;
-
-char *getRedirectionPaths(char *line, char *paths[])
-{
-    const char *p  = line;
-    const char *pe = line + strlen(line)+1;
-    struct params *fsm = malloc(sizeof(struct params));
-    char *ptr;
-
-    paths[0] = NULL;
-    paths[1] = NULL;
-
-    %% write init;
-    %% write exec;
-
-    /* FIXME */
-    ptr = strstr(line, ">");
-    if (ptr != NULL) *ptr = 0;
-    ptr = strstr(line, "<");
-    if (ptr != NULL) *ptr = 0;
-
-    free(fsm);
-    return NULL;
-}
 
 %%{
     machine parser;
@@ -92,10 +40,10 @@ char *getRedirectionPaths(char *line, char *paths[])
     action flush {
         if (strlen(fsm->buffer) > 0) {
             char *a = expandAlias(fsm->buffer);
-            char *paths[2];
-            getRedirectionPaths(a, paths);
-            command->redirectFromPath = paths[0];
-            command->redirectToPath   = paths[1];
+            if (fsm->stdin_len != 0)
+                command->redirectFromPath = strdup(fsm->stdin);
+            if (fsm->stdout_len != 0)
+                command->redirectToPath = strdup(fsm->stdout);
             expandGlob(command, a);
             command->path = command->argv[0];
             queueInsert(queue, command, (queueNodeFreeFunction) commandFree);
@@ -115,13 +63,32 @@ char *getRedirectionPaths(char *line, char *paths[])
         command->connectionMask = commandConnectionPipe;
     }
 
-    action clear { command = commandNew(); fsm->buflen = 0; }
+    action clear {
+        command = commandNew();
+        fsm->buflen = 0;
+        fsm->stdin_len = 0;
+        fsm-> stdout_len = 0;
+    }
+
+    action error { fprintf(stderr, "Parse error.\n"); }
+
+    action stdin  {
+        if (fsm->stdin_len < BUFLEN)
+            fsm->stdin[fsm->stdin_len++] = fc;
+    }
+
+    action stdout {
+        if (fsm->stdout_len < BUFLEN)
+            fsm->stdout[fsm->stdout_len++] = fc;
+    }
 
     pipe = "|" >pipe %flush;
     seq  = ";" >seq  %flush;
-    default = space* ^(pipe|seq)+ >clear $append %term;
+    stdin   = space* ^(0|">"|"<"|pipe|seq|space)+ $stdin;
+    stdout  = space* ^(0|">"|"<"|pipe|seq|space)+ $stdout;
+    default = space* ^(0|">"|"<"|pipe|seq|space)+ >clear $append %term;
 
-    main := default ((pipe|seq) default)* 0 >none $flush;
+    main := default space* ("<" stdin)? space* (">" stdout)? space* ((pipe|seq) default)* 0 >none $flush;
 }%%
 
 %% write data;
