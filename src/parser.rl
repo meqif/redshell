@@ -92,9 +92,11 @@ char *getRedirectionPaths(char *line, char *paths[])
     action term {
         if (fsm->buflen < BUFLEN)
             fsm->buffer[fsm->buflen++] = 0;
+    }
+
+    action flush {
         if (strlen(fsm->buffer) > 0) {
             char *a = expandAlias(fsm->buffer);
-            command_t *command = commandNew();
             char *paths[2];
             getRedirectionPaths(a, paths);
             command->redirectFromPath = paths[0];
@@ -106,13 +108,25 @@ char *getRedirectionPaths(char *line, char *paths[])
         }
     }
 
-    action clear { fsm->buflen = 0; }
+    action none {
+        command->connectionMask = commandConnectionNone;
+    }
 
-    pipe = "|";
-    seq  = ";";
+    action seq {
+        command->connectionMask = commandConnectionSequential;
+    }
+
+    action pipe {
+        command->connectionMask = commandConnectionPipe;
+    }
+
+    action clear { command = commandNew(); fsm->buflen = 0; }
+
+    pipe = "|" >pipe %flush;
+    seq  = ";" >seq  %flush;
     default = space* ^(pipe|seq)+ >clear $append %term;
 
-    main := default ((pipe|seq) default)* 0;
+    main := default ((pipe|seq) default)* 0 >none $flush;
 }%%
 
 %% write data;
@@ -124,6 +138,7 @@ queue_t *interpret_line(char *buffer)
     const char *pe = buffer + strlen(buffer)+1;
     struct params *fsm = malloc(sizeof(struct params));
     queue_t *queue = queueNew();
+    command_t *command = NULL;
 
     %% write init;
     %% write exec;
