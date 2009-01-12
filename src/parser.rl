@@ -1,4 +1,4 @@
-/* See LICENSE file for copyright and license details. */
+﻿/* See LICENSE file for copyright and license details. */
 
 #include <assert.h>
 #include <string.h>
@@ -18,65 +18,60 @@ struct params
     int cs;
 };
 
+%%{
+    machine redirector;
+    access fsm->;
+
+    # Actions
+    action append {
+        if (fsm->buflen < BUFLEN)
+            fsm->buffer[fsm->buflen++] = fc;
+    }
+
+    action term_in {
+        if (fsm->buflen < BUFLEN)
+            fsm->buffer[fsm->buflen++] = 0;
+        paths[0] = strdup(fsm->buffer);
+    }
+
+    action term_out {
+        if (fsm->buflen < BUFLEN)
+            fsm->buffer[fsm->buflen++] = 0;
+        paths[1] = strdup(fsm->buffer);
+    }
+
+    action clear { fsm->buflen = 0; }
+
+    stdin  = space* ^(0|"<"|">"|space)+ >clear $append %term_in;
+    stdout = space* ^(0|"<"|">"|space)+ >clear $append %term_out;
+
+    main := any* ("<" stdin)? (">" stdout)? space* 0;
+
+}%%
+
+%% write data;
+
 char *getRedirectionPaths(char *line, char *paths[])
 {
-    int i;
-    int len = strlen(line);
-    int seen_letter = 0;
-    int seen_letter_in = 0;
-    char *start_out = NULL;
-    char *end_out = NULL;
-    char *start_in = NULL;
-    char *end_in = NULL;
-    char *redir_out = NULL;
-    char *redir_in = NULL;
-    for (i = 0; i < len; line++, i++) {
-        if (*line == '>') {
-            *line = '\0';
-            start_out = line+1;
-        }
-        else if (*line == '<') {
-            *line = '\0';
-            start_in = line+1;
-        }
-        else if (start_out != NULL && seen_letter == 0 && end_out == NULL) {
-            while(*line == ' ') {
-                start_out = ++line;
-                i++;
-            }
-            seen_letter = 1;
-        }
-        else if (start_in != NULL && seen_letter_in == 0 && end_in == NULL) {
-            while (*line == ' ') {
-                start_in = ++line;
-                i++;
-            }
-            seen_letter_in = 1;
-        }
-        if (start_out != NULL && end_out == NULL && seen_letter == 1 && *line == ' ') {
-            end_out = line;
-            seen_letter = 0;
-        }
-        if (start_in != NULL && end_in == NULL && seen_letter_in == 1 && *line == ' ') {
-            end_in = line;
-            seen_letter_in = 1;
-        }
-    }
-    if (start_out != NULL) {
-        if (end_out == NULL)
-            end_out = line;
-        redir_out = calloc(end_out-start_out+1, sizeof(char));
-        strncpy(redir_out, start_out, end_out-start_out);
-    }
-    if (start_in != NULL) {
-        if (end_in == NULL)
-            end_in = line;
-        redir_in = calloc(end_in-start_in+1, sizeof(char));
-        strncpy(redir_in, start_in, end_in-start_in);
-    }
-    paths[0] = redir_in;
-    paths[1] = redir_out;
-    return redir_out;
+    const char *p  = line;
+    const char *pe = line + strlen(line)+1;
+    struct params *fsm = malloc(sizeof(struct params));
+    char *ptr;
+
+    paths[0] = NULL;
+    paths[1] = NULL;
+
+    %% write init;
+    %% write exec;
+
+    /* FIXME */
+    ptr = strstr(line, ">");
+    if (ptr != NULL) *ptr = 0;
+    ptr = strstr(line, "<");
+    if (ptr != NULL) *ptr = 0;
+
+    free(fsm);
+    return NULL;
 }
 
 %%{
@@ -143,6 +138,7 @@ queue_t *interpret_line(char *buffer)
     %% write init;
     %% write exec;
 
+    free(fsm);
     return queue;
 }
 
