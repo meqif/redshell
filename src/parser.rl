@@ -1,6 +1,5 @@
 ﻿/* See LICENSE file for copyright and license details. */
 
-#include <assert.h>
 #include <string.h>
 
 #include "alias.h"
@@ -26,7 +25,6 @@ struct params
     machine parser;
     access fsm->;
 
-    # Actions
     action append {
         if (fsm->buflen < BUFLEN)
             fsm->buffer[fsm->buflen++] = fc;
@@ -40,9 +38,9 @@ struct params
     action flush {
         if (strlen(fsm->buffer) > 0) {
             char *a = expandAlias(fsm->buffer);
-            if (fsm->stdin_len != 0)
+            if (fsm->stdin_len > 0)
                 command->redirectFromPath = strdup(fsm->stdin);
-            if (fsm->stdout_len != 0)
+            if (fsm->stdout_len > 0)
                 command->redirectToPath = strdup(fsm->stdout);
             expandGlob(command, a);
             command->path = command->argv[0];
@@ -51,30 +49,27 @@ struct params
         }
     }
 
-    action none {
-        command->connectionMask = commandConnectionNone;
-    }
+    action none { command->connectionMask = commandConnectionNone; }
 
-    action seq {
-        command->connectionMask = commandConnectionSequential;
-    }
+    action seq { command->connectionMask = commandConnectionSequential; }
 
-    action pipe {
-        command->connectionMask = commandConnectionPipe;
-    }
+    action pipe { command->connectionMask = commandConnectionPipe; }
 
     action clear {
         command = commandNew();
         fsm->buflen = 0;
         fsm->stdin_len = 0;
-        fsm-> stdout_len = 0;
+        fsm->stdout_len = 0;
     }
-
-    action error { fprintf(stderr, "Parse error.\n"); }
 
     action stdin  {
         if (fsm->stdin_len < BUFLEN)
             fsm->stdin[fsm->stdin_len++] = fc;
+    }
+
+    action term_stdin  {
+        if (fsm->stdin_len < BUFLEN)
+            fsm->stdin[fsm->stdin_len++] = 0;
     }
 
     action stdout {
@@ -82,13 +77,24 @@ struct params
             fsm->stdout[fsm->stdout_len++] = fc;
     }
 
+    action term_stdout {
+        if (fsm->stdout_len < BUFLEN)
+            fsm->stdout[fsm->stdout_len++] = 0;
+    }
+
     pipe = "|" >pipe %flush;
     seq  = ";" >seq  %flush;
-    stdin   = space* ^(0|">"|"<"|pipe|seq|space)+ $stdin;
-    stdout  = space* ^(0|">"|"<"|pipe|seq|space)+ $stdout;
-    default = space* ^(0|">"|"<"|pipe|seq|space)+ >clear $append %term;
+    common  = ^(0|">"|"<"|pipe|seq|space)+;
+    stdin   = space* common $stdin %term_stdin;
+    stdout  = space* common $stdout %term_stdout;
+    string  = space* common >clear $append %term;
+    redir1  = "<" stdin space*;
+    redir2  = ">" stdout space*;
+    redir3  = redir1 redir2?;
+    redir4  = redir2 redir1?;
+    command = space* string space* (redir3|redir4)?;
 
-    main := default space* ("<" stdin)? space* (">" stdout)? space* ((pipe|seq) default)* 0 >none $flush;
+    main := command ((pipe|seq) command)* 0 >none $flush;
 }%%
 
 %% write data;
