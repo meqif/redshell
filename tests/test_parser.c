@@ -69,19 +69,28 @@ void testParser(void **state)
     initializeAliases();
 
     queue = interpret_line("ls");
+    assert_int_equal(queue->count, 1);
     cmd = queuePop(queue);
     assert_string_equal(cmd->path, "ls");
+    assert_int_equal(cmd->connectionMask, commandConnectionNone);
 
     commandFree(cmd);
     queueFree(queue);
 
     queue = interpret_line("dmesg|tail");
     assert_int_equal(queue->count, 2);
+    cmd = queuePop(queue);
+    assert_string_equal(cmd->path, "dmesg");
+    assert_int_equal(cmd->connectionMask, commandConnectionPipe);
+
 
     queueFree(queue);
 
     queue = interpret_line("ls; ls; ls; ls; ls");
     assert_int_equal(queue->count, 5);
+    cmd = queuePop(queue);
+    assert_string_equal(cmd->path, "ls");
+    assert_int_equal(cmd->connectionMask, commandConnectionSequential);
 
     queueFree(queue);
 
