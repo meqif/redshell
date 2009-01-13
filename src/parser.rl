@@ -2,7 +2,6 @@
 
 #include <string.h>
 
-#include "alias.h"
 #include "command.h"
 #include "common.h"
 #include "helper.h"
@@ -33,7 +32,6 @@ struct params
     action term {
         if (fsm->buflen < BUFLEN)
             fsm->buffer[fsm->buflen++] = 0;
-        printf("str: '%s'\n", fsm->buffer);
     }
 
     action flush {
@@ -46,6 +44,7 @@ struct params
             expandGlob(command, a);
             command->path = command->argv[0];
             queueInsert(queue, command, (queueNodeFreeFunction) commandFree);
+            command = NULL;
             free(a);
         }
     }
@@ -86,7 +85,7 @@ struct params
     pipe = "|" >pipe %flush;
     seq  = ";" >seq  %flush;
     common  = ^(0|">"|"<"|pipe|seq|space)+;
-    expr2   = (space common) $append;
+    expr2   = (space+ common) $append;
     expr3   = common         $append;
     stdin   = space* common $stdin %term_stdin;
     stdout  = space* common $stdout %term_stdout;
@@ -95,11 +94,9 @@ struct params
     redir2  = ">" stdout space*;
     redir3  = redir1 redir2?;
     redir4  = redir2 redir1?;
-    #command = space* string space* (redir3|redir4)?;
     command = space* expr3 expr2* space* (redir3|redir4)? %term;
 
-    #main := command ((pipe|seq) command)* 0 >none $flush;
-    main := (command >clear) ((pipe|seq) (command >clear))* 0 $flush;
+    main := ((command >clear) ((pipe|seq) (command >clear))* | space* ) 0 $flush;
 }%%
 
 %% write data;
@@ -113,14 +110,16 @@ queue_t *interpret_line(char *buffer)
     queue_t *queue = queueNew();
     command_t *command = NULL;
 
+    fsm->buffer[0] = 0; /* Initialize buffer; workaround for empty commands */
+
     %% write init;
     %% write exec;
 
     if (fsm->cs == parser_error)
-        fprintf(stderr, "Parser error near `%c' [%d] (offset %lu)\n", *p, *p, p-buffer);
+        fprintf(stderr, "Parser error near `%c'\n", *p);
 
-    fprintf(stderr, "Finished processing: '%s'\n", buffer);
-
+    if (command != NULL)
+        commandFree(command);
     free(fsm);
     return queue;
 }
