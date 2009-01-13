@@ -118,6 +118,38 @@ int executeCommandsInQueue(queue_t *commandQueue)
             waitpid(pid, NULL, 0);
         }
 
+        if(fd_in != -1) {
+            close(fd_in);
+            fd_in = -1;
+        }
+
+        if(fd_out != -1) {
+            close(fd_out);
+            fd_out = -1;
+        }
+
+        /* Redirect input */
+        if (cmd->redirectFromPath != NULL) {
+            fd_in = open(cmd->redirectFromPath, O_RDONLY);
+            if (fd_in == -1) {
+                perror(cmd->redirectFromPath);
+                return -1;
+            }
+        }
+
+        /* Redirect output */
+        if (cmd->redirectToPath != NULL) {
+            fd_out = open(cmd->redirectToPath, O_WRONLY|O_CREAT|O_TRUNC, PERMS);
+            if (fd_out == -1) {
+                perror(cmd->redirectToPath);
+                if (fd_in == -1) close(fd_in);
+                return -1;
+            }
+        }
+
+        if (fd_in != -1)    dup2(fd_in, 0);
+        if (fd_out != -1)   dup2(fd_out, 1);
+
         /* Parte de um pipe */
         if ( (lastCommand != NULL && lastCommand->connectionMask == commandConnectionPipe) ||
                 cmd->connectionMask == commandConnectionPipe) {
@@ -131,32 +163,11 @@ int executeCommandsInQueue(queue_t *commandQueue)
             /* Piped commands */
             pid = fork();
             if (pid == 0) {
-                /* Redirect input */
-                if (cmd->redirectFromPath != NULL) {
-                    fd_in = open(cmd->redirectFromPath, O_RDONLY);
-                    if (fd_in == -1) {
-                        perror(cmd->redirectFromPath);
-                        return -1;
-                    }
-                }
-
-                /* Redirect output */
-                if (cmd->redirectToPath != NULL) {
-                    fd_out = open(cmd->redirectToPath, O_WRONLY|O_CREAT|O_TRUNC, PERMS);
-                    if (fd_out == -1) {
-                        perror(cmd->redirectToPath);
-                        if (fd_in == -1) close(fd_in);
-                        return -1;
-                    }
-                }
-
                 if (i == 0) {               /* First command */
                     if (n_commands > 1) dup2(pipes[1], 1);
-                    if (fd_in != -1)    dup2(fd_in, 0);
                 }
                 if (i == n_commands-1) {    /* Last command */
                     if (n_commands > 1) dup2(pipes[2*(i-1)], 0);
-                    if (fd_out != -1)   dup2(fd_out, 1);
                 }
                 else {                      /* Everything in between */
                     dup2(pipes[2*(i-1)], 0);
