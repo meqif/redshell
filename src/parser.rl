@@ -33,6 +33,7 @@ struct params
     action term {
         if (fsm->buflen < BUFLEN)
             fsm->buffer[fsm->buflen++] = 0;
+        printf("str: '%s'\n", fsm->buffer);
     }
 
     action flush {
@@ -85,16 +86,20 @@ struct params
     pipe = "|" >pipe %flush;
     seq  = ";" >seq  %flush;
     common  = ^(0|">"|"<"|pipe|seq|space)+;
+    expr2   = (space common) $append;
+    expr3   = common         $append;
     stdin   = space* common $stdin %term_stdin;
     stdout  = space* common $stdout %term_stdout;
-    string  = space* common >clear $append %term;
+    string  = space* (expr3|expr2?) >clear $append %term;
     redir1  = "<" stdin space*;
     redir2  = ">" stdout space*;
     redir3  = redir1 redir2?;
     redir4  = redir2 redir1?;
-    command = space* string space* (redir3|redir4)?;
+    #command = space* string space* (redir3|redir4)?;
+    command = space* expr3 expr2* space* (redir3|redir4)? %term;
 
-    main := command ((pipe|seq) command)* 0 >none $flush;
+    #main := command ((pipe|seq) command)* 0 >none $flush;
+    main := (command >clear) ((pipe|seq) (command >clear))* 0 $flush;
 }%%
 
 %% write data;
@@ -110,6 +115,11 @@ queue_t *interpret_line(char *buffer)
 
     %% write init;
     %% write exec;
+
+    if (fsm->cs == parser_error)
+        fprintf(stderr, "Parser error near `%c' [%d] (offset %lu)\n", *p, *p, p-buffer);
+
+    fprintf(stderr, "Finished processing: '%s'\n", buffer);
 
     free(fsm);
     return queue;
