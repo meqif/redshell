@@ -112,7 +112,9 @@ int executeCommandsInQueue(queue_t *commandQueue)
         if (lastCommand != NULL && pid != -1 &&
                 lastCommand->connectionMask != commandConnectionPipe &&
                 lastCommand->connectionMask != commandConnectionBackground) {
+#ifdef DEBUG
             fprintf(stderr, "Waiting for %s %d\n", lastCommand->path, pid);
+#endif
             waitpid(pid, NULL, 0);
         }
 
