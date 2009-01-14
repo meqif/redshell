@@ -9,7 +9,6 @@
 #include <string.h>
 #include <unistd.h>
 #include "command.h"
-#include "pipeline.h"
 
 /* Common macro definitions */
 #define DELIMITERS " \t\n"

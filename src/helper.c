@@ -136,17 +136,6 @@ char *expandAlias(char *command)
     return final;
 }
 
-void findRedirections(pipeline_t *pipeline, char **argv)
-{
-    while(*argv != NULL) {
-        if ((strcmp(*argv, ">") == 0) && *(argv+1) != NULL)
-            pipeline->redirectToPath = strdup(*(++argv));
-        else if ((strcmp(*argv, "<") == 0) && *(argv+1) != NULL)
-            pipeline->redirectFromPath = strdup(*(++argv));
-        argv++;
-    }
-}
-
 void perror_exit(char *msg)
 {
     perror(msg);

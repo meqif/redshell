@@ -6,8 +6,6 @@
 #include "command.h"
 #include "common.h"
 #include "helper.h"
-#include "jobs.h"
-#include "pipeline.h"
 #include "queue.h"
 
 char *getRedirectionPaths(char *line, char *paths[])
