@@ -57,6 +57,21 @@ void tokenize(char **dst, char *buffer, const char *delimiters)
     free(result);
 }
 
+char *expand(char *input)
+{
+    wordexp_t p;
+    char **w, *result;
+
+    wordexp(input, &p, 0);
+    w = p.we_wordv;
+    if (p.we_wordc == 1)
+        result = strdup(w[0]);
+    else
+        result = NULL;
+    wordfree(&p);
+    return result;
+}
+
 void expandGlob(command_t *command, char *cmd)
 {
     wordexp_t p;

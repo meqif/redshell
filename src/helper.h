@@ -9,6 +9,7 @@ int strstrcnt(char *str, char ch);
 char *getusername(uid_t uid);
 char *getgroupname(gid_t gid);
 void tokenize(char **dst, char *buffer, const char *delimiters);
+char *expand(char *input);
 void expandGlob(command_t *command, char *cmd);
 char *expandAlias(char *command);
 void perror_exit(char *msg);
