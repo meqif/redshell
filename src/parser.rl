@@ -1,4 +1,4 @@
-﻿/* See LICENSE file for copyright and license details. */
+/* See LICENSE file for copyright and license details. */
 
 #include <string.h>
 
@@ -25,83 +25,99 @@ struct params
     access fsm->;
 
     action append {
-        if (fsm->buflen < BUFLEN)
+        if (fsm->buflen < BUFLEN) {
             fsm->buffer[fsm->buflen++] = fc;
+            fsm->buffer[fsm->buflen]   = 0;
+        }
+    }
+
+    action space {
+        if (fsm->buflen < BUFLEN) {
+            fsm->buffer[fsm->buflen++] = ' ';
+            fsm->buffer[fsm->buflen]   = 0;
+        }
+    }
+
+    action append_in {
+        if (fsm->stdin_len < BUFLEN) {
+            fsm->stdin[fsm->stdin_len++] = fc;
+            fsm->stdin[fsm->stdin_len]   = 0;
+        }
+    }
+
+    action space_in {
+        if (fsm->stdin_len < BUFLEN) {
+            fsm->stdin[fsm->stdin_len++] = ' ';
+            fsm->stdin[fsm->stdin_len]   = 0;
+        }
+    }
+
+    action append_out {
+        if (fsm->stdout_len < BUFLEN) {
+            fsm->stdout[fsm->stdout_len++] = fc;
+            fsm->stdout[fsm->stdout_len]   = 0;
+        }
+    }
+
+    action space_out {
+        if (fsm->stdout_len < BUFLEN) {
+            fsm->stdout[fsm->stdout_len++] = ' ';
+            fsm->stdout[fsm->stdout_len]   = 0;
+        }
+    }
+
+    action new {
+        fsm->buflen = 0;
+        fsm->stdin_len = 0;
+        fsm->stdout_len = 0;
+        fsm->buffer[0] = 0;
+        fsm->stdout[0] = 0;
+        fsm->stdin[0] = 0;
+        command = commandNew();
     }
 
     action term {
-        if (fsm->buflen < BUFLEN)
-            fsm->buffer[fsm->buflen++] = 0;
-    }
-
-    action flush {
-        if (strlen(fsm->buffer) > 0) {
-            char *a = expandAlias(fsm->buffer);
-            if (fsm->stdin_len > 0)
-                command->redirectFromPath = strdup(fsm->stdin);
-            if (fsm->stdout_len > 0)
-                command->redirectToPath = strdup(fsm->stdout);
-            expandGlob(command, a);
+        if (fsm->buflen > 0) {
+            char *tmp = expandAlias(fsm->buffer);
+            expandGlob(command, tmp);
+            free(tmp);
             command->path = command->argv[0];
+            if (fsm->stdin_len > 0)
+                command->redirectFromPath = expand(fsm->stdin);
+            if (fsm->stdout_len > 0)
+                command->redirectToPath = expand(fsm->stdout);
             queueInsert(queue, command, (queueNodeFreeFunction) commandFree);
             command = NULL;
-            free(a);
         }
     }
 
     action none { command->connectionMask = commandConnectionNone; }
-
-    action seq { command->connectionMask = commandConnectionSequential; }
-
     action pipe { command->connectionMask = commandConnectionPipe; }
+    action seq  { command->connectionMask = commandConnectionSequential; }
+    action bg   { command->connectionMask = commandConnectionBackground; }
 
-    action clear {
-        command = commandNew();
-        fsm->buflen = 0;
-        fsm->stdin_len = 0;
-        fsm->stdout_len = 0;
-    }
-
-    action stdin  {
-        if (fsm->stdin_len < BUFLEN)
-            fsm->stdin[fsm->stdin_len++] = fc;
-    }
-
-    action term_stdin  {
-        if (fsm->stdin_len < BUFLEN)
-            fsm->stdin[fsm->stdin_len++] = 0;
-    }
-
-    action stdout {
-        if (fsm->stdout_len < BUFLEN)
-            fsm->stdout[fsm->stdout_len++] = fc;
-    }
-
-    action term_stdout {
-        if (fsm->stdout_len < BUFLEN)
-            fsm->stdout[fsm->stdout_len++] = 0;
-    }
-
-    pipe = "|" >pipe %flush;
-    seq  = ";" >seq  %flush;
-    common  = ^(0|">"|"<"|pipe|seq|space)+;
-    expr2   = (space+ common) $append;
-    expr3   = common         $append;
-    stdin   = space* common $stdin %term_stdin;
-    stdout  = space* common $stdout %term_stdout;
-    string  = space* (expr3|expr2?) >clear $append %term;
-    redir1  = "<" stdin space*;
-    redir2  = ">" stdout space*;
-    redir3  = redir1 redir2?;
-    redir4  = redir2 redir1?;
-    command = space* expr3 expr2* space* (redir3|redir4)? %term;
-
-    main := ((command >clear) ((pipe|seq) (command >clear))* | space* ) 0 $flush;
+    pipe    = "|" >pipe %term;
+    seq     = ";" >seq  %term;
+    bg      = "&" >bg   %term;
+    common  = ^(0|space|";"|"|"|">"|"<"|"&");
+    word    = common+ $append;
+    word_in = common+ $append_in;
+    word_out = common+ $append_out;
+    command = word (space+ %space word)*;
+    stdin   = "<" space* word_in (space+ %space_in word_in)*;
+    stdout  = ">" space* word_out (space+ %space_out word_out)*;
+    redir_alpha = stdin space* stdout?;
+    redir_beta  = stdout space* stdin?;
+    complex = space* command space* (redir_alpha|redir_beta)? space*;
+    main := ( complex >new
+    ( ((pipe|seq) complex >new)+ |
+        '&' >bg |
+        '' >none $term ) | space* )
+    0 $term;
 }%%
 
 %% write data;
 
-/* Interpret command array */
 queue_t *interpret_line(char *buffer)
 {
     const char *p  = buffer;
@@ -110,7 +126,7 @@ queue_t *interpret_line(char *buffer)
     queue_t *queue = queueNew();
     command_t *command = NULL;
 
-    fsm->buffer[0] = 0; /* Initialize buffer; workaround for empty commands */
+    fsm->buflen = 0;
 
     %% write init;
     %% write exec;
@@ -119,7 +135,7 @@ queue_t *interpret_line(char *buffer)
         fprintf(stderr, "Parser error near `%c'\n", *p);
 
     if (command != NULL)
-        commandFree(command);
+        free(command);
     free(fsm);
     return queue;
 }
