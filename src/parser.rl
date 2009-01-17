@@ -131,8 +131,11 @@ queue_t *parseInput(char *buffer)
     %% write init;
     %% write exec;
 
-    if (fsm->cs == parser_error)
-        fprintf(stderr, "Parser error near `%c'\n", *p);
+    if (fsm->cs == parser_error) {
+        fprintf(stderr, "Parser error near `%c%c'\n", *(p-1), *p);
+        queueFree(queue);
+        queue = queueNew();
+    }
 
     if (command != NULL)
         free(command);
