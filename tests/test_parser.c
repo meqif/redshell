@@ -19,7 +19,7 @@ void testParser(void **state)
 
     initializeAliases();
 
-    queue = interpret_line("ls");
+    queue = parseInput("ls");
     assert_int_equal(queue->count, 1);
     cmd = queuePop(queue);
     assert_string_equal(cmd->path, "ls");
@@ -28,7 +28,7 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
-    queue = interpret_line("ps aux         ");
+    queue = parseInput("ps aux         ");
     assert_int_equal(queue->count, 1);
     cmd = queuePop(queue);
     assert_string_equal(cmd->argv[0], "ps");
@@ -37,7 +37,7 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
-    queue = interpret_line("            ps            aux         ");
+    queue = parseInput("            ps            aux         ");
     assert_int_equal(queue->count, 1);
     cmd = queuePop(queue);
     assert_string_equal(cmd->argv[0], "ps");
@@ -46,7 +46,7 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
-    queue = interpret_line("ls -lh /");
+    queue = parseInput("ls -lh /");
     assert_int_equal(queue->count, 1);
     cmd = queuePop(queue);
     assert_string_equal(cmd->argv[0], "ls");
@@ -56,7 +56,7 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
-    queue = interpret_line("  ls           -lh       /        ");
+    queue = parseInput("  ls           -lh       /        ");
     assert_int_equal(queue->count, 1);
     cmd = queuePop(queue);
     assert_string_equal(cmd->argv[0], "ls");
@@ -66,12 +66,12 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
-    queue = interpret_line(";");
+    queue = parseInput(";");
     assert_int_equal(queue->count, 0);
 
     queueFree(queue);
 
-    queue = interpret_line("dmesg|tail");
+    queue = parseInput("dmesg|tail");
     assert_int_equal(queue->count, 2);
     cmd = queuePop(queue);
     assert_string_equal(cmd->path, "dmesg");
@@ -80,7 +80,7 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
-    queue = interpret_line("ls; ls; ls; ls; ls");
+    queue = parseInput("ls; ls; ls; ls; ls");
     assert_int_equal(queue->count, 5);
     cmd = queuePop(queue);
     assert_string_equal(cmd->path, "ls");
@@ -89,22 +89,17 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
-    queue = interpret_line("");
+    queue = parseInput("");
     assert_int_equal(queue->count, 0);
 
     queueFree(queue);
 
-    queue = interpret_line("");
+    queue = parseInput("       ");
     assert_int_equal(queue->count, 0);
 
     queueFree(queue);
 
-    queue = interpret_line("       ");
-    assert_int_equal(queue->count, 0);
-
-    queueFree(queue);
-
-    queue = interpret_line("cat > out  ");
+    queue = parseInput("cat > out  ");
     assert_int_equal(queue->count, 1);
     cmd = queuePop(queue);
     assert_true(cmd->redirectFromPath == NULL);
@@ -115,7 +110,7 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
-    queue = interpret_line("cat <in   ");
+    queue = parseInput("cat <in   ");
     assert_int_equal(queue->count, 1);
     cmd = queuePop(queue);
     assert_true(cmd->redirectFromPath != NULL);
@@ -126,7 +121,7 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
-    queue = interpret_line("cat < in > out");
+    queue = parseInput("cat < in > out");
     assert_int_equal(queue->count, 1);
     cmd = queuePop(queue);
     assert_string_equal(cmd->path, "cat");
@@ -139,7 +134,7 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
-    queue = interpret_line("cat > out < in");
+    queue = parseInput("cat > out < in");
     assert_int_equal(queue->count, 1);
     cmd = queuePop(queue);
     assert_true(cmd->redirectFromPath != NULL);
@@ -151,12 +146,12 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
-    queue = interpret_line("cat > out < in > out2");
+    queue = parseInput("cat > out < in > out2");
     assert_int_equal(queue->count, 0);
 
     queueFree(queue);
 
-    queue = interpret_line("ps>out;dmesg|tail>out2");
+    queue = parseInput("ps>out;dmesg|tail>out2");
     assert_int_equal(queue->count, 3);
     cmd = queuePop(queue);
     assert_true(cmd->redirectFromPath == NULL);
@@ -175,7 +170,7 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
-    queue = interpret_line("cat > 'my output'");
+    queue = parseInput("cat > 'my output'");
     assert_int_equal(queue->count, 1);
     cmd = queuePop(queue);
     assert_true(cmd->redirectFromPath == NULL);
@@ -186,7 +181,7 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
-    queue = interpret_line("ps &");
+    queue = parseInput("ps &");
     assert_int_equal(queue->count, 1);
     cmd = queuePop(queue);
     assert_true(cmd->redirectFromPath == NULL);

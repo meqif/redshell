@@ -159,7 +159,7 @@ void run()
             fprintf(stderr, "%s\n", expansion);
         else {
             add_history(expansion);
-            commandQueue = interpret_line(expansion);
+            commandQueue = parseInput(expansion);
             executeCommandsInQueue(commandQueue);
             queueFree(commandQueue);
         }

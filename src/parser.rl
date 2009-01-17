@@ -118,7 +118,7 @@ struct params
 
 %% write data;
 
-queue_t *interpret_line(char *buffer)
+queue_t *parseInput(char *buffer)
 {
     const char *p  = buffer;
     const char *pe = buffer + strlen(buffer)+1;
