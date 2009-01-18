@@ -80,6 +80,15 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
+    queue = parseInput("dmesg | cat | cat | grep ACPI | wc -l");
+    assert_int_equal(queue->count, 5);
+    cmd = queuePop(queue);
+    assert_string_equal(cmd->path, "dmesg");
+    assert_int_equal(cmd->connectionMask, commandConnectionPipe);
+
+    commandFree(cmd);
+    queueFree(queue);
+
     queue = parseInput("ls; ls; ls; ls; ls");
     assert_int_equal(queue->count, 5);
     cmd = queuePop(queue);
