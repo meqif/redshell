@@ -108,11 +108,8 @@ struct params
     stdout  = ">" space* word_out (space+ %space_out word_out)*;
     redir_alpha = stdin space* stdout?;
     redir_beta  = stdout space* stdin?;
-    complex = space* command space* (redir_alpha|redir_beta)? space*;
-    main := ( complex >new
-    ( ((pipe|seq) complex >new)+ |
-        '&' >bg |
-        '' >none $term ) | space* )
+    complex = (space* command space* (redir_alpha|redir_beta)? space*) >new;
+    main := ( complex ( ((pipe|seq) complex)+ | bg | '' >none $term ) | space* )
     0 $term;
 }%%
 
