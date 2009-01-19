@@ -153,13 +153,12 @@ void run()
 
         result = history_expand(line, &expansion);
 
-        if (expansion == NULL || strlen(expansion) == 0)
-            ;
-        else if (result < 0 || result == 2)
+        if (result < 0 || result == 2)
             fprintf(stderr, "%s\n", expansion);
         else {
-            add_history(expansion);
             commandQueue = parseInput(expansion);
+            if (commandQueue->count > 0)
+                add_history(expansion);
             executeCommandsInQueue(commandQueue);
             queueFree(commandQueue);
         }
