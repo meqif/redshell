@@ -35,6 +35,7 @@ Dependencies
 
 * glib-2.0
 * GNU readline or libedit >= 2.11
+* ragel >= 6.3
 
 Building
 --------
