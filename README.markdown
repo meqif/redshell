@@ -61,7 +61,7 @@ License
 
 The MIT License
 
-Copyright (c) 2008 Ricardo Martins
+Copyright (c) 2008-2009 Ricardo Martins
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
