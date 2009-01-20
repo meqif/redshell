@@ -31,13 +31,6 @@ struct params
         }
     }
 
-    action space {
-        if (fsm->buflen < BUFLEN) {
-            fsm->buffer[fsm->buflen++] = ' ';
-            fsm->buffer[fsm->buflen]   = 0;
-        }
-    }
-
     action append_in {
         if (fsm->stdin_len < BUFLEN) {
             fsm->stdin[fsm->stdin_len++] = fc;
@@ -45,23 +38,9 @@ struct params
         }
     }
 
-    action space_in {
-        if (fsm->stdin_len < BUFLEN) {
-            fsm->stdin[fsm->stdin_len++] = ' ';
-            fsm->stdin[fsm->stdin_len]   = 0;
-        }
-    }
-
     action append_out {
         if (fsm->stdout_len < BUFLEN) {
             fsm->stdout[fsm->stdout_len++] = fc;
-            fsm->stdout[fsm->stdout_len]   = 0;
-        }
-    }
-
-    action space_out {
-        if (fsm->stdout_len < BUFLEN) {
-            fsm->stdout[fsm->stdout_len++] = ' ';
             fsm->stdout[fsm->stdout_len]   = 0;
         }
     }
@@ -100,12 +79,11 @@ struct params
     seq     = ";" >seq  %term;
     bg      = "&" >bg   %term;
     common  = ^(0|space|";"|"|"|">"|"<"|"&");
-    word    = common+ $append;
-    word_in = common+ $append_in;
-    word_out = common+ $append_out;
-    command = word (space+ %space word)*;
-    stdin   = "<" space* word_in (space+ %space_in word_in)*;
-    stdout  = ">" space* word_out (space+ %space_out word_out)*;
+    word    = common+;
+    string  = word (space+ word)*;
+    command = string $append;
+    stdin   = "<" space* string $append_in;
+    stdout  = ">" space* string $append_out;
     redir_alpha = stdin space* stdout?;
     redir_beta  = stdout space* stdin?;
     complex = (space* command space* (redir_alpha|redir_beta)? space*) >new;
