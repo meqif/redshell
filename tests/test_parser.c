@@ -200,6 +200,36 @@ void testParser(void **state)
     commandFree(cmd);
     queueFree(queue);
 
+    queue = parseInput("ls; dmesg|tail|wc -l; uname -a");
+    assert_int_equal(queue->count, 5);
+    cmd = queuePop(queue);
+    assert_true(cmd->redirectFromPath == NULL);
+    assert_true(cmd->redirectToPath == NULL);
+    assert_int_equal(cmd->connectionMask, commandConnectionSequential);
+    commandFree(cmd);
+    cmd = queuePop(queue);
+    assert_true(cmd->redirectFromPath == NULL);
+    assert_true(cmd->redirectToPath == NULL);
+    assert_int_equal(cmd->connectionMask, commandConnectionPipe);
+    commandFree(cmd);
+    cmd = queuePop(queue);
+    assert_true(cmd->redirectFromPath == NULL);
+    assert_true(cmd->redirectToPath == NULL);
+    assert_int_equal(cmd->connectionMask, commandConnectionPipe);
+    commandFree(cmd);
+    cmd = queuePop(queue);
+    assert_true(cmd->redirectFromPath == NULL);
+    assert_true(cmd->redirectToPath == NULL);
+    assert_int_equal(cmd->connectionMask, commandConnectionSequential);
+    commandFree(cmd);
+    cmd = queuePop(queue);
+    assert_true(cmd->redirectFromPath == NULL);
+    assert_true(cmd->redirectToPath == NULL);
+    assert_int_equal(cmd->connectionMask, commandConnectionNone);
+
+    commandFree(cmd);
+    queueFree(queue);
+
     destroyAliases();
 }
 
