@@ -15,18 +15,6 @@
 #include "alias.h"
 #include "common.h"
 
-/* Counts the ocurrences of a given char in a given string */
-int strstrcnt(char *str, char ch)
-{
-    int counter = 0;
-    while (*str != '\0') {
-        if (*str == ch)
-            counter++;
-        str++;
-    }
-    return counter;
-}
-
 /* Convert uid to username */
 char *getusername(uid_t uid)
 {
@@ -41,20 +29,6 @@ char *getgroupname(gid_t gid)
     struct group *grp = getgrgid(gid);
     char *groupname = grp->gr_name;
     return groupname;
-}
-
-/* Split a string into tokens */
-void tokenize(char **dst, char *buffer, const char *delimiters)
-{
-    char *result = strtok(buffer, delimiters);
-
-    while (result != NULL) {
-        *(dst++) = result;
-        result = strtok(NULL, delimiters);
-    }
-    *dst = NULL; /* NULL terminate the array */
-
-    free(result);
 }
 
 char *expand(char *input)

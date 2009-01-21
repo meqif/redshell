@@ -18,7 +18,6 @@ int main()
         unit_test(testAddAlias),
         unit_test(testAlias),
         unit_test(testDestroyAliases),
-        unit_test(testStringCount),
 		unit_test(testIsBuiltin),
         unit_test(testCreateQueue),
         unit_test(testInsertIntoQueue),

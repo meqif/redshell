@@ -10,10 +10,4 @@
 #include "common.h"
 #include "helper.h"
 
-void testStringCount(void **state)
-{
-    char *str = "/usr/bin/gcc";
-    assert_int_equal(strstrcnt(str, '/'), 3);
-}
-
 // vim: et ts=4 sw=4 sts=4
