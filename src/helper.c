@@ -38,6 +38,7 @@ char *expand(char *input)
 
     wordexp(input, &p, 0);
     w = p.we_wordv;
+    p.we_offs = 0; /* Fix for OSX 10.5 bug in wordfree */
     if (p.we_wordc == 1)
         result = strdup(w[0]);
     else
