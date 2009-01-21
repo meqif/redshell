@@ -15,7 +15,7 @@ Set up environment.
 """
 env = Environment(options = opts)
 Help(opts.GenerateHelpText(env))
-env['CFLAGS'] = Split('-Os -Wall -g')
+env['CFLAGS'] = Split('-Os -Wall')
 
 conf = Configure(env)
 if not conf.CheckLib('glib-2.0'):
@@ -49,6 +49,7 @@ debug = int(ARGUMENTS.get('debug', '0'))
 if debug:
     env['CC'] = 'cgcc'
     env.Append(CPPDEFINES=['DEBUG'])
+    env.Append(CFLAGS=['-g'])
 
 """
 Set up install path.
