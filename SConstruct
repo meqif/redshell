@@ -42,14 +42,13 @@ env.ParseConfig("pkg-config --cflags --libs glib-2.0" + readline_lib)
 env['BUILDERS']['Ragel'] = Builder(action="ragel -C $SOURCE -o $TARGET")
 env.Ragel("src/parser.c", ["src/parser.rl"])
 
-testing = env.Clone()
-testing.Append(CPPPATH = ['build/cmockery/include/google', 'src'])
-
 debug = int(ARGUMENTS.get('debug', '0'))
 if debug:
-    env['CC'] = 'cgcc'
     env.Append(CPPDEFINES=['DEBUG'])
     env.Append(CFLAGS=['-g'])
+
+testing = env.Clone()
+testing.Append(CPPPATH = ['build/cmockery/include/google', 'src'])
 
 """
 Set up install path.
