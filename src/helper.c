@@ -47,20 +47,24 @@ char *expand(char *input)
     return result;
 }
 
-void expandGlob(command_t *command, char *cmd)
+int expandGlob(command_t *command, char *cmd)
 {
     wordexp_t p;
     char **w;
     unsigned int i;
 
-    wordexp(cmd, &p, 0);
-    w = p.we_wordv;
-    p.we_offs = 0; /* Fix for OSX 10.5 bug in wordfree */
-    command->argv = calloc(p.we_wordc+1, sizeof(char *));
-    for (i=0; i < p.we_wordc; i++)
-        command->argv[i] = strdup(w[i]);
-    command->argv[i] = NULL;
-    wordfree(&p);
+    if (wordexp(cmd, &p, 0) == 0) {
+        w = p.we_wordv;
+        p.we_offs = 0; /* Fix for OSX 10.5 bug in wordfree */
+        command->argv = calloc(p.we_wordc+1, sizeof(char *));
+        for (i=0; i < p.we_wordc; i++)
+            command->argv[i] = strdup(w[i]);
+        command->argv[i] = NULL;
+        wordfree(&p);
+        return 0;
+    }
+    else
+        return -1;
 }
 
 char *expandAlias(char *command)

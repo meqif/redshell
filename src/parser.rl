@@ -58,7 +58,11 @@ struct params
     action term {
         if (fsm->buflen > 0) {
             char *tmp = expandAlias(fsm->buffer);
-            expandGlob(command, tmp);
+            if (expandGlob(command, tmp) != 0) {
+                fprintf(stderr, "Illegal character found, aborting. Blame wordexp.\n");
+                free(tmp);
+                fbreak;
+            }
             free(tmp);
             command->path = command->argv[0];
             if (fsm->stdin_len > 0)
