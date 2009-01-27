@@ -216,14 +216,8 @@ int executeCommandsInQueue(queue_t *commandQueue)
             lastCommand->connectionMask != commandConnectionBackground)
         waitpid(pid, NULL, 0);
 
-//    if (!commandQueue->bg)
-        for (i = 0; i < n_commands; i++)
-            while (waitpid(launched[i], NULL, 0) == -1 && errno != ECHILD);
-//    else
-//        for (i = 0; i < n_commands; i++) {
-//            pid_counter = add_pid(launched[i]);
-//            printf("[%d] %d\n", pid_counter+1, launched[i]);
-//        }
+    for (i = 0; i < n_commands; i++)
+        while (waitpid(launched[i], NULL, 0) == -1 && errno != ECHILD);
 
     /* Since either the execution of the external command ended or it was
      * on the background, we have nothing running on the foreground. */
