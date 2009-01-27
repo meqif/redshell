@@ -124,13 +124,9 @@ int setupSignalHandler()
     act.sa_flags = 0;
     act.sa_handler = signalHandler;
     sigfillset(&(act.sa_mask));
-    if (sigaction(SIGINT, &act, NULL) == -1)
-        perror_exit("Setting SIGINT handler failed");
-    if (sigaction(SIGCHLD, &act, NULL) == -1)
-        perror_exit("Setting SIGCHLD handler failed");
-    if (sigaction(SIGALRM, &act, NULL) == -1)
-        perror_exit("Setting SIGALRM handler failed");
-    return 0;
+    return ( sigaction(SIGINT,  &act, NULL) == -1 ||
+             sigaction(SIGCHLD, &act, NULL) == -1 ||
+             sigaction(SIGALRM, &act, NULL) == -1 );
 }
 
 void initializeReadline()
@@ -176,7 +172,10 @@ int main()
     pids = calloc(HIST_SIZE, sizeof(pid_t));
 
     atexit(cleanup);                    /* Define some cleaning up operations */
-    setupSignalHandler();               /* Set signal handlers */
+    if (setupSignalHandler()) {         /* Set signal handlers */
+        fprintf(stderr, "Failed setting up signals, exiting...\n");
+        return EXIT_FAILURE;
+    }
     setPrompt(NULL);
     initializeAliases();
     initializeReadline();

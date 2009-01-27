@@ -10,6 +10,5 @@ char *getgroupname(gid_t gid);
 char *expand(char *input);
 int expandGlob(command_t *command, char *cmd);
 char *expandAlias(char *command);
-void perror_exit(char *msg);
 
 #endif /* HELPER_H */

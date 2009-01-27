@@ -123,10 +123,4 @@ char *expandAlias(char *command)
     return final;
 }
 
-void perror_exit(char *msg)
-{
-    perror(msg);
-    exit(EXIT_FAILURE);
-}
-
 // vim: et ts=4 sw=4 sts=4
