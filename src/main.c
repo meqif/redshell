@@ -60,7 +60,9 @@ static int setupSignalHandler(void);
 /*! \brief Main loop */
 static void run(void);
 
-void initialize_readline(void);
+/*! \brief Setup readline */
+static void initializeReadline(void);
+
 int main(void);
 
 /********
@@ -131,7 +133,7 @@ int setupSignalHandler()
     return 0;
 }
 
-void initialize_readline()
+void initializeReadline()
 {
     /* Allow conditional parsing of the ~/.inputrc file. */
     rl_readline_name = "redshell";
@@ -177,6 +179,7 @@ int main()
     setupSignalHandler();               /* Set signal handlers */
     setPrompt(NULL);
     initializeAliases();
+    initializeReadline();
     run();
 
     return 0;
