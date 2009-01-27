@@ -60,7 +60,7 @@ int expandGlob(command_t *command, char *cmd)
         w = p.we_wordv;
         p.we_offs = 0; /* Fix for OSX 10.5 bug in wordfree */
         command->argv = calloc(p.we_wordc+1, sizeof(char *));
-        for (i=0; i < p.we_wordc; i++)
+        for (i = 0; i < p.we_wordc; i++)
             command->argv[i] = strdup(w[i]);
         command->argv[i] = NULL;
         wordfree(&p);
