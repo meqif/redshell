@@ -94,12 +94,6 @@ void evil_dead() {
 void signalHandler(int sig)
 {
     switch(sig) {
-        case SIGALRM:
-            kill(-fg_pid, SIGKILL);
-            fprintf(stderr, "[?] %d timeout\n", fg_pid);
-            waitpid(fg_pid, NULL, 0);
-            fg_pid = 0;
-            break;
         case SIGINT:
             if (fg_pid != 0) {
                 kill(fg_pid, sig);
@@ -125,8 +119,7 @@ int setupSignalHandler()
     act.sa_handler = signalHandler;
     sigfillset(&(act.sa_mask));
     return ( sigaction(SIGINT,  &act, NULL) == -1 ||
-             sigaction(SIGCHLD, &act, NULL) == -1 ||
-             sigaction(SIGALRM, &act, NULL) == -1 );
+             sigaction(SIGCHLD, &act, NULL) == -1 );
 }
 
 void initializeReadline()
