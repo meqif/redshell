@@ -30,9 +30,6 @@
 # include <editline/readline.h>
 #endif /* GNU_READLINE */
 
-/*! \brief Assuming max 100 program name + args */
-#define MAX_ARGS 100
-
 /*! \brief Foreground process' pid */
 pid_t fg_pid = 0;
 
