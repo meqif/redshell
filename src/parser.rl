@@ -76,12 +76,15 @@ struct params
 
     action none { command->connectionMask = commandConnectionNone; }
     action pipe { command->connectionMask = commandConnectionPipe; }
-    action seq  { command->connectionMask = commandConnectionSequential; }
     action bg   { command->connectionMask = commandConnectionBackground; }
+    action seq  {
+        if (command->connectionMask != commandConnectionBackground)
+            command->connectionMask = commandConnectionSequential;
+    }
 
     pipe    = "|" >pipe %term;
     seq     = ";" >seq  %term;
-    bg      = "&" >bg   %term;
+    bg      = "&" >bg;
     common  = ^(0|space|";"|"|"|">"|"<"|"&");
     word    = common+;
     string  = word (space+ word)*;
@@ -90,8 +93,8 @@ struct params
     stdout  = ">" space* string $append_out;
     redir_alpha = stdin space* stdout?;
     redir_beta  = stdout space* stdin?;
-    complex = (space* command space* (redir_alpha|redir_beta)? space*) >new;
-    main := ( complex ( ((pipe|seq) complex)+ | bg | '' >none $term ) | space* )
+    complex = (space* command space* (redir_alpha|redir_beta)? space* bg? space*) >new;
+    main := ( complex ( ((pipe|seq) complex)+ | '' $term ) | space* )
     0 $term;
 }%%
 
