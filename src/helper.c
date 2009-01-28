@@ -36,18 +36,15 @@ char *expand(char *input)
     wordexp_t p;
     char **w, *result;
 
+    result = NULL;
     if (wordexp(input, &p, 0) == 0) {
         w = p.we_wordv;
         p.we_offs = 0; /* Fix for OSX 10.5 bug in wordfree */
         if (p.we_wordc == 1)
             result = strdup(w[0]);
-        else
-            result = NULL;
         wordfree(&p);
-        return result;
     }
-    else
-        return NULL;
+    return result;
 }
 
 int expandGlob(command_t *command, char *cmd)
