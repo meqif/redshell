@@ -22,20 +22,6 @@
 #define PERMS 0644
 
 extern pid_t fg_pid;
-extern pid_t *pids;
-
-/* Add pid to the first empty index in pids array */
-int add_pid(pid_t new_pid)
-{
-    int i;
-    for (i = 0; i < HIST_SIZE; i++) {
-        if (pids[i] == 0) {
-            pids[i] = new_pid;
-            return i;
-        }
-    }
-    return -1;
-}
 
 /* Run given builtin command, if possible */
 static int _executeBuiltinCommand(char **cmd)

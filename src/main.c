@@ -33,9 +33,6 @@
 /*! \brief Assuming max 100 program name + args */
 #define MAX_ARGS 100
 
-/*! \brief Array of background processes' pids */
-pid_t *pids;
-
 /*! \brief Foreground process' pid */
 pid_t fg_pid = 0;
 
@@ -47,9 +44,6 @@ jmp_buf buf;
 
 /*! \brief Memory cleaning up */
 static void cleanup(void);
-
-/*! \brief Exorcise all zombies */
-static void evil_dead(void);
 
 /*! \brief Handle signals */
 static void signalHandler(int sig);
@@ -71,28 +65,12 @@ int main(void);
 
 void cleanup()
 {
-    free(pids);
     destroyAliases();
-}
-
-void evil_dead() {
-    int i, state;
-    for (i = 0; i < HIST_SIZE; i++) {
-        if (pids[i] != 0) {
-            state = waitpid(pids[i], NULL, WNOHANG);
-            if (state > 0 || errno == ECHILD) {
-                printf("\n[%d] %d done\n", i+1, pids[i]);
-                pids[i] = 0;
-            }
-            else if (state == -1) {
-                perror("");
-            }
-        }
-    }
 }
 
 void signalHandler(int sig)
 {
+    int state;
     switch(sig) {
         case SIGINT:
             if (fg_pid != 0) {
@@ -104,7 +82,7 @@ void signalHandler(int sig)
             siglongjmp(buf,1);
             break;
         case SIGCHLD:
-            evil_dead();
+            state = waitpid(0, NULL, WNOHANG);
             break;
         default:
             fprintf(stderr, "Caught unexpected signal %d\n", sig);
@@ -162,8 +140,6 @@ void run()
 
 int main()
 {
-    pids = calloc(HIST_SIZE, sizeof(pid_t));
-
     atexit(cleanup);                    /* Define some cleaning up operations */
     if (setupSignalHandler()) {         /* Set signal handlers */
         fprintf(stderr, "Failed setting up signals, exiting...\n");
