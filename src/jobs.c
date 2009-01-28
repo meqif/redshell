@@ -105,7 +105,6 @@ int executeCommandsInQueue(queue_t *commandQueue)
     for (i = 0; i < n_commands; i++) {
         if (lastCommand != NULL)
             commandFree(lastCommand);
-        lastCommand = cmd;
 
         cmd = queuePop(commandQueue);
 
@@ -188,6 +187,7 @@ int executeCommandsInQueue(queue_t *commandQueue)
             if (cmd->connectionMask != commandConnectionBackground &&
                     commandQueue->count == 0 && isBuiltin(cmd->path)) {
                 executeCommand(cmd);
+                commandFree(cmd);
                 return 0;
             }
 
@@ -201,8 +201,8 @@ int executeCommandsInQueue(queue_t *commandQueue)
                 }
             }
         }
+        lastCommand = cmd;
     }
-    lastCommand = cmd;
 
     /* Only the parent gets here and waits for children to finish */
     _closepipes(pipes, tot_pipes);
@@ -215,6 +215,8 @@ int executeCommandsInQueue(queue_t *commandQueue)
             lastCommand->connectionMask != commandConnectionPipe &&
             lastCommand->connectionMask != commandConnectionBackground)
         waitpid(pid, NULL, 0);
+
+    commandFree(lastCommand);
 
     for (i = 0; i < n_commands; i++)
         while (waitpid(launched[i], NULL, 0) == -1 && errno != ECHILD);
