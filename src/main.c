@@ -15,7 +15,6 @@
 
 #include "alias.h"
 #include "common.h"
-#include "helper.h"
 #include "jobs.h"
 #include "parser.h"
 #include "prompt.h"
