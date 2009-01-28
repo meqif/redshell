@@ -183,6 +183,9 @@ int executeCommandsInQueue(queue_t *commandQueue)
                     exit(status);
                 }
             }
+            /* Restore stdin and stdout */
+            dup2(stdin_copy,  0);
+            dup2(stdout_copy, 1);
         }
         if (lastCommand != NULL)
             commandFree(lastCommand);
