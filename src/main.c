@@ -12,7 +12,6 @@
 #include <sys/wait.h>
 #include <errno.h>
 #include <signal.h>
-#include <setjmp.h>
 
 #include "alias.h"
 #include "common.h"
@@ -32,8 +31,6 @@
 
 /*! \brief Foreground process' pid */
 pid_t fg_pid = 0;
-
-jmp_buf buf;
 
 /**************
  * Prototypes *
@@ -76,7 +73,6 @@ void signalHandler(int sig)
                 fg_pid = 0;
             }
             printf("\n");
-            siglongjmp(buf,1);
             break;
         case SIGCHLD:
             state = waitpid(0, NULL, WNOHANG);
@@ -114,9 +110,7 @@ void run()
     queue_t *commandQueue;
 
     while ( 1 ) {
-        sigsetjmp(buf,1);
         line = readline(getPrompt());
-
         result = history_expand(line, &expansion);
 
         if (result < 0 || result == 2)
