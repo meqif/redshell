@@ -31,6 +31,8 @@ char *getgroupname(gid_t gid)
     return groupname;
 }
 
+/* Expand single-string input */
+/* eg. $HOME/src -> /home/user/src */
 char *expand(char *input)
 {
     wordexp_t p;
@@ -47,6 +49,7 @@ char *expand(char *input)
     return result;
 }
 
+/* Expand user input and store each word in an array */
 int expandGlob(command_t *command, char *cmd)
 {
     wordexp_t p;
@@ -67,12 +70,14 @@ int expandGlob(command_t *command, char *cmd)
         return -1;
 }
 
+/* Expand aliased command */
 char *expandAlias(char *command)
 {
     char *aux;
     char *final = calloc(BUF_SIZE, 1);
     char *ptr = strstr(command, " ");
     char *cmd;
+
     if (ptr != NULL) {
         cmd = calloc(ptr-command+1, sizeof(char));
         strncpy(cmd, command, ptr-command);
