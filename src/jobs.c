@@ -89,9 +89,6 @@ int executeCommandsInQueue(queue_t *commandQueue)
     stdout_copy = dup(1);
 
     for (i = 0; i < n_commands; i++) {
-        if (lastCommand != NULL)
-            commandFree(lastCommand);
-
         cmd = queuePop(commandQueue);
 
         if (lastCommand != NULL && pid != -1 &&
@@ -187,6 +184,8 @@ int executeCommandsInQueue(queue_t *commandQueue)
                 }
             }
         }
+        if (lastCommand != NULL)
+            commandFree(lastCommand);
         lastCommand = cmd;
     }
 
