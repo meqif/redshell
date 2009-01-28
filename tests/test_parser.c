@@ -24,7 +24,6 @@ void testParser(void **state)
     cmd = queuePop(queue);
     assert_string_equal(cmd->path, "ls");
     assert_int_equal(cmd->connectionMask, commandConnectionNone);
-
     commandFree(cmd);
     queueFree(queue);
 
@@ -33,7 +32,6 @@ void testParser(void **state)
     cmd = queuePop(queue);
     assert_string_equal(cmd->argv[0], "ps");
     assert_string_equal(cmd->argv[1], "aux");
-
     commandFree(cmd);
     queueFree(queue);
 
@@ -42,7 +40,6 @@ void testParser(void **state)
     cmd = queuePop(queue);
     assert_string_equal(cmd->argv[0], "ps");
     assert_string_equal(cmd->argv[1], "aux");
-
     commandFree(cmd);
     queueFree(queue);
 
@@ -52,7 +49,6 @@ void testParser(void **state)
     assert_string_equal(cmd->argv[0], "ls");
     assert_string_equal(cmd->argv[1], "-lh");
     assert_string_equal(cmd->argv[2], "/");
-
     commandFree(cmd);
     queueFree(queue);
 
@@ -62,13 +58,11 @@ void testParser(void **state)
     assert_string_equal(cmd->argv[0], "ls");
     assert_string_equal(cmd->argv[1], "-lh");
     assert_string_equal(cmd->argv[2], "/");
-
     commandFree(cmd);
     queueFree(queue);
 
     queue = parseInput(";");
     assert_int_equal(queue->count, 0);
-
     queueFree(queue);
 
     queue = parseInput("dmesg|tail");
@@ -76,7 +70,6 @@ void testParser(void **state)
     cmd = queuePop(queue);
     assert_string_equal(cmd->path, "dmesg");
     assert_int_equal(cmd->connectionMask, commandConnectionPipe);
-
     commandFree(cmd);
     queueFree(queue);
 
@@ -85,7 +78,6 @@ void testParser(void **state)
     cmd = queuePop(queue);
     assert_string_equal(cmd->path, "dmesg");
     assert_int_equal(cmd->connectionMask, commandConnectionPipe);
-
     commandFree(cmd);
     queueFree(queue);
 
@@ -94,18 +86,15 @@ void testParser(void **state)
     cmd = queuePop(queue);
     assert_string_equal(cmd->path, "ls");
     assert_int_equal(cmd->connectionMask, commandConnectionSequential);
-
     commandFree(cmd);
     queueFree(queue);
 
     queue = parseInput("");
     assert_int_equal(queue->count, 0);
-
     queueFree(queue);
 
     queue = parseInput("       ");
     assert_int_equal(queue->count, 0);
-
     queueFree(queue);
 
     queue = parseInput("cat > out  ");
@@ -115,7 +104,6 @@ void testParser(void **state)
     assert_true(cmd->redirectToPath != NULL);
     assert_string_equal(cmd->redirectToPath, "out");
     assert_int_equal(cmd->connectionMask, commandConnectionNone);
-
     commandFree(cmd);
     queueFree(queue);
 
@@ -126,7 +114,6 @@ void testParser(void **state)
     assert_true(cmd->redirectToPath == NULL);
     assert_string_equal(cmd->redirectFromPath, "in");
     assert_int_equal(cmd->connectionMask, commandConnectionNone);
-
     commandFree(cmd);
     queueFree(queue);
 
@@ -139,7 +126,6 @@ void testParser(void **state)
     assert_true(cmd->redirectFromPath != NULL);
     assert_string_equal(cmd->redirectFromPath, "in");
     assert_int_equal(cmd->connectionMask, commandConnectionNone);
-
     commandFree(cmd);
     queueFree(queue);
 
@@ -151,13 +137,11 @@ void testParser(void **state)
     assert_true(cmd->redirectToPath != NULL);
     assert_string_equal(cmd->redirectToPath, "out");
     assert_int_equal(cmd->connectionMask, commandConnectionNone);
-
     commandFree(cmd);
     queueFree(queue);
 
     queue = parseInput("cat > out < in > out2");
     assert_int_equal(queue->count, 0);
-
     queueFree(queue);
 
     queue = parseInput("ps>out;dmesg|tail>out2");
@@ -175,7 +159,6 @@ void testParser(void **state)
     assert_true(cmd->redirectFromPath == NULL);
     assert_true(cmd->redirectToPath != NULL);
     assert_string_equal(cmd->redirectToPath, "out2");
-
     commandFree(cmd);
     queueFree(queue);
 
@@ -186,7 +169,6 @@ void testParser(void **state)
     assert_true(cmd->redirectToPath != NULL);
     assert_string_equal(cmd->redirectToPath, "my output");
     assert_int_equal(cmd->connectionMask, commandConnectionNone);
-
     commandFree(cmd);
     queueFree(queue);
 
@@ -196,7 +178,6 @@ void testParser(void **state)
     assert_true(cmd->redirectFromPath == NULL);
     assert_true(cmd->redirectToPath == NULL);
     assert_int_equal(cmd->connectionMask, commandConnectionBackground);
-
     commandFree(cmd);
     queueFree(queue);
 
@@ -226,7 +207,30 @@ void testParser(void **state)
     assert_true(cmd->redirectFromPath == NULL);
     assert_true(cmd->redirectToPath == NULL);
     assert_int_equal(cmd->connectionMask, commandConnectionNone);
+    commandFree(cmd);
+    queueFree(queue);
 
+    queue = parseInput("ps &; ls");
+    assert_int_equal(queue->count, 2);
+    cmd = queuePop(queue);
+    assert_int_equal(cmd->connectionMask, commandConnectionBackground);
+    commandFree(cmd);
+    cmd = queuePop(queue);
+    assert_int_equal(cmd->connectionMask, commandConnectionNone);
+    commandFree(cmd);
+    queueFree(queue);
+
+    queue = parseInput("cat<in>out&; ls");
+    assert_int_equal(queue->count, 2);
+    cmd = queuePop(queue);
+    assert_int_equal(cmd->connectionMask, commandConnectionBackground);
+    assert_string_equal(cmd->redirectFromPath, "in");
+    assert_string_equal(cmd->redirectToPath, "out");
+    commandFree(cmd);
+    cmd = queuePop(queue);
+    assert_int_equal(cmd->connectionMask, commandConnectionNone);
+    assert_true(cmd->redirectFromPath == NULL);
+    assert_true(cmd->redirectToPath == NULL);
     commandFree(cmd);
     queueFree(queue);
 
