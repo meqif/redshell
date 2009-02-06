@@ -12,7 +12,7 @@
 
 /* Common macro definitions */
 #define DELIMITERS " \t\n"
-#define BUF_SIZE 1000
+#define BUFSIZE 1024
 #define HIST_SIZE 100
 #define PERM_MASK 07777
 

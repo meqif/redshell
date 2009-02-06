@@ -7,13 +7,11 @@
 #include "helper.h"
 #include "queue.h"
 
-#define BUFLEN 1024
-
 struct params
 {
-    char buffer[BUFLEN+1];
-    char stdin[BUFLEN+1];
-    char stdout[BUFLEN+1];
+    char buffer[BUFSIZE+1];
+    char stdin[BUFSIZE+1];
+    char stdout[BUFSIZE+1];
     int buflen;
     int stdin_len;
     int stdout_len;
@@ -25,21 +23,21 @@ struct params
     access fsm->;
 
     action append {
-        if (fsm->buflen < BUFLEN) {
+        if (fsm->buflen < BUFSIZE) {
             fsm->buffer[fsm->buflen++] = fc;
             fsm->buffer[fsm->buflen]   = 0;
         }
     }
 
     action append_in {
-        if (fsm->stdin_len < BUFLEN) {
+        if (fsm->stdin_len < BUFSIZE) {
             fsm->stdin[fsm->stdin_len++] = fc;
             fsm->stdin[fsm->stdin_len]   = 0;
         }
     }
 
     action append_out {
-        if (fsm->stdout_len < BUFLEN) {
+        if (fsm->stdout_len < BUFSIZE) {
             fsm->stdout[fsm->stdout_len++] = fc;
             fsm->stdout[fsm->stdout_len]   = 0;
         }

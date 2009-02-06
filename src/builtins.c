@@ -45,12 +45,12 @@ int cmd_listar(char **argv)
     struct dirent *d;
     struct stat s;
     DIR *dir = NULL;
-    char buffer[BUF_SIZE];
+    char buffer[BUFSIZE];
     char *path = *argv;
 
     /* Assume current working directory as path if none given */
     if (path == NULL)
-        path = getcwd(buffer, BUF_SIZE);
+        path = getcwd(buffer, BUFSIZE);
 
     dir = opendir(path);
 
@@ -75,10 +75,10 @@ int cmd_listar(char **argv)
         qsort(list, dir_size, sizeof(char *), string_cmp);
 
         for (i = 0; i < dir_size; i++) {
-            char buf[BUF_SIZE];
+            char buf[BUFSIZE];
             char *name = list[i];
             if (strncmp(name, ".", 1) != 0) {  /* Don't list hidden files and directories */
-                snprintf(buf, BUF_SIZE, "%s/%s", path, name);
+                snprintf(buf, BUFSIZE, "%s/%s", path, name);
                 print_file_info(name, buf, s);
             }
             free(list[i]);
@@ -133,8 +133,8 @@ int cmd_export(char **argv)
 int cmd_pwd(char **argv)
 {
     (void) argv; /* avoid warning about unused parameter */
-    char buffer[BUF_SIZE];
-    char *dir = getcwd(buffer, BUF_SIZE);
+    char buffer[BUFSIZE];
+    char *dir = getcwd(buffer, BUFSIZE);
 
     printf("%s\n", dir);
 
