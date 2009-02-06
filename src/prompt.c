@@ -18,7 +18,7 @@ int setPrompt(char *format)
         gethostname(hostname, BUFSIZE);
         snprintf(tmp, BUFSIZE, "%s%s@%s > %s", RED, username, hostname, CLEAR);
 
-        free(prompt);
+        if (prompt != NULL) free(prompt);
         prompt = tmp;
     } else
         prompt = format;
