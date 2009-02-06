@@ -46,6 +46,8 @@ debug = int(ARGUMENTS.get('debug', '0'))
 if debug:
     env.Append(CPPDEFINES=['DEBUG'])
     env.Append(CFLAGS=['-g'])
+else:
+    env.Append(LINKFLAGS=['-s'])
 
 testing = env.Clone()
 testing.Append(CPPPATH = ['build/cmockery/include/google', 'src'])
