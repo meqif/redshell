@@ -16,8 +16,7 @@ Redshell has most features one expects from a POSIX shell:
 * tilde (~) and environment variable expansion
 * command expansion -- i.e., ``ldd `which gcc` ``
 * <del>`timeout` -- run a command for at most *n* seconds</del> I'm reworking this one
-* `listar` -- similar to `ls`, also shows inode number)
-* `eco` -- similar to `echo`
+* `echo` as a shell built-in
 * `pwd` as a shell built-in
 * `exit` as a shell built-in
 * changing directory (`cd`)
