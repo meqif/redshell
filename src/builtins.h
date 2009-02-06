@@ -18,9 +18,8 @@ int cmd_alias   (char **argv);
 /*! \brief Change the current directory */
 int cmd_cd      (char **argv);
 
-/*! \brief Echo the user input one word per
- * line */
-int cmd_eco     (char **argv);
+/*! \brief Echo the user input */
+int cmd_echo     (char **argv);
 
 /*! \brief Exit the shell */
 int cmd_exit    (char **argv);
@@ -52,7 +51,7 @@ struct cmd_struct {
 static const struct cmd_struct commands[] = {
     { "alias",   cmd_alias   },
     { "cd",      cmd_cd      },
-    { "eco",     cmd_eco     },
+    { "echo",    cmd_echo    },
     { "exit",    cmd_exit    },
     { "export",  cmd_export  },
     { "listar",  cmd_listar  },

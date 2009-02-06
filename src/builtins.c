@@ -100,10 +100,13 @@ int cmd_listar(char **argv)
 }
 
 /* Display a line of text */
-int cmd_eco(char **argv)
+int cmd_echo(char **argv)
 {
-    while ( *argv != NULL )
-        printf("%s\n", *(argv++));
+    while ( *argv != NULL ) {
+        printf("%s", *(argv++));
+        if (*argv != NULL) printf(" ");
+    }
+    printf("\n");
     return 0;
 }
 
