@@ -145,7 +145,8 @@ int executeCommandsInQueue(queue_t *commandQueue)
             /* Piped commands */
             pid = fork();
             if (pid == 0) {
-                if (i == 0) {               /* First command */
+                if (lastCommand == NULL || /* First command */
+                        lastCommand->connectionMask != commandConnectionPipe) {
                     if (n_commands > 1) dup2(pipes[1], 1);
                 }
                 if (cmd->connectionMask != commandConnectionPipe) { /* Last */
