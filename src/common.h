@@ -11,9 +11,7 @@
 #include "command.h"
 
 /* Common macro definitions */
-#define DELIMITERS " \t\n"
 #define BUFSIZE 1024
 #define HIST_SIZE 100
-#define PERM_MASK 07777
 
 #endif /* COMMON_H */

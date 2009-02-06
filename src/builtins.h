@@ -10,6 +10,8 @@
  \{
  */
 
+#define PERM_MASK 07777
+
 /* Builtin commands */
 
 /*! \brief Create an alias or list all aliases */
