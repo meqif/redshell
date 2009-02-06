@@ -82,10 +82,8 @@ char *expandAlias(char *command)
         cmd = calloc(ptr-command+1, sizeof(char));
         strncpy(cmd, command, ptr-command);
     }
-    else {
-        cmd = calloc(strlen(command)+1, sizeof(char));
-        strcpy(cmd, command);
-    }
+    else
+        cmd = strdup(command);
 
     while ((aux = getAlias(cmd)) != NULL) {
         char *tmp = calloc(BUF_SIZE, 1);
@@ -104,10 +102,8 @@ char *expandAlias(char *command)
         if (ptr != NULL) {
             cmd = calloc(ptr-aux+1, sizeof(char));
             strncpy(cmd, aux, ptr-aux);
-        } else {
-            cmd = calloc(strlen(aux)+1, sizeof(char));
-            strcpy(cmd, aux);
-        }
+        } else
+            cmd = strdup(aux);
     }
 
     free(cmd);
