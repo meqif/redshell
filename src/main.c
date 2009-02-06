@@ -63,7 +63,6 @@ void cleanup()
 
 void signalHandler(int sig)
 {
-    int state;
     switch(sig) {
         case SIGINT:
             if (fg_pid != 0) {
@@ -74,7 +73,7 @@ void signalHandler(int sig)
             printf("\n");
             break;
         case SIGCHLD:
-            state = waitpid(0, NULL, WNOHANG);
+            waitpid(0, NULL, WNOHANG);
             break;
         default:
             fprintf(stderr, "Caught unexpected signal %d\n", sig);
