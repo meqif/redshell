@@ -10,8 +10,6 @@
  \{
  */
 
-#define PERM_MASK 07777
-
 /* Builtin commands */
 
 /*! \brief Create an alias or list all aliases */
@@ -28,9 +26,6 @@ int cmd_exit    (char **argv);
 
 /*! \brief Export an environment variable */
 int cmd_export  (char **argv);
-
-/*! \brief List the contents of a directory */
-int cmd_listar  (char **argv);
 
 /*! \brief Print the current working directory */
 int cmd_pwd     (char **argv);
@@ -56,7 +51,6 @@ static const struct cmd_struct commands[] = {
     { "echo",    cmd_echo    },
     { "exit",    cmd_exit    },
     { "export",  cmd_export  },
-    { "listar",  cmd_listar  },
     { "pwd",     cmd_pwd     },
     { "unalias", cmd_unalias },
 };
