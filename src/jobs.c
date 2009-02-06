@@ -148,7 +148,7 @@ int executeCommandsInQueue(queue_t *commandQueue)
                 if (i == 0) {               /* First command */
                     if (n_commands > 1) dup2(pipes[1], 1);
                 }
-                if (i == n_commands-1) {    /* Last command */
+                if (cmd->connectionMask != commandConnectionPipe) { /* Last */
                     if (n_commands > 1) dup2(pipes[2*(i-1)], 0);
                 }
                 else {                      /* Everything in between */
