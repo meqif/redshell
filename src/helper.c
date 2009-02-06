@@ -74,7 +74,7 @@ int expandGlob(command_t *command, char *cmd)
 char *expandAlias(char *command)
 {
     char *aux;
-    char *final = calloc(BUFSIZE, 1);
+    char *final = calloc(BUFSIZE+1, sizeof(char));
     char *ptr = strstr(command, " ");
     char *cmd;
 
@@ -86,9 +86,9 @@ char *expandAlias(char *command)
         cmd = strdup(command);
 
     while ((aux = getAlias(cmd)) != NULL) {
-        char *tmp = calloc(BUFSIZE, 1);
+        char *tmp = calloc(BUFSIZE+1, sizeof(char));
         char *space = NULL;
-        strcpy(tmp, aux);
+        strncpy(tmp, aux, BUFSIZE);
         if (final != NULL && strlen(final) > 0)
             space = strstr(final, " ");
         if (space != NULL)
@@ -109,7 +109,7 @@ char *expandAlias(char *command)
     free(cmd);
 
     if (strlen(final) == 0)
-        strcpy(final, command);
+        strncpy(final, command, BUFSIZE);
     else {
         ptr = strstr(command, " ");
         if (ptr != NULL) {
