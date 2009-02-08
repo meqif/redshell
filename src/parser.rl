@@ -83,8 +83,7 @@ struct params
     pipe    = "|" >pipe %term;
     seq     = ";" >seq  %term;
     bg      = "&" >bg;
-    common  = ^(0|space|";"|"|"|">"|"<"|"&");
-    word    = common+;
+    word    = ^(0|space|";"|"|"|">"|"<"|"&")+;
     string  = word (space+ word)*;
     command = string $append;
     stdin   = "<" space* string $append_in;
