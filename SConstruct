@@ -18,9 +18,6 @@ Help(opts.GenerateHelpText(env))
 env['CFLAGS'] = Split('-Os -Wall')
 
 conf = Configure(env)
-if not conf.CheckLib('glib-2.0'):
-    print 'Did not find glib2, exiting'
-    Exit(1)
 
 if not env['libedit']:
     readline = conf.CheckLib('readline')
@@ -37,7 +34,7 @@ else:
     readline_lib = ""
     env.Append(CPPDEFINES='GNU_READLINE')
 
-env.ParseConfig("pkg-config --cflags --libs glib-2.0" + readline_lib)
+env.ParseConfig(readline_lib)
 
 env['BUILDERS']['Ragel'] = Builder(action="ragel -C $SOURCE -o $TARGET")
 env.Ragel("src/parser.c", ["src/parser.rl"])
@@ -65,7 +62,8 @@ Compile the program.
 sources = Glob('src/*.c')
 tests = Glob('tests/*.c')
 objs = ['src/alias.o', 'src/helper.o', 'src/builtins.o', 'src/queue.o',
-        'src/command.o', 'src/parser.o']
+        'src/command.o', 'src/parser.o', 'src/hash-table.o', 'src/hash-string.o',
+        'src/compare-string.o']
 
 redshell = env.Program('redshell', sources)
 runtests = testing.Program('run_tests', tests + objs +

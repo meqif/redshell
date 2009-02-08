@@ -8,7 +8,9 @@
  \{
  */
 
-#include <glib.h>
+#include "hash-table.h"
+#include "hash-string.h"
+#include "compare-string.h"
 
 /*! \brief Represents an alias and all relevant information */
 typedef struct __alias_t {
@@ -17,16 +19,6 @@ typedef struct __alias_t {
     /*! \brief Whether the alias is in use (for command expansion) */
     int in_use;
 } alias_t;
-
-/*!
- * \brief Create new alias.
- */
-alias_t *aliasNew(void);
-
-/*!
- * \brief Free and destroy an alias.
- */
-void aliasFree(gpointer data);
 
 /*!
  * \brief Add an alias.
@@ -57,11 +49,6 @@ void initializeAliases(void);
  * \brief Free and destroy alias dictionary.
  */
 void destroyAliases(void);
-
-/*!
- * \brief Print all aliases.
- */
-void traverseAliases(void);
 
 /*! \} */
 

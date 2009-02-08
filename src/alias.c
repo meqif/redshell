@@ -5,9 +5,9 @@
 #include "alias.h"
 #include "common.h"
 
-static GTree *tree;
+static HashTable *table;
 
-alias_t *aliasNew()
+static alias_t *aliasNew()
 {
     alias_t *alias = NULL;
     alias = malloc(sizeof(*alias));
@@ -19,7 +19,7 @@ alias_t *aliasNew()
     return alias;
 }
 
-void aliasFree(gpointer data)
+static void aliasFree(void* data)
 {
     alias_t *alias = data;
     assert(alias != NULL);
@@ -27,27 +27,21 @@ void aliasFree(gpointer data)
     free(alias);
 }
 
-static gint compare(gconstpointer a, gconstpointer b, gpointer data)
-{
-    (void) data; /* avoid warning about unused parameter */
-    return strcmp(a,b);
-}
-
 void addAlias(char *key, char *value)
 {
     alias_t *alias = aliasNew();
     alias->value = value;
-    g_tree_insert(tree, key, alias);
+    hash_table_insert(table, key, alias);
 }
 
 void removeAlias(char *key)
 {
-    g_tree_remove(tree, key);
+    hash_table_remove(table, key);
 }
 
 char *getAlias(char *key)
 {
-    alias_t *alias = g_tree_lookup(tree, key);
+    alias_t *alias = hash_table_lookup(table, key);
     if (alias != NULL && alias->in_use == 0) {
         alias->in_use = 1;
         return alias->value;
@@ -55,41 +49,28 @@ char *getAlias(char *key)
     return NULL;
 }
 
-static gboolean releaseAlias(gpointer key, gpointer value, gpointer data)
-{
-    (void) key;  /* avoid warning about unused parameter */
-    (void) data; /* avoid warning about unused parameters */
-    ((alias_t *)value)->in_use = 0;
-    return FALSE;
-}
-
 void releaseAliases()
 {
-    g_tree_foreach(tree, releaseAlias, NULL);
+    HashTableIterator iterator;
+    hash_table_iterate(table, &iterator);
+
+    while (hash_table_iter_has_more(&iterator)) {
+        alias_t *alias = hash_table_iter_next(&iterator);
+        assert(alias != NULL);
+        alias->in_use = 0;
+    }
 }
 
 void initializeAliases()
 {
-    tree = g_tree_new_full(compare, NULL, g_free, aliasFree);
+    table = hash_table_new(string_hash, string_equal);
+    hash_table_register_free_functions(table, free, aliasFree);
 }
 
 void destroyAliases()
 {
-    g_tree_destroy(tree);
-    tree = NULL;
-}
-
-static gboolean printAliases(gpointer key, gpointer value, gpointer data)
-{
-    (void) data; /* avoid warning about unused parameter */
-    alias_t *alias = value;
-    printf("%s=%s\n", (char *)key, alias->value);
-    return FALSE;
-}
-
-void traverseAliases()
-{
-    g_tree_foreach(tree, printAliases, NULL);
+    hash_table_free(table);
+    table = NULL;
 }
 
 // vim: et ts=4 sw=4 sts=4
