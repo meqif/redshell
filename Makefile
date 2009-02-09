@@ -3,10 +3,13 @@ ECHO = echo
 CC = gcc
 
 PROG = redshell
-SRCS = src/main.c src/alias.c src/builtins.c src/command.c src/jobs.c \
-       src/helper.c src/parser.c src/prompt.c src/queue.c
-HDRS = src/alias.h src/command.h src/common.h src/builtins.h src/jobs.h \
-       src/helper.h src/parser.h src/prompt.h src/queue.h
+
+SRC  = src/alias.c src/builtins.c src/command.c src/jobs.c \
+       src/helper.c src/parser.c src/prompt.c src/queue.c src/hash-table.c \
+       src/hash-string.c src/compare-string.c
+
+SRCS = $(SRC) src/main.c
+HDRS = $(SRC:.c=.h) src/common.h
 
 OBJS = $(SRCS:.c=.o)
 
