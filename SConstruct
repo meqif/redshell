@@ -29,12 +29,10 @@ elif not conf.CheckLib('libedit'):
     Exit(1)
 
 if env['libedit']:
-    readline_lib = " libedit"
+    env.ParseConfig("pkg-config --cflags --libs libedit")
 else:
-    readline_lib = ""
     env.Append(CPPDEFINES='GNU_READLINE')
 
-env.ParseConfig(readline_lib)
 
 env['BUILDERS']['Ragel'] = Builder(action="ragel -C $SOURCE -o $TARGET")
 env.Ragel("src/parser.c", ["src/parser.rl"])
