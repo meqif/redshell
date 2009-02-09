@@ -84,6 +84,10 @@ int cmd_exit(char **argv)
 
 int cmd_alias(char **argv)
 {
+    if (*argv == NULL) {
+        fprintf(stderr, "alias: no input given\n");
+        return -1;
+    }
     char *alias = strdup(*argv);
     char *key;
     char *value = strstr(alias, "=");
