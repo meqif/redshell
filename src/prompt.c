@@ -21,12 +21,19 @@
  */
 
 #include <sys/types.h>
+#include <pwd.h>
 
 #include "common.h"
-#include "helper.h"
 #include "prompt.h"
 
 static char *prompt;
+
+static char *getusername(uid_t uid)
+{
+    struct passwd *user = getpwuid(uid);
+    char *username = user->pw_name;
+    return username;
+}
 
 int setPrompt(char *format)
 {

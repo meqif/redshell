@@ -23,20 +23,10 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include <sys/types.h>
-#include <pwd.h>
 #include <wordexp.h>
 
 #include "alias.h"
 #include "common.h"
-
-/* Convert uid to username */
-char *getusername(uid_t uid)
-{
-    struct passwd *user = getpwuid(uid);
-    char *username = user->pw_name;
-    return username;
-}
 
 /* Expand single-string input */
 /* eg. $HOME/src -> /home/user/src */
