@@ -75,6 +75,14 @@ void testAlias(void **state)
     command = expandAlias("grep");
     assert_string_equal(command, "ack");
     free(command);
+
+    command = expandAlias("gcc");
+    assert_string_equal(command, "gcc");
+    free(command);
+
+    command = expandAlias("uname -r");
+    assert_string_equal(command, "uname -r");
+    free(command);
 }
 
 void testDestroyAliases(void **state)
