@@ -26,8 +26,13 @@
 
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 
+/*! \brief Expand single-string input */
 char *expand(char *input);
+
+/*! \brief Expand user input and store each word in an array */
 int expandGlob(command_t *command, char *cmd);
+
+/*! \brief Expand user input and store each word in an array */
 char *expandAlias(char *command);
 
 #endif /* HELPER_H */

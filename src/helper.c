@@ -80,6 +80,7 @@ char *expandAlias(char *command)
     cmd = calloc(ptr-aux+1, sizeof(char));
     strncpy(cmd, aux, ptr-aux);
 
+    /* expand alias while there's something not expanded yet */
     while ((aux = getAlias(cmd)) != NULL) {
         char *tmp = calloc(BUFSIZE+1, sizeof(char));
         char *space = NULL;
@@ -100,6 +101,7 @@ char *expandAlias(char *command)
     }
     free(cmd);
 
+    /* copy back the rest of the command */
     if (strlen(final) == 0)
         strncpy(final, command, BUFSIZE);
     else {
