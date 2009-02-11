@@ -20,9 +20,6 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-
 #ifndef BUILTINS_H
 #define BUILTINS_H
 
@@ -31,6 +28,9 @@
  \addtogroup builtins
  \{
  */
+
+#include <sys/types.h>
+#include <sys/stat.h>
 
 /* Builtin commands */
 
