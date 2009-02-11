@@ -70,24 +70,21 @@ int expandGlob(command_t *command, char *cmd)
 /* Expand aliased command */
 char *expandAlias(char *command)
 {
-    char *aux;
+    char *aux = command;
     char *final = calloc(BUFSIZE+1, sizeof(char));
     char *ptr = strstr(command, " ");
     char *cmd;
 
-    if (ptr != NULL) {
-        cmd = calloc(ptr-command+1, sizeof(char));
-        strncpy(cmd, command, ptr-command);
-    }
-    else
-        cmd = strdup(command);
+    if (ptr == NULL)
+        ptr = aux+strlen(aux);
+    cmd = calloc(ptr-aux+1, sizeof(char));
+    strncpy(cmd, aux, ptr-aux);
 
     while ((aux = getAlias(cmd)) != NULL) {
         char *tmp = calloc(BUFSIZE+1, sizeof(char));
         char *space = NULL;
         strncpy(tmp, aux, BUFSIZE);
-        if (final != NULL && strlen(final) > 0)
-            space = strstr(final, " ");
+        space = strstr(final, " ");
         if (space != NULL)
             strcat(tmp, space);
         free(final);
@@ -96,23 +93,19 @@ char *expandAlias(char *command)
 
         ptr = strstr(aux, " ");
         free(cmd);
-        if (ptr != NULL) {
-            cmd = calloc(ptr-aux+1, sizeof(char));
-            strncpy(cmd, aux, ptr-aux);
-        } else
-            cmd = strdup(aux);
+        if (ptr == NULL)
+            ptr = aux+strlen(aux);
+        cmd = calloc(ptr-aux+1, sizeof(char));
+        strncpy(cmd, aux, ptr-aux);
     }
-
     free(cmd);
 
     if (strlen(final) == 0)
         strncpy(final, command, BUFSIZE);
     else {
         ptr = strstr(command, " ");
-        if (ptr != NULL) {
-            strcat(final, " ");
-            strcat(final, ptr+1);
-        }
+        if (ptr != NULL)
+            strcat(final, ptr);
     }
     releaseAliases();
     return final;
