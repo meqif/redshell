@@ -25,7 +25,6 @@
 
 #include <sys/types.h>
 #include <pwd.h>
-#include <grp.h>
 #include <wordexp.h>
 
 #include "alias.h"
@@ -37,14 +36,6 @@ char *getusername(uid_t uid)
     struct passwd *user = getpwuid(uid);
     char *username = user->pw_name;
     return username;
-}
-
-/* Convert gid to group name */
-char *getgroupname(gid_t gid)
-{
-    struct group *grp = getgrgid(gid);
-    char *groupname = grp->gr_name;
-    return groupname;
 }
 
 /* Expand single-string input */
