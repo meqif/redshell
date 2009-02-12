@@ -81,6 +81,19 @@ void releaseAliases()
     }
 }
 
+void printAliases()
+{
+    HashTableIterator iterator;
+    hash_table_iterate(table, &iterator);
+
+    while (hash_table_iter_has_more(&iterator)) {
+        HashTableEntry *entry = hash_table_iter_next_entry(&iterator);
+        alias_t *alias = entry->value;
+        assert(entry != NULL);
+        printf("%s='%s'\n", (char *)(entry->key), (char *)(alias->value));
+    }
+}
+
 void initializeAliases()
 {
     table = hash_table_new(string_hash, string_equal);
