@@ -1,20 +1,21 @@
 /*
 
 Copyright (c) 2005-2008, Simon Howard
+Copyright (c) 2009, Ricardo Martins
 
-Permission to use, copy, modify, and/or distribute this software 
-for any purpose with or without fee is hereby granted, provided 
-that the above copyright notice and this permission notice appear 
-in all copies. 
+Permission to use, copy, modify, and/or distribute this software
+for any purpose with or without fee is hereby granted, provided
+that the above copyright notice and this permission notice appear
+in all copies.
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL 
-WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE 
-AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR 
-CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM 
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, 
-NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN      
-CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. 
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
+CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
+NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
  */
 
@@ -30,12 +31,6 @@ CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #ifdef ALLOC_TESTING
 #include "alloc-testing.h"
 #endif
-
-struct _HashTableEntry {
-	HashTableKey key;
-	HashTableValue value;
-	HashTableEntry *next;
-};
 
 struct _HashTable {
 	HashTableEntry **table;
@@ -60,7 +55,7 @@ static const unsigned int hash_table_primes[] = {
 	402653189, 805306457, 1610612741,
 };
 
-static const int hash_table_num_primes 
+static const int hash_table_num_primes
 	= sizeof(hash_table_primes) / sizeof(int);
 
 /* Internal function used to allocate the table on hash table creation
@@ -70,7 +65,7 @@ static int hash_table_allocate_table(HashTable *hash_table)
 {
 	int new_table_size;
 
-	/* Determine the table size based on the current prime index.  
+	/* Determine the table size based on the current prime index.
 	 * An attempt is made here to ensure sensible behavior if the
 	 * maximum prime is exceeded, but in practice other things are
 	 * likely to break long before that happens. */
@@ -85,7 +80,7 @@ static int hash_table_allocate_table(HashTable *hash_table)
 
 	/* Allocate the table and initialise to NULL for all entries */
 
-	hash_table->table = calloc(hash_table->table_size, 
+	hash_table->table = calloc(hash_table->table_size,
 	                           sizeof(HashTableEntry *));
 
 	return hash_table->table != NULL;
@@ -97,7 +92,7 @@ static void hash_table_free_entry(HashTable *hash_table, HashTableEntry *entry)
 {
 	/* If there is a function registered for freeing keys, use it to free
 	 * the key */
-	
+
 	if (hash_table->key_free_func != NULL) {
 		hash_table->key_free_func(entry->key);
 	}
@@ -109,23 +104,23 @@ static void hash_table_free_entry(HashTable *hash_table, HashTableEntry *entry)
 	}
 
 	/* Free the data structure */
-	
+
 	free(entry);
 }
 
-HashTable *hash_table_new(HashTableHashFunc hash_func, 
+HashTable *hash_table_new(HashTableHashFunc hash_func,
                           HashTableEqualFunc equal_func)
 {
 	HashTable *hash_table;
 
 	/* Allocate a new hash table structure */
-	
+
 	hash_table = (HashTable *) malloc(sizeof(HashTable));
 
 	if (hash_table == NULL) {
 		return NULL;
 	}
-	
+
 	hash_table->hash_func = hash_func;
 	hash_table->equal_func = equal_func;
 	hash_table->key_free_func = NULL;
@@ -149,7 +144,7 @@ void hash_table_free(HashTable *hash_table)
 	HashTableEntry *rover;
 	HashTableEntry *next;
 	int i;
-	
+
 	/* Free all entries in all chains */
 
 	for (i=0; i<hash_table->table_size; ++i) {
@@ -160,11 +155,11 @@ void hash_table_free(HashTable *hash_table)
 			rover = next;
 		}
 	}
-	
+
 	/* Free the table */
 
 	free(hash_table->table);
-	
+
 	/* Free the hash table structure */
 
 	free(hash_table);
@@ -188,9 +183,9 @@ static int hash_table_enlarge(HashTable *hash_table)
 	HashTableEntry *next;
 	int index;
 	int i;
-	
+
 	/* Store a copy of the old table */
-	
+
 	old_table = hash_table->table;
 	old_table_size = hash_table->table_size;
 	old_prime_index = hash_table->prime_index;
@@ -198,7 +193,7 @@ static int hash_table_enlarge(HashTable *hash_table)
 	/* Allocate a new, larger table */
 
 	++hash_table->prime_index;
-	
+
 	if (!hash_table_allocate_table(hash_table)) {
 
 		/* Failed to allocate the new table */
@@ -219,14 +214,14 @@ static int hash_table_enlarge(HashTable *hash_table)
 			next = rover->next;
 
 			/* Find the index into the new table */
-			
+
 			index = hash_table->hash_func(rover->key) % hash_table->table_size;
-			
+
 			/* Link this entry into the chain */
 
 			rover->next = hash_table->table[index];
 			hash_table->table[index] = rover;
-			
+
 			/* Advance to next in the chain */
 
 			rover = next;
@@ -236,22 +231,22 @@ static int hash_table_enlarge(HashTable *hash_table)
 	/* Free the old table */
 
 	free(old_table);
-       
+
 	return 1;
 }
 
-int hash_table_insert(HashTable *hash_table, HashTableKey key, HashTableValue value) 
+int hash_table_insert(HashTable *hash_table, HashTableKey key, HashTableValue value)
 {
 	HashTableEntry *rover;
 	HashTableEntry *newentry;
 	int index;
-	
+
 	/* If there are too many items in the table with respect to the table
 	 * size, the number of hash collisions increases and performance
 	 * decreases. Enlarge the table size to prevent this happening */
 
 	if ((hash_table->entries * 3) / hash_table->table_size > 0) {
-		
+
 		/* Table is more than 1/3 full */
 
 		if (!hash_table_enlarge(hash_table)) {
@@ -283,7 +278,7 @@ int hash_table_insert(HashTable *hash_table, HashTableKey key, HashTableValue va
 				hash_table->value_free_func(rover->value);
 			}
 
-			/* Same with the key: use the new key value and free 
+			/* Same with the key: use the new key value and free
 			 * the old one */
 
 			if (hash_table->key_free_func != NULL) {
@@ -294,12 +289,12 @@ int hash_table_insert(HashTable *hash_table, HashTableKey key, HashTableValue va
 			rover->value = value;
 
 			/* Finished */
-			
+
 			return 1;
 		}
 		rover = rover->next;
 	}
-	
+
 	/* Not in the hash table yet.  Create a new entry */
 
 	newentry = (HashTableEntry *) malloc(sizeof(HashTableEntry));
@@ -331,7 +326,7 @@ HashTableValue hash_table_lookup(HashTable *hash_table, HashTableKey key)
 	int index;
 
 	/* Generate the hash of the key and hence the index into the table */
-	
+
 	index = hash_table->hash_func(key) % hash_table->table_size;
 
 	/* Walk the chain at this index until the corresponding entry is
@@ -362,7 +357,7 @@ int hash_table_remove(HashTable *hash_table, HashTableKey key)
 	int result;
 
 	/* Generate the hash of the key and hence the index into the table */
-	
+
 	index = hash_table->hash_func(key) % hash_table->table_size;
 
 	/* Rover points at the pointer which points at the current entry
@@ -397,7 +392,7 @@ int hash_table_remove(HashTable *hash_table, HashTableKey key)
 
 			break;
 		}
-		
+
 		/* Advance to the next entry */
 
 		rover = &((*rover)->next);
@@ -414,17 +409,17 @@ int hash_table_num_entries(HashTable *hash_table)
 void hash_table_iterate(HashTable *hash_table, HashTableIterator *iterator)
 {
 	int chain;
-	
+
 	iterator->hash_table = hash_table;
 
 	/* Default value of next if no entries are found. */
-	
+
 	iterator->next_entry = NULL;
-	
+
 	/* Find the first entry */
-	
+
 	for (chain=0; chain<hash_table->table_size; ++chain) {
-		
+
 		if (hash_table->table[chain] != NULL) {
 			iterator->next_entry = hash_table->table[chain];
 			iterator->next_chain = chain;
@@ -448,11 +443,11 @@ HashTableValue hash_table_iter_next(HashTableIterator *iterator)
 	hash_table = iterator->hash_table;
 
 	/* No more entries? */
-	
+
 	if (iterator->next_entry == NULL) {
 		return HASH_TABLE_NULL;
 	}
-	
+
 	/* Result is immediately available */
 
 	current_entry = iterator->next_entry;
@@ -461,19 +456,19 @@ HashTableValue hash_table_iter_next(HashTableIterator *iterator)
 	/* Find the next entry */
 
 	if (current_entry->next != NULL) {
-		
+
 		/* Next entry in current chain */
 
 		iterator->next_entry = current_entry->next;
-		
+
 	} else {
-	
+
 		/* None left in this chain, so advance to the next chain */
 
 		chain = iterator->next_chain + 1;
 
 		/* Default value if no next chain found */
-		
+
 		iterator->next_entry = NULL;
 
 		while (chain < hash_table->table_size) {
@@ -494,5 +489,63 @@ HashTableValue hash_table_iter_next(HashTableIterator *iterator)
 	}
 
 	return result;
+}
+
+HashTableEntry *hash_table_iter_next_entry(HashTableIterator *iterator)
+{
+	HashTableEntry *current_entry;
+	HashTable *hash_table;
+	HashTableValue result;
+	int chain;
+
+	hash_table = iterator->hash_table;
+
+	/* No more entries? */
+
+	if (iterator->next_entry == NULL) {
+		return HASH_TABLE_NULL;
+	}
+
+	/* Result is immediately available */
+
+	current_entry = iterator->next_entry;
+	result = current_entry->value;
+
+	/* Find the next entry */
+
+	if (current_entry->next != NULL) {
+
+		/* Next entry in current chain */
+
+		iterator->next_entry = current_entry->next;
+
+	} else {
+
+		/* None left in this chain, so advance to the next chain */
+
+		chain = iterator->next_chain + 1;
+
+		/* Default value if no next chain found */
+
+		iterator->next_entry = NULL;
+
+		while (chain < hash_table->table_size) {
+
+			/* Is there anything in this chain? */
+
+			if (hash_table->table[chain] != NULL) {
+				iterator->next_entry = hash_table->table[chain];
+				break;
+			}
+
+			/* Try the next chain */
+
+			++chain;
+		}
+
+		iterator->next_chain = chain;
+	}
+
+	return current_entry;
 }
 
