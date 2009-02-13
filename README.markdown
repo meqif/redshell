@@ -33,7 +33,6 @@ Dependencies
 ------------
 
 * GNU readline or libedit >= 2.11
-* ragel >= 6.3
 
 Building
 --------
