@@ -1,3 +1,11 @@
+import os
+
+def CheckRagel(context):
+    context.Message("Checking for ragel... ")
+    result = os.popen("which ragel 2>/dev/null").read() != ''
+    context.Result(result)
+    return result
+
 """
 Set up options.
 """
@@ -17,7 +25,7 @@ env = Environment(options = opts)
 Help(opts.GenerateHelpText(env))
 env['CFLAGS'] = Split('-Os -Wall')
 
-conf = Configure(env)
+conf = Configure(env, custom_tests = {'CheckRagel' : CheckRagel})
 
 if not env['libedit']:
     readline = conf.CheckLib('readline')
@@ -33,9 +41,9 @@ if env['libedit']:
 else:
     env.Append(CPPDEFINES='GNU_READLINE')
 
-
-env['BUILDERS']['Ragel'] = Builder(action="ragel -C $SOURCE -o $TARGET")
-env.Ragel("src/parser.c", ["src/parser.rl"])
+if conf.CheckRagel():
+    env['BUILDERS']['Ragel'] = Builder(action="ragel -C $SOURCE -o $TARGET")
+    env.Ragel("src/parser.c", ["src/parser.rl"])
 
 debug = int(ARGUMENTS.get('debug', '0'))
 if debug:
