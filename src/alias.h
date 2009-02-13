@@ -61,6 +61,11 @@ char *getAlias(char *key);
 void releaseAliases(void);
 
 /*!
+ * \brief Print all known key-alias pairs
+ */
+void printAliases(void);
+
+/*!
  * \brief Remove an alias.
  */
 void initializeAliases(void);
