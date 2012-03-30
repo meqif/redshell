@@ -40,7 +40,7 @@
 extern pid_t fg_pid;
 
 /* Run given builtin command, if possible */
-static int _executeBuiltinCommand(char **cmd)
+static short int _executeBuiltinCommand(char **cmd)
 {
     unsigned int i;
     for (i = 0; i < ARRAY_SIZE(commands); i++) {
@@ -73,7 +73,7 @@ int executeCommand(command_t *cmd)
 /* Closes all pipes */
 static void _closepipes(int *pipes, int count)
 {
-    int i;
+    unsigned int i;
     for (i = 0; i < count; i++)
         close(pipes[i]);
 }
@@ -86,10 +86,10 @@ int executeCommandsInQueue(queue_t *commandQueue)
     if (commandQueue->count == 0)
         return 0;
 
-    int i;
+    unsigned int i;
     int status;
     int n_commands = commandQueue->count;
-    int tot_pipes = 2*(n_commands-1); /* Total pipe ends */
+    int tot_pipes = 2 * (n_commands - 1); /* Total pipe ends */
     int pipes[tot_pipes];
     int fd_in = -1;
     int fd_out = -1;
